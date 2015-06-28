@@ -314,6 +314,11 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                         FileLog.e("tmessages", e);
                     }
                     drawerLayoutContainer.closeDrawer(false);
+                } else if(position == 10) {
+                    //TODO-aragats
+                    Bundle args = new Bundle();
+                    presentFragment(new PostsActivity(args));
+                    drawerLayoutContainer.closeDrawer(false);
                 }
             }
         });
