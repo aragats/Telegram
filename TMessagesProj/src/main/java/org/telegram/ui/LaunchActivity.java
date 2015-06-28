@@ -1318,6 +1318,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         } else {
             passcodeView.onResume();
         }
+        //TODO-CONFIG HOCKEY_APP_HASH
         AndroidUtilities.checkForCrashes(this);
         AndroidUtilities.checkForUpdates(this);
         ApplicationLoader.mainInterfacePaused = false;

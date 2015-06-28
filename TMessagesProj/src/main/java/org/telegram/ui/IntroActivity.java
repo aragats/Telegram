@@ -235,6 +235,7 @@ public class IntroActivity extends Activity {
             }
             justCreated = false;
         }
+        //TODO-CONFIG HOCKEY_APP_HASH
         AndroidUtilities.checkForCrashes(this);
         AndroidUtilities.checkForUpdates(this);
     }
