@@ -13,17 +13,20 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.telegram.android.AndroidUtilities;
-import org.telegram.android.MessagesController;
+import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.RecyclerView;
-import org.telegram.messenger.TLRPC;
-import org.telegram.ui.Cells.DialogCell;
+import org.telegram.messenger.object.PostObject;
+import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
+import org.telegram.utils.StringUtils;
 
+// TODO-aragats
 public class PostsAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
+    //TODO ???
     private boolean serverOnly;
-    private long openedDialogId;
+    private String openedPostId;
     private int currentCount;
 
     private class Holder extends RecyclerView.ViewHolder {
@@ -38,8 +41,8 @@ public class PostsAdapter extends RecyclerView.Adapter {
         serverOnly = onlyFromServer;
     }
 
-    public void setOpenedDialogId(long id) {
-        openedDialogId = id;
+    public void setOpenedPostId(String id) {
+        openedPostId = id;
     }
 
     public boolean isDataSetChanged() {
@@ -49,34 +52,24 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        int count;
-        if (serverOnly) {
-            count = MessagesController.getInstance().dialogsServerOnly.size();
-        } else {
-            count = MessagesController.getInstance().dialogs.size();
-        }
-        if (count == 0 && MessagesController.getInstance().loadingDialogs) {
+        int count = PostsController.getInstance().postObjects.size();
+        if (count == 0 && PostsController.getInstance().loadingPosts) {
             return 0;
         }
-        if (!MessagesController.getInstance().dialogsEndReached) {
-            count++;
-        }
+//        if (!PostsController.getInstance().dialogsEndReached) {
+//            count++;
+//        }
         currentCount = count;
         return count;
     }
 
-    public TLRPC.TL_dialog getItem(int i) {
-        if (serverOnly) {
-            if (i < 0 || i >= MessagesController.getInstance().dialogsServerOnly.size()) {
-                return null;
-            }
-            return MessagesController.getInstance().dialogsServerOnly.get(i);
-        } else {
-            if (i < 0 || i >= MessagesController.getInstance().dialogs.size()) {
-                return null;
-            }
-            return MessagesController.getInstance().dialogs.get(i);
+    public PostObject getItem(int i) {
+
+        if (i < 0 || i >= PostsController.getInstance().postObjects.size()) {
+            return null;
         }
+        return PostsController.getInstance().postObjects.get(i);
+
     }
 
     @Override
@@ -88,7 +81,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = null;
         if (viewType == 0) {
-            view = new DialogCell(mContext);
+            view = new PostCell(mContext);
         } else if (viewType == 1) {
             view = new LoadingCell(mContext);
         }
@@ -98,26 +91,23 @@ public class PostsAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
         if (viewHolder.getItemViewType() == 0) {
-            DialogCell cell = (DialogCell) viewHolder.itemView;
+            PostCell cell = (PostCell) viewHolder.itemView;
             cell.useSeparator = (i != getItemCount() - 1);
-            TLRPC.TL_dialog dialog;
-            if (serverOnly) {
-                dialog = MessagesController.getInstance().dialogsServerOnly.get(i);
-            } else {
-                dialog = MessagesController.getInstance().dialogs.get(i);
-                if (AndroidUtilities.isTablet()) {
-                    cell.setDialogSelected(dialog.id == openedDialogId);
-                }
+            PostObject postObject;
+            postObject = PostsController.getInstance().postObjects.get(i);
+            if (AndroidUtilities.isTablet()) {
+                cell.setPostSelected(!StringUtils.isEmpty(postObject.getId()) && postObject.getId().equals(openedPostId));
             }
-            cell.setDialog(dialog, i, serverOnly);
+
+            cell.setPostObject(postObject, i, serverOnly);
         }
     }
 
     @Override
     public int getItemViewType(int i) {
-        if (serverOnly && i == MessagesController.getInstance().dialogsServerOnly.size() || !serverOnly && i == MessagesController.getInstance().dialogs.size()) {
-            return 1;
+        if (i == PostsController.getInstance().postObjects.size()) {
+            return 1; //LoadingCell
         }
-        return 0;
+        return 0; //PostCell
     }
 }

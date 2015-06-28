@@ -1,15 +1,16 @@
 package org.telegram.messenger.service.mock;
 
+import org.telegram.messenger.dto.Image;
+import org.telegram.messenger.dto.Post;
+import org.telegram.messenger.dto.PostResponse;
+import org.telegram.messenger.object.PostObject;
+import org.telegram.utils.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import ru.aragats.android.object.PostObject;
-import ru.aragats.utils.StringUtils;
-import ru.aragats.whats.dto.Image;
-import ru.aragats.whats.dto.Post;
-import ru.aragats.whats.dto.PostResponse;
 
 /**
  * Created by aragats on 09/05/15.

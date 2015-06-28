@@ -17,6 +17,10 @@ import java.util.HashMap;
 
 public class NotificationCenter {
 
+    public static final int venuesNeedReload = -1;
+    public static final int postsNeedReload = -2;
+
+
     private static int totalEvents = 1;
 
     public static final int didReceivedNewMessages = totalEvents++;

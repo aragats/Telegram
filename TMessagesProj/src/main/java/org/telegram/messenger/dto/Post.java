@@ -2,7 +2,6 @@ package org.telegram.messenger.dto;
 
 import android.text.StaticLayout;
 
-import ru.aragats.whats.TLRPC;
 
 /**
  * Created by aragats on 27/12/14.

@@ -1,11 +1,12 @@
 package org.telegram.messenger.service.mock;
 
+import org.telegram.messenger.dto.Coordinates;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import ru.aragats.whats.dto.Coordinates;
 
 /**
  * Created by aragats on 10/05/15.

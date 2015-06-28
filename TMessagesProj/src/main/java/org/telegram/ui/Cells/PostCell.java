@@ -19,19 +19,16 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 
-import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.android.AndroidUtilities;
-import org.telegram.android.ContactsController;
 import org.telegram.android.Emoji;
 import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
-import org.telegram.android.MessageObject;
-import org.telegram.android.MessagesController;
+import org.telegram.android.PostsController;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
-import org.telegram.messenger.TLRPC;
-import org.telegram.messenger.UserConfig;
+import org.telegram.messenger.object.PostObject;
 import org.telegram.ui.Components.AvatarDrawable;
+import org.telegram.utils.StringUtils;
 
 public class PostCell extends BaseCell {
 
@@ -56,23 +53,15 @@ public class PostCell extends BaseCell {
     private static Paint linePaint;
     private static Paint backPaint;
 
-    private long currentDialogId;
-    private boolean isDialogCell;
-    private int lastMessageDate;
-    private int unreadCount;
-    private boolean lastUnreadState;
-    private int lastSendState;
-    private boolean dialogMuted;
-    private MessageObject message;
+    private String currentPostId;
+    private long lastMessageDate;
+    private PostObject postObject;
     private int index;
     private boolean isServerOnly;
 
     private ImageReceiver avatarImage;
     private AvatarDrawable avatarDrawable;
 
-    private TLRPC.User user = null;
-    private TLRPC.Chat chat = null;
-    private TLRPC.EncryptedChat encryptedChat = null;
     private CharSequence lastPrintString = null;
 
     public boolean useSeparator = false;
@@ -176,29 +165,28 @@ public class PostCell extends BaseCell {
         avatarDrawable = new AvatarDrawable();
     }
 
-    public void setDialog(TLRPC.TL_dialog dialog, int i, boolean server) {
-        currentDialogId = dialog.id;
-        isDialogCell = true;
+    public void setPostObject(PostObject postObject, int i, boolean server) {
+        //TODO I should store id or object. And retrieve from Controller by id.
+        currentPostId = postObject.getId();
+        this.postObject = postObject;
         index = i;
         isServerOnly = server;
         update(0);
     }
 
-    public void setDialog(long dialog_id, MessageObject messageObject, int date) {
-        currentDialogId = dialog_id;
-        message = messageObject;
-        isDialogCell = false;
+    public void setPost(String postId, PostObject postObject, long date) {
+        currentPostId = postId;
+        this.postObject = postObject;
         lastMessageDate = date;
-        unreadCount = 0;
-        lastUnreadState = messageObject != null && messageObject.isUnread();
-        if (message != null) {
-            lastSendState = message.messageOwner.send_state;
-        }
+//        lastUnreadState = postObject != null && postObject.isUnread();
+//        if (this.postObject != null) {
+//            lastSendState = this.postObject.getCreatedDate();
+//        }
         update(0);
     }
 
-    public long getDialogId() {
-        return currentDialogId;
+    public String getPostId() {
+        return currentPostId;
     }
 
     @Override
@@ -220,7 +208,7 @@ public class PostCell extends BaseCell {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (currentDialogId == 0) {
+        if (StringUtils.isEmpty(currentPostId)) {
             super.onLayout(changed, left, top, right, bottom);
             return;
         }
@@ -244,10 +232,6 @@ public class PostCell extends BaseCell {
         String timeString = "";
         String countString = null;
         CharSequence messageString = "";
-        CharSequence printingString = null;
-        if (isDialogCell) {
-            printingString = MessagesController.getInstance().printingStrings.get(currentDialogId);
-        }
         TextPaint currentNamePaint = namePaint;
         TextPaint currentMessagePaint = messagePaint;
         boolean checkMessage = true;
@@ -256,73 +240,35 @@ public class PostCell extends BaseCell {
         drawNameBroadcast = false;
         drawNameLock = false;
 
-        if (encryptedChat != null) {
-            drawNameLock = true;
-            nameLockTop = AndroidUtilities.dp(16.5f);
-            if (!LocaleController.isRTL) {
-                nameLockLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
-                nameLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline + 4) + lockDrawable.getIntrinsicWidth();
-            } else {
-                nameLockLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.leftBaseline) - lockDrawable.getIntrinsicWidth();
-                nameLeft = AndroidUtilities.dp(14);
-            }
+
+//        if (chat != null) {
+//            if (chat.id < 0) {
+//                drawNameBroadcast = true;
+//                nameLockTop = AndroidUtilities.dp(16.5f);
+//            } else {
+//                drawNameGroup = true;
+//                nameLockTop = AndroidUtilities.dp(17.5f);
+//            }
+//
+//            if (!LocaleController.isRTL) {
+//                nameLockLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
+//                nameLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline + 4) + (drawNameGroup ? groupDrawable.getIntrinsicWidth() : broadcastDrawable.getIntrinsicWidth());
+//            } else {
+//                nameLockLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.leftBaseline) - (drawNameGroup ? groupDrawable.getIntrinsicWidth() : broadcastDrawable.getIntrinsicWidth());
+//                nameLeft = AndroidUtilities.dp(14);
+//            }
+//        } else {
+        if (!LocaleController.isRTL) {
+            nameLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
         } else {
-            if (chat != null) {
-                if (chat.id < 0) {
-                    drawNameBroadcast = true;
-                    nameLockTop = AndroidUtilities.dp(16.5f);
-                } else {
-                    drawNameGroup = true;
-                    nameLockTop = AndroidUtilities.dp(17.5f);
-                }
-
-                if (!LocaleController.isRTL) {
-                    nameLockLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
-                    nameLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline + 4) + (drawNameGroup ? groupDrawable.getIntrinsicWidth() : broadcastDrawable.getIntrinsicWidth());
-                } else {
-                    nameLockLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.leftBaseline) - (drawNameGroup ? groupDrawable.getIntrinsicWidth() : broadcastDrawable.getIntrinsicWidth());
-                    nameLeft = AndroidUtilities.dp(14);
-                }
-            } else {
-                if (!LocaleController.isRTL) {
-                    nameLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
-                } else {
-                    nameLeft = AndroidUtilities.dp(14);
-                }
-            }
+            nameLeft = AndroidUtilities.dp(14);
         }
+//        }
 
-        if (message == null) {
-            if (printingString != null) {
-                lastPrintString = messageString = printingString;
-                currentMessagePaint = messagePrintingPaint;
-            } else {
-                lastPrintString = null;
-                if (encryptedChat != null) {
-                    currentMessagePaint = messagePrintingPaint;
-                    if (encryptedChat instanceof TLRPC.TL_encryptedChatRequested) {
-                        messageString = LocaleController.getString("EncryptionProcessing", R.string.EncryptionProcessing);
-                    } else if (encryptedChat instanceof TLRPC.TL_encryptedChatWaiting) {
-                        if (user != null && user.first_name != null) {
-                            messageString = LocaleController.formatString("AwaitingEncryption", R.string.AwaitingEncryption, user.first_name);
-                        } else {
-                            messageString = LocaleController.formatString("AwaitingEncryption", R.string.AwaitingEncryption, "");
-                        }
-                    } else if (encryptedChat instanceof TLRPC.TL_encryptedChatDiscarded) {
-                        messageString = LocaleController.getString("EncryptionRejected", R.string.EncryptionRejected);
-                    } else if (encryptedChat instanceof TLRPC.TL_encryptedChat) {
-                        if (encryptedChat.admin_id == UserConfig.getClientUserId()) {
-                            if (user != null && user.first_name != null) {
-                                messageString = LocaleController.formatString("EncryptedChatStartedOutgoing", R.string.EncryptedChatStartedOutgoing, user.first_name);
-                            } else {
-                                messageString = LocaleController.formatString("EncryptedChatStartedOutgoing", R.string.EncryptedChatStartedOutgoing, "");
-                            }
-                        } else {
-                            messageString = LocaleController.getString("EncryptedChatStartedIncoming", R.string.EncryptedChatStartedIncoming);
-                        }
-                    }
-                }
-            }
+
+        if (postObject == null) {
+            lastPrintString = messageString;
+            currentMessagePaint = messagePrintingPaint;
             if (lastMessageDate != 0) {
                 timeString = LocaleController.stringForMessageListDate(lastMessageDate);
             }
@@ -332,107 +278,40 @@ public class PostCell extends BaseCell {
             drawCount = false;
             drawError = false;
         } else {
-            TLRPC.User fromUser = MessagesController.getInstance().getUser(message.messageOwner.from_id);
 
             if (lastMessageDate != 0) {
                 timeString = LocaleController.stringForMessageListDate(lastMessageDate);
             } else {
-                timeString = LocaleController.stringForMessageListDate(message.messageOwner.date);
-            }
-            if (printingString != null) {
-                lastPrintString = messageString = printingString;
-                currentMessagePaint = messagePrintingPaint;
-            } else {
-                lastPrintString = null;
-                if (message.messageOwner instanceof TLRPC.TL_messageService) {
-                    messageString = message.messageText;
-                    currentMessagePaint = messagePrintingPaint;
-                } else {
-                    if (chat != null && chat.id > 0) {
-                        String name = "";
-                        if (message.isOut()) {
-                            name = LocaleController.getString("FromYou", R.string.FromYou);
-                        } else {
-                            if (fromUser != null) {
-                                if (fromUser.first_name.length() > 0) {
-                                    name = fromUser.first_name;
-                                } else {
-                                    name = fromUser.last_name;
-                                }
-                            }
-                        }
-                        checkMessage = false;
-                        if (message.caption != null) {
-                            String mess = message.caption.toString();
-                            if (mess.length() > 150) {
-                                mess = mess.substring(0, 150);
-                            }
-                            mess = mess.replace("\n", " ");
-                            messageString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", name, mess)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
-                        } else {
-                            if (message.messageOwner.media != null && !message.isMediaEmpty()) {
-                                currentMessagePaint = messagePrintingPaint;
-                                messageString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", name, message.messageText)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
-                            } else {
-                                if (message.messageOwner.message != null) {
-                                    String mess = message.messageOwner.message;
-                                    if (mess.length() > 150) {
-                                        mess = mess.substring(0, 150);
-                                    }
-                                    mess = mess.replace("\n", " ");
-                                    messageString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", name, mess)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
-                                }
-                            }
-                        }
-                    } else {
-                        if (message.caption != null) {
-                            messageString = message.caption;
-                        } else {
-                            messageString = message.messageText;
-                            if (message.messageOwner.media != null && !message.isMediaEmpty()) {
-                                currentMessagePaint = messagePrintingPaint;
-                            }
-                        }
-                    }
-                }
+                timeString = LocaleController.stringForMessageListDate(postObject.getCreatedDate());
             }
 
-            if (unreadCount != 0) {
-                drawCount = true;
-                countString = String.format("%d", unreadCount);
-            } else {
-                drawCount = false;
-            }
+            lastPrintString = null;
 
-            if (message.isOut()) {
-                if (message.isSending()) {
-                    drawCheck1 = false;
-                    drawCheck2 = false;
-                    drawClock = true;
-                    drawError = false;
-                } else if (message.isSendError()) {
-                    drawCheck1 = false;
-                    drawCheck2 = false;
-                    drawClock = false;
-                    drawError = true;
-                    drawCount = false;
-                } else if (message.isSent()) {
-                    if (!message.isUnread()) {
-                        drawCheck1 = true;
-                        drawCheck2 = true;
-                    } else {
-                        drawCheck1 = false;
-                        drawCheck2 = true;
-                    }
-                    drawClock = false;
-                    drawError = false;
-                }
-            } else {
-                drawCheck1 = false;
-                drawCheck2 = false;
-                drawClock = false;
-                drawError = false;
+            String name = "";
+            name = postObject.getAuthor();
+
+
+            checkMessage = false;
+
+            currentMessagePaint = messagePrintingPaint;
+
+            String mess = postObject.getMessage();
+            if (mess.length() > 150) {
+                mess = mess.substring(0, 150);
             }
+            mess = mess.replace("\n", " ");
+
+//                messageString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", name, postObject.messageText)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+            messageString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", name, mess)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+
+
+//            if (unreadCount != 0) {
+//                drawCount = true;
+//                countString = String.format("%d", unreadCount);
+//            } else {
+//                drawCount = false;
+//            }
+            //TODO postObject.isOut(). errorSend.
         }
 
         int timeWidth = (int) Math.ceil(timePaint.measureText(timeString));
@@ -443,27 +322,10 @@ public class PostCell extends BaseCell {
             timeLeft = AndroidUtilities.dp(15);
         }
 
-        if (chat != null) {
-            nameString = chat.title;
-        } else if (user != null) {
-            if (user.id / 1000 != 777 && user.id / 1000 != 333 && ContactsController.getInstance().contactsDict.get(user.id) == null) {
-                if (ContactsController.getInstance().contactsDict.size() == 0 && (!ContactsController.getInstance().contactsLoaded || ContactsController.getInstance().isLoadingContacts())) {
-                    nameString = ContactsController.formatName(user.first_name, user.last_name);
-                } else {
-                    if (user.phone != null && user.phone.length() != 0) {
-                        nameString = PhoneFormat.getInstance().format("+" + user.phone);
-                    } else {
-                        currentNamePaint = nameUnknownPaint;
-                        nameString = ContactsController.formatName(user.first_name, user.last_name);
-                    }
-                }
-            } else {
-                nameString = ContactsController.formatName(user.first_name, user.last_name);
-            }
-            if (encryptedChat != null) {
-                currentNamePaint = nameEncryptedPaint;
-            }
-        }
+        //  here was building name string
+
+
+
         if (nameString.length() == 0) {
             nameString = LocaleController.getString("HiddenName", R.string.HiddenName);
         }
@@ -515,13 +377,6 @@ public class PostCell extends BaseCell {
             }
         }
 
-        if (dialogMuted) {
-            int w = AndroidUtilities.dp(6) + muteDrawable.getIntrinsicWidth();
-            nameWidth -= w;
-            if (LocaleController.isRTL) {
-                nameLeft += w;
-            }
-        }
 
         nameWidth = Math.max(AndroidUtilities.dp(12), nameWidth);
         CharSequence nameStringFinal = TextUtils.ellipsize(nameString.replace("\n", " "), currentNamePaint, nameWidth - AndroidUtilities.dp(12), TextUtils.TruncateAt.END);
@@ -551,7 +406,7 @@ public class PostCell extends BaseCell {
                 messageLeft += w;
             }
         } else if (countString != null) {
-            countWidth = Math.max(AndroidUtilities.dp(12), (int)Math.ceil(countPaint.measureText(countString)));
+            countWidth = Math.max(AndroidUtilities.dp(12), (int) Math.ceil(countPaint.measureText(countString)));
             countLayout = new StaticLayout(countString, countPaint, countWidth, Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
             int w = countWidth + AndroidUtilities.dp(18);
             messageWidth -= w;
@@ -591,9 +446,9 @@ public class PostCell extends BaseCell {
             if (nameLayout != null && nameLayout.getLineCount() > 0) {
                 left = nameLayout.getLineLeft(0);
                 widthpx = Math.ceil(nameLayout.getLineWidth(0));
-                if (dialogMuted) {
-                    nameMuteLeft = (int) (nameLeft + (nameWidth - widthpx) - AndroidUtilities.dp(6) - muteDrawable.getIntrinsicWidth());
-                }
+//                if (dialogMuted) {
+//                    nameMuteLeft = (int) (nameLeft + (nameWidth - widthpx) - AndroidUtilities.dp(6) - muteDrawable.getIntrinsicWidth());
+//                }
                 if (left == 0) {
                     if (widthpx < nameWidth) {
                         nameLeft += (nameWidth - widthpx);
@@ -618,9 +473,9 @@ public class PostCell extends BaseCell {
                         nameLeft -= (nameWidth - widthpx);
                     }
                 }
-                if (dialogMuted) {
-                    nameMuteLeft = (int) (nameLeft + left + AndroidUtilities.dp(6));
-                }
+//                if (dialogMuted) {
+//                    nameMuteLeft = (int) (nameLeft + left + AndroidUtilities.dp(6));
+//                }
             }
             if (messageLayout != null && messageLayout.getLineCount() > 0) {
                 left = messageLayout.getLineRight(0);
@@ -634,137 +489,70 @@ public class PostCell extends BaseCell {
         }
     }
 
-    public void setDialogSelected(boolean value) {
+    public void setPostSelected(boolean value) {
         if (isSelected != value) {
             invalidate();
         }
         isSelected = value;
     }
 
-    public void checkCurrentDialogIndex() {
-        TLRPC.TL_dialog dialog = null;
-        if (isServerOnly) {
-            if (index < MessagesController.getInstance().dialogsServerOnly.size()) {
-                dialog = MessagesController.getInstance().dialogsServerOnly.get(index);
-            }
-        } else {
-            if (index < MessagesController.getInstance().dialogs.size()) {
-                dialog = MessagesController.getInstance().dialogs.get(index);
-            }
+    public void checkCurrentPostIndex() {
+        PostObject postObject = null;
+
+        if (index < PostsController.getInstance().postObjects.size()) {
+            postObject = PostsController.getInstance().postObjects.get(index);
         }
-        if (dialog != null) {
-            if (currentDialogId != dialog.id || message != null && message.getId() != dialog.top_message || unreadCount != dialog.unread_count) {
-                currentDialogId = dialog.id;
+
+        if (postObject != null) {
+            if (!StringUtils.isEmpty(postObject.getId())
+                    && !StringUtils.isEmpty(currentPostId)
+                    && !currentPostId.equals(postObject.getId())) {
+                currentPostId = postObject.getId();
                 update(0);
             }
         }
     }
 
     public void update(int mask) {
-        if (isDialogCell) {
-            TLRPC.TL_dialog dialog = MessagesController.getInstance().dialogs_dict.get(currentDialogId);
-            if (dialog != null && mask == 0) {
-                message = MessagesController.getInstance().dialogMessage.get(dialog.top_message);
-                lastUnreadState = message != null && message.isUnread();
-                unreadCount = dialog.unread_count;
-                lastMessageDate = dialog.last_message_date;
-                if (message != null) {
-                    lastSendState = message.messageOwner.send_state;
-                }
-            }
-        }
+
+//        PostObject postObject = PostsController.getInstance().postsMap.get(currentPostId);
+
 
         if (mask != 0) {
-            boolean continueUpdate = false;
-            if (isDialogCell) {
-                if ((mask & MessagesController.UPDATE_MASK_USER_PRINT) != 0) {
-                    CharSequence printString = MessagesController.getInstance().printingStrings.get(currentDialogId);
-                    if (lastPrintString != null && printString == null || lastPrintString == null && printString != null || lastPrintString != null && printString != null && !lastPrintString.equals(printString)) {
-                        continueUpdate = true;
-                    }
-                }
-            }
-            if (!continueUpdate && (mask & MessagesController.UPDATE_MASK_AVATAR) != 0) {
-                if (chat == null) {
-                    continueUpdate = true;
-                }
-            }
-            if (!continueUpdate && (mask & MessagesController.UPDATE_MASK_NAME) != 0) {
-                if (chat == null) {
-                    continueUpdate = true;
-                }
-            }
-            if (!continueUpdate && (mask & MessagesController.UPDATE_MASK_CHAT_AVATAR) != 0) {
-                if (user == null) {
-                    continueUpdate = true;
-                }
-            }
-            if (!continueUpdate && (mask & MessagesController.UPDATE_MASK_CHAT_NAME) != 0) {
-                if (user == null) {
-                    continueUpdate = true;
-                }
-            }
-            if (!continueUpdate && (mask & MessagesController.UPDATE_MASK_READ_DIALOG_MESSAGE) != 0) {
-                if (message != null && lastUnreadState != message.isUnread()) {
-                    lastUnreadState = message.isUnread();
-                    continueUpdate = true;
-                } else if (isDialogCell) {
-                    TLRPC.TL_dialog dialog = MessagesController.getInstance().dialogs_dict.get(currentDialogId);
-                    if (dialog != null && unreadCount != dialog.unread_count) {
-                        unreadCount = dialog.unread_count;
-                        continueUpdate = true;
-                    }
-                }
-            }
-            if (!continueUpdate && (mask & MessagesController.UPDATE_MASK_SEND_STATE) != 0) {
-                if (message != null && lastSendState != message.messageOwner.send_state) {
-                    lastSendState = message.messageOwner.send_state;
-                    continueUpdate = true;
-                }
-            }
-
-            if (!continueUpdate) {
-                return;
-            }
+            //TODO different masks. look at examples.
         }
 
-        dialogMuted = isDialogCell && MessagesController.getInstance().isDialogMuted(currentDialogId);
-        user = null;
-        chat = null;
-        encryptedChat = null;
 
-        int lower_id = (int)currentDialogId;
-        int high_id = (int)(currentDialogId >> 32);
-        if (lower_id != 0) {
-            if (high_id == 1) {
-                chat = MessagesController.getInstance().getChat(lower_id);
-            } else {
-                if (lower_id < 0) {
-                    chat = MessagesController.getInstance().getChat(-lower_id);
-                } else {
-                    user = MessagesController.getInstance().getUser(lower_id);
-                }
-            }
-        } else {
-            encryptedChat = MessagesController.getInstance().getEncryptedChat(high_id);
-            if (encryptedChat != null) {
-                user = MessagesController.getInstance().getUser(encryptedChat.user_id);
-            }
-        }
+//        TLRPC.FileLocation photo = null;
+//        if (user != null) {
+//            if (user.photo != null) {
+//                photo = user.photo.photo_small;
+//            }
+//            avatarDrawable.setInfo(user);
+//        } else if (chat != null) {
+//            if (chat.photo != null) {
+//                photo = chat.photo.photo_small;
+//            }
+//            avatarDrawable.setInfo(chat);
+//        }
+//        avatarImage.setImage(photo, "50_50", avatarDrawable, null, false);
 
-        TLRPC.FileLocation photo = null;
-        if (user != null) {
-            if (user.photo != null) {
-                photo = user.photo.photo_small;
-            }
-            avatarDrawable.setInfo(user);
-        } else if (chat != null) {
-            if (chat.photo != null) {
-                photo = chat.photo.photo_small;
-            }
-            avatarDrawable.setInfo(chat);
-        }
-        avatarImage.setImage(photo, "50_50", avatarDrawable, null, false);
+
+        //TODO-DELETE
+//        if(postObject == null) {
+//            return;
+//        }
+        //
+
+        //TODO null, 0 ??? s ext adn size. int)postObject.getImage().getSize()
+        avatarImage.setImage(postObject.getVenuePreviewImageUrl(), null, avatarDrawable, null, 0);
+
+        //Photo
+        // TODO null ? // Set image
+//        photoImage.setImage(postObject.getPreviewImageUrl(), null, imageDrawable); // TODO fix it. Create drawable.
+
+        //Photo
+
 
         if (getMeasuredWidth() != 0 || getMeasuredHeight() != 0) {
             buildLayout();
@@ -777,7 +565,7 @@ public class PostCell extends BaseCell {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (currentDialogId == 0) {
+        if (StringUtils.isEmpty(currentPostId)) {
             return;
         }
 
@@ -830,10 +618,6 @@ public class PostCell extends BaseCell {
             }
         }
 
-        if (dialogMuted) {
-            setDrawableBounds(muteDrawable, nameMuteLeft, AndroidUtilities.dp(16.5f));
-            muteDrawable.draw(canvas);
-        }
 
         if (drawError) {
             setDrawableBounds(errorDrawable, errorLeft, errorTop);

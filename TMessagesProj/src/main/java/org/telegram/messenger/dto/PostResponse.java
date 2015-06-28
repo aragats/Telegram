@@ -3,7 +3,6 @@ package org.telegram.messenger.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.aragats.android.object.PostObject;
 
 /**
  * Created by aragats on 09/05/15.

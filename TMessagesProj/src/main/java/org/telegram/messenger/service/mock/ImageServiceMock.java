@@ -1,10 +1,11 @@
 package org.telegram.messenger.service.mock;
 
+import org.telegram.messenger.dto.Image;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import ru.aragats.whats.dto.Image;
 
 /**
  * Created by aragats on 09/05/15.
