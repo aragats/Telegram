@@ -23,7 +23,6 @@ import org.telegram.ui.Cells.GreySectionCell;
 import org.telegram.ui.Cells.HashtagSearchCell;
 import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.Cells.PostCell;
-import org.telegram.ui.Cells.ProfileSearchCell;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +36,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
     private Timer searchTimer;
     private ArrayList<Object> searchResult = new ArrayList<>();
     private ArrayList<String> searchResultHashtags = new ArrayList<>();
-    private String lastSearchText;
+    //    private String lastSearchText;
     private long reqId = 0;
     private int lastReqId;
     private PostsActivitySearchAdapterDelegate delegate;
@@ -68,11 +67,12 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
     }
 
     public boolean isPostsSearchEndReached() {
-        return postsSearchEndReached;
+        return postsSearchEndReached; //TODO was it?
     }
 
-    public void loadMoreSearchMessages() {
-        searchMessagesInternal(lastPostsSearchString);
+    public void loadMoreSearchPosts() {
+//        searchPostsInternal(lastPostsSearchString);
+        searchPostsInternal(lastPostsSearchString, this.searchResult.size(), 20);
     }
 
     public String getLastSearchString() {
@@ -85,7 +85,8 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
         if (needPostsSearch == 0) {
             return;
         }
-
+        lastPostsSearchString = query;
+        //TODO move to controller ?
         PostResponse response = PostServiceMock.getPosts("location", query, offset, count);
         searchResult.addAll(PostServiceMock.convertPost(response.getPosts()));
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
@@ -120,7 +121,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
     }
 
 
-    private void searchMessagesInternal(final String query) {
+    private void searchPostsInternal(final String query) {
 
     }
 
@@ -130,7 +131,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
     }
 
     public String getLastSearchText() {
-        return lastSearchText;
+        return lastPostsSearchString;
     }
 
     public boolean isGlobalSearch(int i) {
@@ -158,23 +159,24 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
 
 
     public void searchPosts(final String query) {
-        if (query != null && lastSearchText != null && query.equals(lastSearchText)) {
+        if (query != null && lastPostsSearchString != null && query.equals(lastPostsSearchString)) {
             return;
         }
 
         // mock
         searchResult.clear();
+        //TODO move to controller.
         PostResponse response = PostServiceMock.getPosts("location", query, 0, 20);
         searchResult.addAll(PostServiceMock.convertPost(response.getPosts()));
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
-//        if (!response.getPosts().isEmpty()) {
-        NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
-//        }
+        if (!response.getPosts().isEmpty()) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
+        }
         if (delegate != null) {
             delegate.searchStateChanged(false);
         }
 
-        lastSearchText = query;
+        lastPostsSearchString = query;
 
         //TODO mock a
         if (true) {
@@ -222,7 +224,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
 //            if (needPostsSearch != 2) {
 //                queryServerSearch(null);
 //            }
-//            searchMessagesInternal(null);
+//            searchPostsInternal(null);
 //            notifyDataSetChanged();
 //        } else {
 //            if (query.startsWith("#") && query.length() == 1) {
@@ -265,7 +267,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
 //                            if (needPostsSearch != 2) {
 //                                queryServerSearch(query);
 //                            }
-//                            searchMessagesInternal(query);
+//                            searchPostsInternal(query);
 //                        }
 //                    });
 //                }
@@ -300,10 +302,11 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = null;
+        //TODO fix it. I use 0 and 2 for PostCell. 0 - was ProfileCell
         switch (viewType) {
             case 0:
-                view = new ProfileSearchCell(mContext);
-                view.setBackgroundResource(R.drawable.list_selector);
+                view = new PostCell(mContext);
+//                view.setBackgroundResource(R.drawable.list_selector);
                 break;
             case 1:
                 view = new GreySectionCell(mContext);
@@ -325,7 +328,25 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         //TODO
+        // onCreateViewHolder befor that. we create crate and put item view of PostCell or other
         switch (holder.getItemViewType()) {
+            case 0: {
+//                PostCell cell = (PostCell) holder.itemView;
+//                cell.useSeparator = (position != getItemCount() - 1);
+//                PostObject postObject = (PostObject) searchResult.get(position);
+                //TODO open ?? wie in PostsAdapter.
+//                if (AndroidUtilities.isTablet()) {
+//                    cell.setPostSelected(!StringUtils.isEmpty(postObject.getId()) && postObject.getId().equals(openedPostId));
+//                }
+//                cell.setPostObject(postObject, position, true);
+
+                //Copied from 2.
+                PostCell cell = (PostCell) holder.itemView;
+                cell.useSeparator = (position != getItemCount() - 1);
+                PostObject postObject = (PostObject) getItem(position);
+                cell.setPost(postObject.getId(), postObject, postObject.getCreatedDate());
+                break;
+            }
             case 1: {
                 GreySectionCell cell = (GreySectionCell) holder.itemView;
                 if (!searchResultHashtags.isEmpty()) {
@@ -356,8 +377,10 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
         }
     }
 
+    //    getItemViewType() without parameters in holder ?
     @Override
     public int getItemViewType(int i) {
+        //TODO hashtag. delete probably
         if (!searchResultHashtags.isEmpty()) {
             return i == 0 ? 1 : 4;
         }

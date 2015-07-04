@@ -133,7 +133,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
 
-    public void loadPosts(final int offset, final int serverOffset, final int count, boolean fromCache) {
+    public void loadPosts(final int offset, final int count, boolean fromCache) {
         if (loadingPosts) {
             return;
         }
@@ -156,7 +156,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         loadingPosts = false;
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!postResponse.getPosts().isEmpty()) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.dialogsNeedReload);
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
         }
 
 

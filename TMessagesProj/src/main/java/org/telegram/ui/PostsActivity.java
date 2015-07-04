@@ -118,6 +118,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         }
 
         if (searchString == null) {
+            //TODO learn NotificationCenter class especiallu case when post notification. There is different situations when notify when animation or not.
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.dialogsNeedReload);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
@@ -134,7 +136,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
 
         if (!postsLoaded) {
-            PostsController.getInstance().loadPosts(0, 0, 100, true);
+            PostsController.getInstance().loadPosts(0, 20, true);
             ContactsController.getInstance().checkInviteText();
             postsLoaded = true;
         }
@@ -192,6 +194,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
             @Override
             public boolean onSearchCollapse() {
+                //TODO search posts.
                 if (searchString != null) {
                     finishFragment();
                     return false;
@@ -227,6 +230,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
             @Override
             public void onTextChanged(EditText editText) {
+                //TODO search posts.
                 String text = editText.getText().toString();
                 if (text.length() != 0) {
                     searchWas = true;
@@ -524,14 +528,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
                 if (searching && searchWas) {
                     if (visibleItemCount > 0 && layoutManager.findLastVisibleItemPosition() == totalItemCount - 1 && !postsSearchAdapter.isPostsSearchEndReached()) {
-                        postsSearchAdapter.loadMoreSearchMessages();
+                        postsSearchAdapter.loadMoreSearchPosts();
                     }
                     return;
                 }
                 //TODO fix it.
                 if (visibleItemCount > 0) {
-                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().postObjects.size()) {
-                        PostsController.getInstance().loadPosts(PostsController.getInstance().postObjects.size(), PostsController.getInstance().postObjects.size(), 100, true);
+                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().postObjects.size() - 1) {
+                        PostsController.getInstance().loadPosts(PostsController.getInstance().postObjects.size(), 20, true);
                     }
                 }
 
@@ -638,7 +642,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     @Override
     @SuppressWarnings("unchecked")
     public void didReceivedNotification(int id, Object... args) {
-        if (id == NotificationCenter.dialogsNeedReload) {
+        if (id == NotificationCenter.postsNeedReload) {
             if (postsAdapter != null) {
                 if (postsAdapter.isDataSetChanged()) {
                     postsAdapter.notifyDataSetChanged();

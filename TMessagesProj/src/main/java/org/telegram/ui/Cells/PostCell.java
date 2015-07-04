@@ -164,7 +164,7 @@ public class PostCell extends BaseCell {
         avatarImage.setRoundRadius(AndroidUtilities.dp(26));
         avatarDrawable = new AvatarDrawable();
     }
-
+//TODO. I have 2 method for setting posts. setPostObject and setPost.
     public void setPostObject(PostObject postObject, int i, boolean server) {
         //TODO I should store id or object. And retrieve from Controller by id.
         currentPostId = postObject.getId();
