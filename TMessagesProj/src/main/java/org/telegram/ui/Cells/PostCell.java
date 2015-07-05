@@ -20,6 +20,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.Emoji;
@@ -34,6 +35,21 @@ import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.utils.StringUtils;
 
 public class PostCell extends BaseCell {
+
+
+    public static interface PostCellDelegate {
+        public abstract void didClickedImage(PostCell cell);
+
+        public abstract void didPressedOther(PostCell cell);
+
+//        public abstract void didPressedUserAvatar(PostCell cell, UserObject userObject);
+
+        public abstract void didPressedCancelSendButton(PostCell cell);
+
+        public abstract void didLongPressed(PostCell cell);
+
+        public abstract boolean canPerformActions();
+    }
 
     private static TextPaint namePaint;
     private static TextPaint nameEncryptedPaint;
@@ -130,6 +146,9 @@ public class PostCell extends BaseCell {
 
     private boolean isSelected;
 
+//Photo
+    private PostCellDelegate delegate;
+
     public PostCell(Context context) {
         super(context);
 
@@ -208,6 +227,10 @@ public class PostCell extends BaseCell {
         imageDrawable = new AvatarDrawable();
     }
 
+    public PostObject getPostObject() {
+        return postObject;
+    }
+
     //TODO. I have 2 method for setting posts. setPostObject and setPost.
     public void setPostObject(PostObject postObject, int i, boolean server) {
         //TODO I should store id or object. And retrieve from Controller by id.
@@ -247,7 +270,7 @@ public class PostCell extends BaseCell {
         photoImage.onAttachedToWindow();
     }
 
-    @Override
+    @Override //TODO setMeasure. size of post.
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), AndroidUtilities.dp(72) + (useSeparator ? 1 : 0));
         int textHeight = 0;
@@ -277,7 +300,37 @@ public class PostCell extends BaseCell {
                 getBackground().setHotspot(event.getX(), event.getY());
             }
         }
-        return super.onTouchEvent(event);
+
+        float x = event.getX();
+        float y = event.getY();
+
+        boolean result = false;
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (delegate == null || delegate.canPerformActions()) {
+
+                if (x >= photoImage.getImageX() && x <= photoImage.getImageX() + backgroundWidth && y >= photoImage.getImageY() && y <= photoImage.getImageY() + photoImage.getImageHeight()) {
+//                    imagePressed = true;
+                    result = true;
+                }
+            }
+
+            if (result) {
+                startCheckLongPress();
+            }
+
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+//            imagePressed = false;
+            playSoundEffect(SoundEffectConstants.CLICK);
+            didClickedImage();
+            invalidate();
+        }
+
+        if (!result) {
+            result = super.onTouchEvent(event);
+        }
+
+        return result;
+//        return super.onTouchEvent(event);
     }
 
     public void buildLayout() {
@@ -915,5 +968,22 @@ public class PostCell extends BaseCell {
             lastChar = c;
         }
         return false;
+    }
+
+
+    private void didClickedImage() {
+        if (this.delegate != null) {
+            this.delegate.didClickedImage(this);
+        }
+    }
+
+
+    public void setDelegate(PostCellDelegate delegate) {
+        this.delegate = delegate;
+    }
+
+
+    public ImageReceiver getPhotoImage() {
+        return photoImage;
     }
 }

@@ -38,6 +38,7 @@ import org.telegram.android.AndroidUtilities;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.android.AnimationCompat.ViewProxy;
 import org.telegram.android.ContactsController;
+import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.PostsController;
@@ -66,9 +67,9 @@ import org.telegram.utils.StringUtils;
 /*
 TODO-aragats
  */
-public class PostsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
+public class PostsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, PostPhotoViewerProvider {
 
-    private RecyclerListView listView;
+    private RecyclerListView postListView;
     private LinearLayoutManager layoutManager;
     private PostsAdapter postsAdapter;
     private PostsSearchAdapter postsSearchAdapter;
@@ -97,6 +98,84 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private String openedPostId;
 
     private MessagesActivityDelegate delegate;
+
+    //TODO-legacy. update according to new version.
+    @Override
+    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(PostObject postObjectObject) {
+        if (postObjectObject == null) {
+            return null;
+        }
+        int count = this.postListView.getChildCount();
+
+        for (int a = 0; a < count; a++) {
+            PostObject postObjectToOpen = null;
+            ImageReceiver imageReceiver = null;
+            View view = this.postListView.getChildAt(a);
+            if (view instanceof PostCell) {
+                PostCell cell = (PostCell) view;
+                PostObject post = cell.getPostObject();
+                if (post != null && post.getId() != null && post.getId().equals(postObjectObject.getId())) {
+                    postObjectToOpen = post;
+                    imageReceiver = cell.getPhotoImage();
+                }
+            }
+
+            if (postObjectToOpen != null) {
+                int coords[] = new int[2];
+                view.getLocationInWindow(coords);
+                PhotoViewer.PlaceProviderObject object = new PhotoViewer.PlaceProviderObject();
+                object.viewX = coords[0];
+                object.viewY = coords[1] - AndroidUtilities.statusBarHeight;
+                object.parentView = postListView;
+                object.imageReceiver = imageReceiver;
+                object.thumb = imageReceiver.getBitmap();
+                object.radius = imageReceiver.getRoundRadius();
+                return object;
+            }
+        }
+        return null;
+
+    }
+
+    @Override
+    public void willSwitchFromPhoto(PostObject postObject) {
+
+    }
+
+    @Override
+    public void willHidePhotoViewer() {
+
+    }
+
+    @Override
+    public boolean isPhotoChecked(int index) {
+        return false;
+    }
+
+    @Override
+    public void setPhotoChecked(int index) {
+
+    }
+
+    @Override
+    public void cancelButtonPressed() {
+
+    }
+
+    @Override
+    public void sendButtonPressed(int index) {
+
+    }
+
+    @Override
+    public int getSelectedCount() {
+        return 0;
+    }
+
+    @Override
+    public void updatePhotoAtIndex(int index) {
+
+    }
 
     public interface MessagesActivityDelegate {
         void didSelectDialog(PostsActivity fragment, long dialog_id, boolean param);
@@ -179,9 +258,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             @Override
             public void onSearchExpand() {
                 searching = true;
-                if (listView != null) {
+                if (postListView != null) {
                     if (searchString != null) {
-                        listView.setEmptyView(searchEmptyView);
+                        postListView.setEmptyView(searchEmptyView);
                         progressView.setVisibility(View.INVISIBLE);
                         emptyView.setVisibility(View.INVISIBLE);
                     }
@@ -201,14 +280,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 }
                 searching = false;
                 searchWas = false;
-                if (listView != null) {
+                if (postListView != null) {
                     searchEmptyView.setVisibility(View.INVISIBLE);
                     if (PostsController.getInstance().loadingPosts && PostsController.getInstance().postObjects.isEmpty()) {
                         emptyView.setVisibility(View.INVISIBLE);
-                        listView.setEmptyView(progressView);
+                        postListView.setEmptyView(progressView);
                     } else {
                         progressView.setVisibility(View.INVISIBLE);
-                        listView.setEmptyView(emptyView);
+                        postListView.setEmptyView(emptyView);
                     }
                     if (!onlySelect) {
                         floatingButton.setVisibility(View.VISIBLE);
@@ -216,8 +295,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         ViewProxy.setTranslationY(floatingButton, AndroidUtilities.dp(100));
                         hideFloatingButton(false);
                     }
-                    if (listView.getAdapter() != postsAdapter) {
-                        listView.setAdapter(postsAdapter);
+                    if (postListView.getAdapter() != postsAdapter) {
+                        postListView.setAdapter(postsAdapter);
                         postsAdapter.notifyDataSetChanged();
                     }
                 }
@@ -235,14 +314,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 if (text.length() != 0) {
                     searchWas = true;
                     if (postsSearchAdapter != null) {
-                        listView.setAdapter(postsSearchAdapter);
+                        postListView.setAdapter(postsSearchAdapter);
                         postsSearchAdapter.notifyDataSetChanged();
                     }
-                    if (searchEmptyView != null && listView.getEmptyView() != searchEmptyView) {
+                    if (searchEmptyView != null && postListView.getEmptyView() != searchEmptyView) {
                         emptyView.setVisibility(View.INVISIBLE);
                         progressView.setVisibility(View.INVISIBLE);
                         searchEmptyView.showTextView();
-                        listView.setEmptyView(searchEmptyView);
+                        postListView.setEmptyView(searchEmptyView);
                     }
                 }
                 if (postsSearchAdapter != null) {
@@ -285,11 +364,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         FrameLayout frameLayout = new FrameLayout(context);
         fragmentView = frameLayout;
 
-        listView = new RecyclerListView(context);
-        listView.setVerticalScrollBarEnabled(true);
-        listView.setItemAnimator(null);
-        listView.setInstantClick(true);
-        listView.setLayoutAnimation(null);
+        postListView = new RecyclerListView(context);
+        postListView.setVerticalScrollBarEnabled(true);
+        postListView.setItemAnimator(null);
+        postListView.setInstantClick(true);
+        postListView.setLayoutAnimation(null);
         layoutManager = new LinearLayoutManager(context) {
             @Override
             public boolean supportsPredictiveItemAnimations() {
@@ -297,20 +376,20 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         };
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        listView.setLayoutManager(layoutManager);
+        postListView.setLayoutManager(layoutManager);
         if (Build.VERSION.SDK_INT >= 11) {
-            listView.setVerticalScrollbarPosition(LocaleController.isRTL ? ListView.SCROLLBAR_POSITION_LEFT : ListView.SCROLLBAR_POSITION_RIGHT);
+            postListView.setVerticalScrollbarPosition(LocaleController.isRTL ? ListView.SCROLLBAR_POSITION_LEFT : ListView.SCROLLBAR_POSITION_RIGHT);
         }
-        frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
-        listView.setOnItemClickListener(new RecyclerListView.OnItemClickListener() {
+        frameLayout.addView(postListView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+        postListView.setOnItemClickListener(new RecyclerListView.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                if (listView == null || listView.getAdapter() == null) {
+                if (postListView == null || postListView.getAdapter() == null) {
                     return;
                 }
                 String post_id = "";
                 String message_id = "";
-                RecyclerView.Adapter adapter = listView.getAdapter();
+                RecyclerView.Adapter adapter = postListView.getAdapter();
                 if (adapter == postsAdapter) {
                     PostObject postObject = postsAdapter.getItem(position);
                     if (postObject == null) {
@@ -362,12 +441,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 }
             }
         });
-        listView.setOnItemLongClickListener(new RecyclerListView.OnItemLongClickListener() {
+        postListView.setOnItemLongClickListener(new RecyclerListView.OnItemLongClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 if (onlySelect || searching && searchWas || getParentActivity() == null) {
                     if (searchWas && searching) {
-                        RecyclerView.Adapter adapter = listView.getAdapter();
+                        RecyclerView.Adapter adapter = postListView.getAdapter();
                         if (adapter == postsSearchAdapter) {
                             Object item = postsSearchAdapter.getItem(position);
                             if (item instanceof String) {
@@ -512,7 +591,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         });
 
-        listView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        postListView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING && searching && searchWas) {
@@ -565,11 +644,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         });
 
         if (searchString == null) {
-            postsAdapter = new PostsAdapter(context, serverOnly);
+            //TODO find way not to pass PostActivity
+            postsAdapter = new PostsAdapter(context, serverOnly, PostsActivity.this);
             if (AndroidUtilities.isTablet() && StringUtils.isEmpty(openedPostId)) {
                 postsAdapter.setOpenedPostId(openedPostId);
             }
-            listView.setAdapter(postsAdapter);
+            postListView.setAdapter(postsAdapter);
         }
         int type = 0;
         if (searchString != null) {
@@ -594,11 +674,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (PostsController.getInstance().loadingPosts && PostsController.getInstance().postObjects.isEmpty()) {
             searchEmptyView.setVisibility(View.INVISIBLE);
             emptyView.setVisibility(View.INVISIBLE);
-            listView.setEmptyView(progressView);
+            postListView.setEmptyView(progressView);
         } else {
             searchEmptyView.setVisibility(View.INVISIBLE);
             progressView.setVisibility(View.INVISIBLE);
-            listView.setEmptyView(emptyView);
+            postListView.setEmptyView(emptyView);
         }
         if (searchString != null) {
             actionBar.openSearchField(searchString);
@@ -653,20 +733,20 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             if (postsSearchAdapter != null) {
                 postsSearchAdapter.notifyDataSetChanged();
             }
-            if (listView != null) {
+            if (postListView != null) {
                 try {
                     if (PostsController.getInstance().loadingPosts && PostsController.getInstance().postObjects.isEmpty()) {
                         searchEmptyView.setVisibility(View.INVISIBLE);
                         emptyView.setVisibility(View.INVISIBLE);
-                        listView.setEmptyView(progressView);
+                        postListView.setEmptyView(progressView);
                     } else {
                         progressView.setVisibility(View.INVISIBLE);
                         if (searching && searchWas) {
                             emptyView.setVisibility(View.INVISIBLE);
-                            listView.setEmptyView(searchEmptyView);
+                            postListView.setEmptyView(searchEmptyView);
                         } else {
                             searchEmptyView.setVisibility(View.INVISIBLE);
-                            listView.setEmptyView(emptyView);
+                            postListView.setEmptyView(emptyView);
                         }
                     }
                 } catch (Exception e) {
@@ -674,7 +754,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 }
             }
         } else if (id == NotificationCenter.emojiDidLoaded) {
-            if (listView != null) {
+            if (postListView != null) {
                 updateVisibleRows(0);
             }
         } else if (id == NotificationCenter.updateInterfaces) {
@@ -738,12 +818,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     }
 
     private void updateVisibleRows(int mask) {
-        if (listView == null) {
+        if (postListView == null) {
             return;
         }
-        int count = listView.getChildCount();
+        int count = postListView.getChildCount();
         for (int a = 0; a < count; a++) {
-            View child = listView.getChildAt(a);
+            View child = postListView.getChildAt(a);
             if (child instanceof PostCell) {
                 PostCell cell = (PostCell) child;
                 if ((mask & PostsController.UPDATE_MASK_NEW_MESSAGE) != 0) {
@@ -779,5 +859,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     private void didSelectResult(final String dialog_id, boolean useAlert, final boolean param) {
         //TODO here onlySelect Posts (Dialog)
+    }
+
+
+    //TODO it is needed for PhotoViewer.
+
+    public ActionBar getActionBar() {
+        return actionBar;
     }
 }

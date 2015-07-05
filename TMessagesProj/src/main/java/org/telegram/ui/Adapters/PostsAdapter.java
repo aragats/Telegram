@@ -8,6 +8,7 @@
 
 package org.telegram.ui.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +19,15 @@ import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.object.PostObject;
 import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
+import org.telegram.ui.PhotoViewer;
+import org.telegram.ui.PostsActivity;
 import org.telegram.utils.StringUtils;
 
 // TODO-aragats
 public class PostsAdapter extends RecyclerView.Adapter {
 
+    //TODO find other way to get postActivity.
+    private PostsActivity postsActivity;
     private Context mContext;
     //TODO ???
     private boolean serverOnly;
@@ -36,9 +41,10 @@ public class PostsAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public PostsAdapter(Context context, boolean onlyFromServer) {
+    public PostsAdapter(Context context, boolean onlyFromServer, PostsActivity postsActivity) {
         mContext = context;
         serverOnly = onlyFromServer;
+        this.postsActivity = postsActivity;
     }
 
     public void setOpenedPostId(String id) {
@@ -100,6 +106,43 @@ public class PostsAdapter extends RecyclerView.Adapter {
             }
 
             cell.setPostObject(postObject, i, serverOnly);
+
+//TODO in new version. This in  onCreateViewHolder  method on ChatActivity
+            //Set delegate to open photo
+            ((PostCell) cell).setDelegate(new PostCell.PostCellDelegate() {
+                @Override
+                public void didClickedImage(PostCell cell) {
+                    PostObject postObject = cell.getPostObject();
+//                    mContext - is getParentActivity form Post Activity. look at instance creation of PostAdapter
+                    PhotoViewer.getInstance().setParentActivity((Activity)mContext);
+                    PhotoViewer.getInstance().openPhoto(postObject, postsActivity);
+                }
+
+                @Override
+                public void didPressedOther(PostCell cell) {
+
+                }
+
+//                @Override
+//                public void didPressedUserAvatar(PostCell cell, UserObject userObject) {
+//
+//                }
+
+                @Override
+                public void didPressedCancelSendButton(PostCell cell) {
+
+                }
+
+                @Override
+                public void didLongPressed(PostCell cell) {
+
+                }
+
+                @Override
+                public boolean canPerformActions() {
+                    return postsActivity != null && postsActivity.getActionBar() != null && !postsActivity.getActionBar().isActionModeShowed();
+                }
+            });
         }
     }
 

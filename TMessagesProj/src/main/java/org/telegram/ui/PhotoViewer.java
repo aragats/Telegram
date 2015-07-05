@@ -36,6 +36,7 @@ import android.view.Surface;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
@@ -64,6 +65,7 @@ import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.UserConfig;
 import org.telegram.android.MessageObject;
 import org.telegram.messenger.Utilities;
+import org.telegram.messenger.object.PostObject;
 import org.telegram.ui.Adapters.MentionsAdapter;
 import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
@@ -72,6 +74,7 @@ import org.telegram.android.AnimationCompat.ViewProxy;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
+import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.CheckBox;
 import org.telegram.ui.Components.ClippingImageView;
 import org.telegram.android.ImageReceiver;
@@ -92,6 +95,14 @@ import java.util.HashMap;
 import java.util.Locale;
 
 public class PhotoViewer implements NotificationCenter.NotificationCenterDelegate, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+
+
+    //TODO-aragats new
+    private PostPhotoViewerProvider postPlaceProvider;
+    //TODO-aragats new
+    private ArrayList<PostObject> imagesPostObjectArr = new ArrayList<PostObject>();
+    //TODO-aragats new
+    private PostObject currentPostObjectObject;
 
     private int classGuid;
     private PhotoViewerProvider placeProvider;
@@ -824,6 +835,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, 1, 1));
         containerView.addView(actionBar, LayoutHelper.createRelative(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
+        //TODO save image to gallery
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -835,6 +847,13 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     closePhoto(true, false);
                 } else if (id == gallery_menu_save) {
                     File f = null;
+                    //TODO-aragats new
+                    if(currentPostObjectObject != null) {
+                        currentFileNames[0] = Utilities.MD5(currentPostObjectObject.getImage().getUrl()) + ".jpg";
+                        f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);
+                    }
+                    else
+                        //new
                     if (currentMessageObject != null) {
                         f = FileLoader.getPathToMessage(currentMessageObject.messageOwner);
                     } else if (currentFileLocation != null) {
@@ -2086,6 +2105,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     private void onPhotoShow(final MessageObject messageObject, final TLRPC.FileLocation fileLocation, final ArrayList<MessageObject> messages, final ArrayList<Object> photos, int index, final PlaceProviderObject object) {
         classGuid = ConnectionsManager.getInstance().generateClassGuid();
         currentMessageObject = null;
+        //TODO-aragat new
+        currentPostObjectObject = null;
+        //
         currentFileLocation = null;
         currentPathObject = null;
         currentIndex = -1;
@@ -2104,6 +2126,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         needCaptionLayout = false;
         canShowBottom = true;
         imagesArr.clear();
+        //TODO-aragats new
+        imagesPostObjectArr.clear();
+        //
         imagesArrLocations.clear();
         imagesArrLocationsSizes.clear();
         avatarsArr.clear();
@@ -2907,6 +2932,362 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
     }
 
+
+    //TODO-legacy rewrite this method accrodign to new openPhoto because this version is legacy from previous revision
+    //TODO my openPhoto
+    public void openPhoto(final PostObject postObject, final PostPhotoViewerProvider provider) {
+        if (parentActivity == null || isVisible || provider == null || checkAnimation()) {
+            return;
+        }
+        //filocation we do not need here. messageObject is used to find ChatMediaCell by id from messageObject. // method is implemented in provider.
+        final PlaceProviderObject object = provider.getPlaceForPhoto(postObject);
+        if (object == null) {
+            return;
+        }
+
+        try {
+            if (windowView.getParent() != null) {
+                WindowManager wm = (WindowManager) parentActivity.getSystemService(Context.WINDOW_SERVICE);
+                wm.removeView(windowView);
+            }
+        } catch (Exception e) {
+            FileLog.e("tmessages", e);
+        }
+
+
+        WindowManager wm = (WindowManager) parentActivity.getSystemService(Context.WINDOW_SERVICE);
+        try {
+            wm.addView(windowView, windowLayoutParams);
+        } catch (Exception e) {
+            FileLog.e("tmessages", e);
+            return;
+        }
+
+        actionBar.setTitle(LocaleController.formatString("Of", org.telegram.messenger.R.string.Of, 1, 1));
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidFailedLoad);
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidLoaded);
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileLoadProgressChanged);
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.mediaCountDidLoaded);
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.mediaDidLoaded);
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.userPhotosLoaded);
+
+        postPlaceProvider = provider;
+
+        if (velocityTracker == null) {
+            velocityTracker = VelocityTracker.obtain();
+        }
+
+        disableShowCheck = true;
+        animationInProgress = 1;
+        onPhotoShow(postObject, object);
+        isVisible = true;
+        backgroundDrawable.setAlpha(255);
+        toggleActionBar(true, false);
+
+        AndroidUtilities.lockOrientation(parentActivity);
+
+        final Rect drawRegion = object.imageReceiver.getDrawRegion();
+
+        animatingImageView.setVisibility(View.VISIBLE);
+        animatingImageView.setRadius(object.radius);
+        animatingImageView.setNeedRadius(object.radius != 0);
+        animatingImageView.setImageBitmap(object.thumb);
+
+        ViewProxy.setAlpha(animatingImageView, 1.0f);
+        ViewProxy.setPivotX(animatingImageView, 0.0f);
+        ViewProxy.setPivotY(animatingImageView, 0.0f);
+        ViewProxy.setScaleX(animatingImageView, 1.0f);
+        ViewProxy.setScaleY(animatingImageView, 1.0f);
+        ViewProxy.setTranslationX(animatingImageView, object.viewX + drawRegion.left);
+        ViewProxy.setTranslationY(animatingImageView, object.viewY + drawRegion.top);
+        final ViewGroup.LayoutParams layoutParams = animatingImageView.getLayoutParams();
+        layoutParams.width = drawRegion.right - drawRegion.left;
+        layoutParams.height = drawRegion.bottom - drawRegion.top;
+        animatingImageView.setLayoutParams(layoutParams);
+
+        containerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                containerView.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                float scaleX = (float) AndroidUtilities.displaySize.x / layoutParams.width;
+                float scaleY = (float) (AndroidUtilities.displaySize.y - AndroidUtilities.statusBarHeight) / layoutParams.height;
+                float scale = scaleX > scaleY ? scaleY : scaleX;
+                float width = layoutParams.width * scale;
+                float height = layoutParams.height * scale;
+                float xPos = (AndroidUtilities.displaySize.x - width) / 2.0f;
+                float yPos = (AndroidUtilities.displaySize.y - AndroidUtilities.statusBarHeight - height) / 2.0f;
+                int clipHorizontal = Math.abs(drawRegion.left - object.imageReceiver.getImageX());
+                int clipVertical = Math.abs(drawRegion.top - object.imageReceiver.getImageY());
+
+                int coords2[] = new int[2];
+                object.parentView.getLocationInWindow(coords2);
+                int clipTop = coords2[1] - AndroidUtilities.statusBarHeight - (object.viewY + drawRegion.top);
+                if (clipTop < 0) {
+                    clipTop = 0;
+                }
+                int clipBottom = (object.viewY + drawRegion.top + layoutParams.height) - (coords2[1] + object.parentView.getHeight() - AndroidUtilities.statusBarHeight);
+                if (clipBottom < 0) {
+                    clipBottom = 0;
+                }
+                clipTop = Math.max(clipTop, clipVertical);
+                clipBottom = Math.max(clipBottom, clipVertical);
+
+                AnimatorSetProxy animatorSet = new AnimatorSetProxy();
+                animatorSet.playTogether(
+                        ObjectAnimatorProxy.ofFloat(animatingImageView, "scaleX", scale),
+                        ObjectAnimatorProxy.ofFloat(animatingImageView, "scaleY", scale),
+                        ObjectAnimatorProxy.ofFloat(animatingImageView, "translationX", xPos),
+                        ObjectAnimatorProxy.ofFloat(animatingImageView, "translationY", yPos),
+                        ObjectAnimatorProxy.ofInt(backgroundDrawable, "alpha", 0, 255),
+                        ObjectAnimatorProxy.ofInt(animatingImageView, "clipHorizontal", clipHorizontal, 0),
+                        ObjectAnimatorProxy.ofInt(animatingImageView, "clipTop", clipTop, 0),
+                        ObjectAnimatorProxy.ofInt(animatingImageView, "clipBottom", clipBottom, 0),
+                        ObjectAnimatorProxy.ofInt(animatingImageView, "radius", 0),
+                        ObjectAnimatorProxy.ofFloat(containerView, "alpha", 0.0f, 1.0f)
+                );
+
+                animationEndRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        animationInProgress = 0;
+                        transitionAnimationStartTime = 0;
+                        containerView.invalidate();
+                        animatingImageView.setVisibility(View.GONE);
+                        AndroidUtilities.unlockOrientation(parentActivity);
+                        if (showAfterAnimation != null) {
+                            showAfterAnimation.imageReceiver.setVisible(true, true);
+                        }
+                        if (hideAfterAnimation != null) {
+                            hideAfterAnimation.imageReceiver.setVisible(false, true);
+                        }
+                    }
+                };
+
+                animatorSet.setDuration(200);
+                animatorSet.addListener(new AnimatorListenerAdapterProxy() {
+                    @Override
+                    public void onAnimationEnd(Object animation) {
+                        if (animationEndRunnable != null) {
+                            animationEndRunnable.run();
+                            animationEndRunnable = null;
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Object animation) {
+                        onAnimationEnd(animation);
+                    }
+                });
+                transitionAnimationStartTime = System.currentTimeMillis();
+                animatorSet.start();
+// TODO does not work now &
+//                animatingImageView.setOnDrawListener(new ClippingImageView.onDrawListener() {
+//                    @Override
+//                    public void onDraw() {
+//                        disableShowCheck = false;
+//                        animatingImageView.setOnDrawListener(null);
+//                        object.imageReceiver.setVisible(false, true);
+//                    }
+//                });
+                return true;
+            }
+        });
+    }
+
+
+    //TODO-aragats my photo opener.
+    private void onPhotoShow(final PostObject postObject, final PlaceProviderObject object) {
+        classGuid = ConnectionsManager.getInstance().generateClassGuid();
+//        currentMessageObject = null;  // TODO I removed it because it break getting  currentPlaceObject
+        currentFileLocation = null;
+        currentPathObject = null;
+        currentIndex = -1;
+        currentFileNames[0] = null;
+        currentFileNames[1] = null;
+        currentFileNames[2] = null;
+        avatarsUserId = 0;
+        currentDialogId = 0;
+        totalImagesCount = 0;
+        isFirstLoading = true;
+        needSearchImageInArr = false;
+        loadingMoreImages = false;
+        cacheEndReached = false;
+        opennedFromMedia = false;
+        canShowBottom = true;
+        imagesArr.clear();
+        //new
+        imagesPostObjectArr.clear();
+        imagesArrLocations.clear();
+        imagesArrLocationsSizes.clear();
+        avatarsArr.clear();
+        imagesArrLocals.clear();
+        imagesByIds.clear();
+        imagesArrTemp.clear();
+        imagesByIdsTemp.clear();
+        currentUserAvatarLocation = null;
+        currentThumb = object.thumb;
+        menuItem.setVisibility(View.VISIBLE);
+        bottomLayout.setVisibility(View.VISIBLE);
+        checkImageView.setVisibility(View.GONE);
+        pickerView.setVisibility(View.GONE);
+
+
+        for (int a = 0; a < 3; a++) {
+            if (radialProgressViews[a] != null) {
+                radialProgressViews[a].setBackgroundState(-1, false);
+            }
+        }
+
+        if (postObject != null) {
+            imagesPostObjectArr.add(postObject);
+            menuItem.showSubItem(gallery_menu_showall);
+            setImageIndexPost(0, true);
+        }
+
+    }
+
+
+    // TODO-aragats new my
+    public void setImageIndexPost(int index, boolean init) {
+        if (currentIndex == index) {
+            return;
+        }
+        if (!init) {
+            currentThumb = null;
+        }
+        currentFileNames[0] = getFileName(index);
+        currentFileNames[1] = getFileName(index + 1);
+        currentFileNames[2] = getFileName(index - 1);
+        postPlaceProvider.willSwitchFromPhoto(currentPostObjectObject);
+        int prevIndex = currentIndex;
+        currentIndex = index;
+
+        boolean sameImage = false;
+
+//        currentMessageObject = imagesArr.get(currentIndex); // TODO is important to load data.
+
+        if (!imagesPostObjectArr.isEmpty()) {
+            //TODO in new version there is not deleteButton
+//            deleteButton.setVisibility(View.VISIBLE);
+            currentPostObjectObject = imagesPostObjectArr.get(currentIndex);
+
+            nameTextView.setText(ContactsController.formatName(this.currentPostObjectObject.getVenueName(), ""));
+            dateTextView.setText(LocaleController.formatterYearMax.format(currentPostObjectObject.getCreatedDate()));
+
+            actionBar.setTitle(LocaleController.formatString("Of", org.telegram.messenger.R.string.Of, (totalImagesCount - imagesPostObjectArr.size()) + currentIndex + 1, totalImagesCount));
+
+            menuItem.showSubItem(gallery_menu_save);
+            shareButton.setVisibility(View.VISIBLE);
+        }
+
+
+        if (currentPlaceObject != null) {
+            if (animationInProgress == 0) {
+                currentPlaceObject.imageReceiver.setVisible(true, true);
+            } else {
+                showAfterAnimation = currentPlaceObject;
+            }
+        }
+        //TODO delete currentMessageObject
+        currentPlaceObject = postPlaceProvider.getPlaceForPhoto(currentPostObjectObject);
+        if (currentPlaceObject != null) {
+            if (animationInProgress == 0) {
+                currentPlaceObject.imageReceiver.setVisible(false, true);
+            } else {
+                hideAfterAnimation = currentPlaceObject;
+            }
+        }
+
+        if (!sameImage) {
+            draggingDown = false;
+            translationX = 0;
+            translationY = 0;
+            scale = 1;
+            animateToX = 0;
+            animateToY = 0;
+            animateToScale = 1;
+            //TODO in new version this parameter is 0;
+//            animationDuration = 0;
+            animationStartTime = 0;
+
+            pinchStartDistance = 0;
+            pinchStartScale = 1;
+            pinchCenterX = 0;
+            pinchCenterY = 0;
+            pinchStartX = 0;
+            pinchStartY = 0;
+            moveStartX = 0;
+            moveStartY = 0;
+            zooming = false;
+            moving = false;
+            doubleTap = false;
+            invalidCoords = false;
+            canDragDown = true;
+            changingPage = false;
+            switchImageAfterAnimation = 0;
+            canZoom = currentFileNames[0] != null && !currentFileNames[0].endsWith("mp4") && radialProgressViews[0].backgroundState != 0;
+            canZoom = true; //TODO MY Aragats
+            updateMinMax(scale);
+        }
+
+        if (prevIndex == -1) {
+            setIndexToImagePost(centerImage, currentIndex);
+            setIndexToImagePost(rightImage, currentIndex + 1);
+            setIndexToImagePost(leftImage, currentIndex - 1);
+
+            for (int a = 0; a < 3; a++) {
+                checkProgress(a, false); //currentFileNames all element = null
+            }
+        } else {
+            checkProgress(0, false);
+            if (prevIndex > currentIndex) {
+                ImageReceiver temp = rightImage;
+                rightImage = centerImage;
+                centerImage = leftImage;
+                leftImage = temp;
+
+                RadialProgressView tempProgress = radialProgressViews[0];
+                radialProgressViews[0] = radialProgressViews[2];
+                radialProgressViews[2] = tempProgress;
+                setIndexToImagePost(leftImage, currentIndex - 1);
+
+                checkProgress(1, false);
+                checkProgress(2, false);
+            } else if (prevIndex < currentIndex) {
+                ImageReceiver temp = leftImage;
+                leftImage = centerImage;
+                centerImage = rightImage;
+                rightImage = temp;
+
+                RadialProgressView tempProgress = radialProgressViews[0];
+                radialProgressViews[0] = radialProgressViews[1];
+                radialProgressViews[1] = tempProgress;
+                setIndexToImagePost(rightImage, currentIndex + 1);
+
+                checkProgress(1, false);
+                checkProgress(2, false);
+            }
+        }
+    }
+
+    //TODO-aragats my new
+    private void setIndexToImagePost(ImageReceiver imageReceiver, int index) {
+
+        PostObject postObject = null;
+        if (!imagesPostObjectArr.isEmpty() && index < imagesPostObjectArr.size() && index >= 0) {
+            postObject = imagesPostObjectArr.get(index);
+        }
+
+        //TODO set Image for imageReceiver
+        if (postObject != null) {
+            imageReceiver.setImage(postObject.getImage().getUrl(), null, new AvatarDrawable(), null, 0);
+        } else {
+            imageReceiver.setImageBitmap((Bitmap) null);
+        }
+
+    }
+
     public void closePhoto(boolean animated, boolean fromEditMode) {
         if (!fromEditMode && currentEditMode != 0) {
             if (currentEditMode == 1) {
@@ -2959,7 +3340,19 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
         ConnectionsManager.getInstance().cancelRpcsForClassGuid(classGuid);
 
-        final PlaceProviderObject object = placeProvider.getPlaceForPhoto(currentMessageObject, currentFileLocation, currentIndex);
+
+        //WAS
+//        final PlaceProviderObject object = placeProvider.getPlaceForPhoto(currentMessageObject, currentFileLocation, currentIndex);
+
+        //NOW
+        PlaceProviderObject object1 = null;
+        if (placeProvider != null) {
+            object1 = placeProvider.getPlaceForPhoto(currentMessageObject, currentFileLocation, currentIndex);
+        } else if (this.postPlaceProvider != null) {
+            object1 = this.postPlaceProvider.getPlaceForPhoto(currentPostObjectObject);
+        }
+        //TODO
+        final PlaceProviderObject object = object1;
 
         if (animated) {
             animationInProgress = 1;
@@ -3139,6 +3532,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         isVisible = false;
         disableShowCheck = true;
         currentMessageObject = null;
+        //TODO-aragats my custom
+        currentPostObjectObject = null;
+        //
         currentFileLocation = null;
         currentPathObject = null;
         currentThumb = null;
