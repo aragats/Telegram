@@ -15,6 +15,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Outline;
 import android.os.Build;
 import android.os.Bundle;
@@ -135,6 +136,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         }
         return null;
 
+    }
+
+    @Override
+    public Bitmap getThumbForPhoto(PostObject postObject, int index) {
+        return null;
     }
 
     @Override

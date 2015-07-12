@@ -14,7 +14,7 @@ public interface PostPhotoViewerProvider {
 
     public PhotoViewer.PlaceProviderObject getPlaceForPhoto(PostObject postObject);
 
-//    Bitmap getThumbForPhoto(MessageObject messageObject, TLRPC.FileLocation fileLocation, int index);
+    Bitmap getThumbForPhoto(PostObject postObject, int index);
 
 //    void willSwitchFromPhoto(MessageObject messageObject, TLRPC.FileLocation fileLocation, int index);
 

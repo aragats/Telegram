@@ -2375,6 +2375,16 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
     }
 
+    //TODO-aragats new
+    private void setImagesPostNew() {
+        if (animationInProgress == 0) {
+            setIndexToImagePostNew(centerImage, currentIndex);
+            setIndexToImagePostNew(rightImage, currentIndex + 1);
+            setIndexToImagePostNew(leftImage, currentIndex - 1);
+        }
+    }
+
+
     private void setImages() {
         if (animationInProgress == 0) {
             setIndexToImage(centerImage, currentIndex);
@@ -2585,6 +2595,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
 
 
+    //TODO-aragats new
     private void setImageIndexPostNew(int index, boolean init) {
         if (currentIndex == index) {
             return;
@@ -2681,7 +2692,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
 
         if (prevIndex == -1) {
-            setImages();
+            setImagesPostNew();
 
             for (int a = 0; a < 3; a++) {
                 checkProgress(a, false);
@@ -2697,7 +2708,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 RadialProgressView tempProgress = radialProgressViews[0];
                 radialProgressViews[0] = radialProgressViews[2];
                 radialProgressViews[2] = tempProgress;
-                setIndexToImage(leftImage, currentIndex - 1);
+                setIndexToImagePostNew(leftImage, currentIndex - 1);
 
                 checkProgress(1, false);
                 checkProgress(2, false);
@@ -2710,7 +2721,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 RadialProgressView tempProgress = radialProgressViews[0];
                 radialProgressViews[0] = radialProgressViews[1];
                 radialProgressViews[1] = tempProgress;
-                setIndexToImage(rightImage, currentIndex + 1);
+                setIndexToImagePostNew(rightImage, currentIndex + 1);
 
                 checkProgress(1, false);
                 checkProgress(2, false);
@@ -2917,6 +2928,47 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 }
             }
         }
+    }
+
+
+    //TODO-aragats new
+    private void setIndexToImagePostNew(ImageReceiver imageReceiver, int index) {
+        imageReceiver.setOrientation(0, false);
+        if (!imagesPostObjectArr.isEmpty()) {
+            imageReceiver.setParentMessageObject(null);
+            if (index >= 0 && index < imagesPostObjectArr.size() && imagesPostObjectArr.get(index) != null) {
+                PostObject postObject = imagesPostObjectArr.get(index);
+                int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
+                Bitmap placeHolder = null;
+                if (currentThumb != null && imageReceiver == centerImage) {
+                    placeHolder = currentThumb;
+                }
+                //aragats it returns null.b ut curretnThumb is not null. so we miss this part of code.
+                if (placeHolder == null) {
+                    placeHolder = postPlaceProvider.getThumbForPhoto(null, index);
+                }
+                String path = postObject.getImage().getUrl();
+                int imageSize = 0;
+                //TODO set Image for imageReceiver
+                imageReceiver.setImage(path, String.format(Locale.US, "%d_%d", size, size), placeHolder != null ? new BitmapDrawable(null, placeHolder) : null, null, imageSize);
+            } else {
+                imageReceiver.setImageBitmap((Bitmap) null);
+            }
+        }
+
+
+//        PostObject postObject = null;
+//        if (!imagesPostObjectArr.isEmpty() && index < imagesPostObjectArr.size() && index >= 0) {
+//            postObject = imagesPostObjectArr.get(index);
+//        }
+//
+//        //TODO set Image for imageReceiver
+//        if (postObject != null) {
+//            imageReceiver.setImage(postObject.getImage().getUrl(), null, new AvatarDrawable(), null, 0);
+//        } else {
+//            imageReceiver.setImageBitmap((Bitmap) null);
+//        }
+
     }
 
     public boolean isShowingImage(MessageObject object) {
@@ -3318,7 +3370,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     }
                     animationInProgress = 0;
                     transitionAnimationStartTime = 0;
-                    setImages();
+                    setImagesPostNew();
                     containerView.invalidate();
                     animatingImageView.setVisibility(View.GONE);
                     if (showAfterAnimation != null) {

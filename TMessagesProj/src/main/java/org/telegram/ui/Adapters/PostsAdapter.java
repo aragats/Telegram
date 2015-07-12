@@ -115,7 +115,8 @@ public class PostsAdapter extends RecyclerView.Adapter {
                     PostObject postObject = cell.getPostObject();
 //                    mContext - is getParentActivity form Post Activity. look at instance creation of PostAdapter
                     PhotoViewer.getInstance().setParentActivity((Activity)mContext);
-                    PhotoViewer.getInstance().openPhoto(postObject, postsActivity);
+//                    PhotoViewer.getInstance().openPhoto(postObject, postsActivity);
+                    PhotoViewer.getInstance().openPhotoNew(postObject, postsActivity, postsActivity);
                 }
 
                 @Override
