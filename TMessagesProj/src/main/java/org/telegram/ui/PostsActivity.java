@@ -232,6 +232,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
         if (searchString == null) {
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.dialogsNeedReload);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);

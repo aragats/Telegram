@@ -14,9 +14,12 @@ import android.content.SharedPreferences;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.dto.PostResponse;
 import org.telegram.messenger.object.PostObject;
+import org.telegram.messenger.object.VenueObject;
 import org.telegram.messenger.service.mock.PostServiceMock;
+import org.telegram.messenger.service.mock.VenueServiceMock;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 //import org.telegram.messenger.TLRPC;
@@ -24,6 +27,12 @@ import java.util.concurrent.ConcurrentHashMap;
 // TODO-aragats
 //TODO Look at MessagesController methods. There are many good examples and best practice.
 public class PostsController implements NotificationCenter.NotificationCenterDelegate {
+
+    private ConcurrentHashMap<String, VenueObject> venuesMap = new ConcurrentHashMap<String, VenueObject>(100, 1.0f, 2);
+
+    public List<VenueObject> venueObjects = new ArrayList<VenueObject>();
+    public VenueObject currentVenueObject;
+
 
 
 
@@ -161,6 +170,16 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     }
+
+
+    public void loadCurrentVenue(String location) {
+        this.currentVenueObject = new VenueObject(VenueServiceMock.getRandomVenue());
+    }
+
+    public VenueObject getCurrentVenueObject() {
+        return this.currentVenueObject;
+    }
+
 
 
 
