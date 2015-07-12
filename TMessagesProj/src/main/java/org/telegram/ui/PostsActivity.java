@@ -592,8 +592,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             @Override
             public void onClick(View v) {
                 Bundle args = new Bundle();
-                args.putBoolean("destroyAfterSelect", true);
-                presentFragment(new ContactsActivity(args));
+//                args.putBoolean("destroyAfterSelect", true);
+                presentFragment(new PostCreateActivity(args));
             }
         });
 
