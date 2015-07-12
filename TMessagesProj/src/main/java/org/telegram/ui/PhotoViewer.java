@@ -2688,6 +2688,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             changingPage = false;
             switchImageAfterAnimation = 0;
             canZoom = !imagesArrLocals.isEmpty() || (currentFileNames[0] != null && !currentFileNames[0].endsWith("mp4") && radialProgressViews[0].backgroundState != 0);
+            canZoom = true; //TODO MY Aragats overridden previous statement to make it zoom possible.
             updateMinMax(scale);
         }
 
