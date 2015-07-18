@@ -238,6 +238,8 @@ public class PostCell extends BaseCell {
         this.postObject = postObject;
         index = i;
         isServerOnly = server;
+        //TODO I use it to calculate build layout before onMeasure will be invoked. And by this way, correct layout
+        buildLayout();
         update(0);
     }
 
@@ -249,6 +251,8 @@ public class PostCell extends BaseCell {
 //        if (this.postObject != null) {
 //            lastSendState = this.postObject.getCreatedDate();
 //        }
+        //TODO I use it to calculate build layout before onMeasure will be invoked. And by this way, correct layout
+        buildLayout();
         update(0);
     }
 
@@ -270,7 +274,8 @@ public class PostCell extends BaseCell {
         photoImage.onAttachedToWindow();
     }
 
-    @Override //TODO setMeasure. size of post.
+    //TODO setMeasure. size of post.
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), AndroidUtilities.dp(72) + (useSeparator ? 1 : 0));
         int textHeight = 0;
@@ -754,7 +759,7 @@ public class PostCell extends BaseCell {
 
         //Photo
 
-
+        //TODO was ?
         if (getMeasuredWidth() != 0 || getMeasuredHeight() != 0) {
             buildLayout();
         } else {
