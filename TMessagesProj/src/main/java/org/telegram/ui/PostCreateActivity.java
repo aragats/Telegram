@@ -81,9 +81,9 @@ import org.telegram.ui.Cells.ChatMediaCell;
 import org.telegram.ui.Cells.ChatMessageCell;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
-import org.telegram.ui.Components.ChatActivityEnterView;
 import org.telegram.ui.Components.FrameLayoutFixed;
 import org.telegram.ui.Components.LayoutHelper;
+import org.telegram.ui.Components.PostCreateActivityEnterView;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.ui.Components.SendingFileExDrawable;
@@ -107,7 +107,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private FrameLayout progressView;
     private FrameLayout bottomOverlay;
     //TODO aragats
-    private ChatActivityEnterView postCreateActivityEnterView;
+    private PostCreateActivityEnterView postCreateActivityEnterView;
     private ImageView timeItem;
     private View timeItem2;
     private TimerDrawable timerDrawable;
@@ -818,12 +818,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         });
 
 
-        postCreateActivityEnterView = new ChatActivityEnterView(getParentActivity(), contentView, this, true);
+        postCreateActivityEnterView = new PostCreateActivityEnterView(getParentActivity(), contentView, this, true);
 //        postCreateActivityEnterView.setDialogId(dialog_id);
         postCreateActivityEnterView.addToAttachLayout(menuItem);
         postCreateActivityEnterView.setId(id_chat_compose_panel);
         contentView.addView(postCreateActivityEnterView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM));
-        postCreateActivityEnterView.setDelegate(new ChatActivityEnterView.ChatActivityEnterViewDelegate() {
+        postCreateActivityEnterView.setDelegate(new PostCreateActivityEnterView.PostCreateActivityEnterViewDelegate() {
             @Override
             public void onMessageSend(String message) {
                 moveScrollToLastMessage();
