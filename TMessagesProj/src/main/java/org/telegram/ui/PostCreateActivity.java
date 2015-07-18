@@ -420,23 +420,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     });
                     presentFragment(fragment);
                 } else if (id == attach_location) {
-                    if (!isGoogleMapsInstalled()) {
-                        return;
-                    }
-                    LocationActivity fragment = new LocationActivity();
-                    fragment.setDelegate(new LocationActivity.LocationActivityDelegate() {
-                        @Override
-                        public void didSelectLocation(TLRPC.MessageMedia location) {
-                            Toast.makeText(getParentActivity(), location.venue_id + " " + location.geo.lat + " " + location.geo._long, Toast.LENGTH_LONG).show();
-//                            SendMessagesHelper.getInstance().sendMessage(location, dialog_id, replyingMessageObject);
-//                            moveScrollToLastMessage();
-//                            showReplyPanel(false, null, null, null, false, true);
-//                            if (paused) {
-//                                scrollToTopOnResume = true;
-//                            }
-                        }
-                    });
-                    presentFragment(fragment);
+                    openLocationChooser();
                 }
             }
         });
@@ -448,7 +432,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         avatarContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(((Context) getParentActivity()), "AVATAR CLICKED", Toast.LENGTH_SHORT).show();
+                openLocationChooser();
+//                Toast.makeText(((Context) getParentActivity()), "AVATAR CLICKED", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -1353,7 +1338,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 }
                 arrayList.add(new MediaController.PhotoEntry(0, 0, 0, currentPicturePath, orientation, false));
 
-                //TODO-temp
+                //TODO-aragats
                 PhotoViewer.getInstance().openPhotoForSelect(arrayList, 0, 2, new PhotoViewer.EmptyPhotoViewerProvider() {
                     @Override
                     public void sendButtonPressed(int index) {
@@ -2060,5 +2045,27 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             messages.remove(index);
             notifyItemRemoved(messages.size() - (!endReached ? 0 : 1) - index);
         }
+    }
+
+
+
+    private void openLocationChooser() {
+        if (!isGoogleMapsInstalled()) {
+            return;
+        }
+        LocationActivity fragment = new LocationActivity();
+        fragment.setDelegate(new LocationActivity.LocationActivityDelegate() {
+            @Override
+            public void didSelectLocation(TLRPC.MessageMedia location) {
+                Toast.makeText(getParentActivity(), location.venue_id + " " + location.geo.lat + " " + location.geo._long, Toast.LENGTH_LONG).show();
+//                            SendMessagesHelper.getInstance().sendMessage(location, dialog_id, replyingMessageObject);
+//                            moveScrollToLastMessage();
+//                            showReplyPanel(false, null, null, null, false, true);
+//                            if (paused) {
+//                                scrollToTopOnResume = true;
+//                            }
+            }
+        });
+        presentFragment(fragment);
     }
 }
