@@ -1462,7 +1462,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         fixLayout(true);
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
 //        String lastMessageText = preferences.getString("dialog_" + dialog_id, null);
-        String lastMessageText = "last printed text";
+        String lastMessageText = "";
         if (lastMessageText != null) {
 //            preferences.edit().remove("dialog_" + dialog_id).commit();
             postCreateActivityEnterView.setFieldText(lastMessageText);
