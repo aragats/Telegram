@@ -376,36 +376,37 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     }
                 } else if (id == attach_gallery) {
 //                    //TODO-TEMP
-//                    PhotoAlbumPickerActivity fragment = new PhotoAlbumPickerActivity(false, PostCreateActivity.this);
-//                    fragment.setDelegate(new PhotoAlbumPickerActivity.PhotoAlbumPickerActivityDelegate() {
-//                        @Override
-//                        public void didSelectPhotos(ArrayList<String> photos, ArrayList<String> captions, ArrayList<MediaController.SearchImage> webPhotos) {
+                    PhotoAlbumPickerActivity fragment = new PhotoAlbumPickerActivity(true, null);
+                    fragment.setDelegate(new PhotoAlbumPickerActivity.PhotoAlbumPickerActivityDelegate() {
+                        @Override
+                        public void didSelectPhotos(ArrayList<String> photos, ArrayList<String> captions, ArrayList<MediaController.SearchImage> webPhotos) {
 //                            SendMessagesHelper.prepareSendingPhotos(photos, null, dialog_id, replyingMessageObject, captions);
 //                            SendMessagesHelper.prepareSendingPhotosSearch(webPhotos, dialog_id, replyingMessageObject);
 //                            showReplyPanel(false, null, null, null, false, true);
-//                        }
-//
-//                        @Override
-//                        public void startPhotoSelectActivity() {
-//                            try {
-//                                Intent videoPickerIntent = new Intent();
-//                                videoPickerIntent.setType("video/*");
-//                                videoPickerIntent.setAction(Intent.ACTION_GET_CONTENT);
-//                                videoPickerIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (1024 * 1024 * 1536));
-//
-//                                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-//                                photoPickerIntent.setType("image/*");
-//                                Intent chooserIntent = Intent.createChooser(photoPickerIntent, null);
-//                                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{videoPickerIntent});
-//
-//                                startActivityForResult(chooserIntent, 1);
-//                            } catch (Exception e) {
-//                                FileLog.e("tmessages", e);
-//                            }
-//                        }
-//
-//                        @Override
-//                        public boolean didSelectVideo(String path) {
+                            System.out.println();
+                        }
+
+                        @Override
+                        public void startPhotoSelectActivity() {
+                            try {
+                                Intent videoPickerIntent = new Intent();
+                                videoPickerIntent.setType("video/*");
+                                videoPickerIntent.setAction(Intent.ACTION_GET_CONTENT);
+                                videoPickerIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (1024 * 1024 * 1536));
+
+                                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                                photoPickerIntent.setType("image/*");
+                                Intent chooserIntent = Intent.createChooser(photoPickerIntent, null);
+                                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{videoPickerIntent});
+
+                                startActivityForResult(chooserIntent, 1);
+                            } catch (Exception e) {
+                                FileLog.e("tmessages", e);
+                            }
+                        }
+
+                        @Override
+                        public boolean didSelectVideo(String path) {
 //                            if (Build.VERSION.SDK_INT >= 16) {
 //                                return !openVideoEditor(path, true, true);
 //                            } else {
@@ -413,9 +414,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                                showReplyPanel(false, null, null, null, false, true);
 //                                return true;
 //                            }
-//                        }
-//                    });
-//                    presentFragment(fragment);
+
+                            return false;
+                        }
+                    });
+                    presentFragment(fragment);
                 } else if (id == attach_location) {
                     if (!isGoogleMapsInstalled()) {
                         return;
