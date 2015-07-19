@@ -35,14 +35,4 @@ public interface PostPhotoViewerProvider {
 
     void updatePhotoAtIndex(int index);
 
-
-    public static interface MyPhotoViewerProvider {
-        public void willSwitchFromPhoto(PostObject postObject);
-        public void willHidePhotoViewer();
-        public boolean isPhotoChecked(int index);
-        public void setPhotoChecked(int index);
-        public void cancelButtonPressed();
-        public void sendButtonPressed(int index);
-        public int getSelectedCount();
-    }
 }
