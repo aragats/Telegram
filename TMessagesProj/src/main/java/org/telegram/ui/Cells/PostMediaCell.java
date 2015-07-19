@@ -36,7 +36,9 @@ import java.util.Locale;
 public class PostMediaCell extends BaseCell implements MediaController.FileDownloadProgressListener {
 
 
-    public interface PostBaseCellDelegate {
+    public interface PostMediaCellDelegate {
+
+        //base delegate
         void didPressedUserAvatar(PostMediaCell cell);
 
         void didPressedCancelSendButton(PostMediaCell cell);
@@ -50,9 +52,10 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
         void needOpenWebView(String url, String title, String originalUrl, int w, int h);
 
         boolean canPerformActions();
-    }
 
-    public interface PostMediaCellDelegate {
+
+        // media delegate
+
         void didClickedImage(PostMediaCell cell);
 
         void didPressedOther(PostMediaCell cell);
@@ -60,7 +63,7 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 
 
     //TODO from chatBaseCell
-    private PostBaseCellDelegate delegate = null;
+    private PostMediaCellDelegate delegate = null;
     protected int backgroundWidth = 100;
     private AvatarDrawable imageDrawable;
 //    private ImageReceiver imageDrawable;
@@ -77,10 +80,6 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
     private static TextPaint infoPaint;
     private static MessageObject lastDownloadedGifMessage = null;
     private static TextPaint namePaint;
-    private static Paint docBackPaint;
-    private static Paint deleteProgressPaint;
-    private static TextPaint locationTitlePaint;
-    private static TextPaint locationAddressPaint;
 
     private RadialProgress radialProgress;
 
@@ -113,7 +112,6 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
     private int nameWidth = 0;
     private String currentNameString;
 
-    private PostMediaCellDelegate mediaDelegate = null;
     private RectF deleteProgressRect = new RectF();
 
     private int captionX;
@@ -131,17 +129,9 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
             namePaint.setColor(0xff212121);
             namePaint.setTextSize(AndroidUtilities.dp(16));
 
-            docBackPaint = new Paint();
+//            backgroundMediaDrawableOutSelected = getResources().getDrawable(org.telegram.messenger.R.drawable.msg_out_photo_selected);
+//            backgroundMediaDrawableOut = getResources().getDrawable(org.telegram.messenger.R.drawable.msg_out_photo);
 
-            deleteProgressPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            deleteProgressPaint.setColor(0xffe4e2e0);
-
-            locationTitlePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            locationTitlePaint.setTextSize(AndroidUtilities.dp(14));
-            locationTitlePaint.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
-
-            locationAddressPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            locationAddressPaint.setTextSize(AndroidUtilities.dp(14));
 
         }
 
@@ -158,16 +148,17 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 
     //TODO two delegates
 
-    public void setMediaDelegate(PostMediaCellDelegate delegate) {
-        this.mediaDelegate = delegate;
-    }
-
-    public void setDelegate(PostBaseCellDelegate delegate) {
+    public void setDelegate(PostMediaCellDelegate delegate) {
         this.delegate = delegate;
     }
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        //old
+//        if (photoImage != null) {
+//            photoImage.clearImage();
+//        }
         photoImage.onDetachedFromWindow();
         MediaController.getInstance().removeLoadingFileObserver(this);
     }
@@ -231,8 +222,8 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     otherPressed = false;
                     playSoundEffect(SoundEffectConstants.CLICK);
-                    if (mediaDelegate != null) {
-                        mediaDelegate.didPressedOther(this);
+                    if (delegate != null) {
+                        delegate.didPressedOther(this);
                     }
                 } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
                     otherPressed = false;
@@ -254,7 +245,7 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 
     private void didClickedImage() {
         if (this.delegate != null) {
-            this.mediaDelegate.didClickedImage(this);
+            this.delegate.didClickedImage(this);
         }
     }
 
@@ -697,13 +688,19 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + AndroidUtilities.dp(14) + additionHeight);
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + AndroidUtilities.dp(14));
+//        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + AndroidUtilities.dp(14) + additionHeight);
 //        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + AndroidUtilities.dp(14) + namesOffset + additionHeight);
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
+
+        //TODO from old. It was a reason why new PostMedia was not displayed
+        layoutWidth = getMeasuredWidth();
+        layoutHeight = getMeasuredHeight();
+
 
         int x = layoutWidth - backgroundWidth - AndroidUtilities.dp(3);
 

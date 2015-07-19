@@ -35,7 +35,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -58,16 +57,16 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
+import org.telegram.messenger.dto.Venue;
 import org.telegram.messenger.object.PostObject;
-import org.telegram.messenger.object.UserObject;
 import org.telegram.messenger.service.mock.PostServiceMock;
+import org.telegram.messenger.service.mock.VenueServiceMock;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.BottomSheet;
-import org.telegram.ui.Cells.PostCell;
-import org.telegram.ui.Cells.PostMediaCellOld;
+import org.telegram.ui.Cells.PostMediaCell;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.FrameLayoutFixed;
@@ -76,7 +75,6 @@ import org.telegram.ui.Components.PostCreateActivityEnterView;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
-import org.telegram.ui.Components.TimerDrawable;
 import org.telegram.ui.Components.WebFrameLayout;
 
 import java.io.File;
@@ -86,7 +84,7 @@ import java.util.ArrayList;
 public class PostCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, MessagesActivity.MessagesActivityDelegate,
         PostPhotoViewerProvider {
 
-    private ArrayList<PostMediaCellOld> postMediaCellsCache = new ArrayList<>();
+    private ArrayList<PostMediaCell> postMediaCellsCache = new ArrayList<>();
 
     private FrameLayout progressView;
     private FrameLayout bottomOverlay;
@@ -261,7 +259,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     public View createView(Context context, LayoutInflater inflater) {
 
         for (int a = 0; a < 4; a++) {
-            postMediaCellsCache.add(new PostMediaCellOld(context));
+            postMediaCellsCache.add(new PostMediaCell(context));
         }
 
 
@@ -1096,8 +1094,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         }
 
         PostObject postObject = null;
-        if (v instanceof PostMediaCellOld) {
-            postObject = ((PostMediaCellOld) v).getPostObject();
+        if (v instanceof PostMediaCell) {
+            postObject = ((PostMediaCell) v).getPostObject();
         }
         if (postObject == null) {
             return;
@@ -1248,8 +1246,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         int count = postListView.getChildCount();
         for (int a = 0; a < count; a++) {
             View view = postListView.getChildAt(a);
-            if (view instanceof PostMediaCellOld) {
-                PostMediaCellOld cell = (PostMediaCellOld) view;
+            if (view instanceof PostMediaCell) {
+                PostMediaCell cell = (PostMediaCell) view;
 
                 boolean disableSelection = false;
                 boolean selected = false;
@@ -1289,8 +1287,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             PostObject postToOpen = null;
             ImageReceiver imageReceiver = null;
             View view = postListView.getChildAt(a);
-            if (view instanceof PostMediaCellOld) {
-                PostMediaCellOld cell = (PostMediaCellOld) view;
+            if (view instanceof PostMediaCell) {
+                PostMediaCell cell = (PostMediaCell) view;
                 PostObject post = cell.getPostObject();
                 if (post != null && post.getId() == postObject.getId()) {
                     postToOpen = post;
@@ -1382,7 +1380,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     view = postMediaCellsCache.get(0);
                     postMediaCellsCache.remove(0);
                 } else {
-                    view = new PostMediaCellOld(mContext);
+                    view = new PostMediaCell(mContext);
                 }
             } else if (viewType == 5) {
                 LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1393,55 +1391,73 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 view = li.inflate(R.layout.chat_unread_layout, parent, false);
             }
 
-            if (view instanceof PostMediaCellOld) {
-                ((PostMediaCellOld) view).setDelegate(new PostMediaCellOld.PostMediaCellDelegate() {
+            if (view instanceof PostMediaCell) {
+                ((PostMediaCell) view).setDelegate(new PostMediaCell.PostMediaCellDelegate() {
                     @Override
-                    public void didClickedImage(PostMediaCellOld cell) {
-                        PostObject postObject = cell.getPostObject();
-//                    mContext - is getParentActivity form Post Activity. look at instance creation of PostAdapter
-                        PhotoViewer.getInstance().setParentActivity((Activity) mContext);
-//                        PhotoViewer.getInstance().openPhoto(postObject, PostCreateChatActivity.this);
-
-//                        Post post = cell.getMessageObject();
-//                        if (post.isSendError()) {
-//                            createMenu(cell);
-//                            return;
-//                        } else if (post.isSending()) {
-//                            return;
-//                        }
-//                        if (post.type == 1) {
-//                            PhotoViewer.getInstance().setParentActivity(getParentActivity());
-//                            PhotoViewer.getInstance().openPhoto(post, PostCreateChatActivity.this);
-//                        }
-                    }
-
-                    @Override
-                    public void didPressedOther(PostMediaCellOld cell) {
-                        //TODO popup menu.
-//                        createMenu(cell);
-                    }
-
-                    @Override
-                    public void didPressedUserAvatar(PostCell cell, UserObject userObject) {
+                    public void didPressedUserAvatar(PostMediaCell cell) {
 
                     }
 
                     @Override
-                    public void didPressedCancelSendButton(PostCell cell) {
+                    public void didPressedCancelSendButton(PostMediaCell cell) {
 
                     }
 
                     @Override
-                    public void didLongPressed(PostCell cell) {
-//                        createMenu(cell);
-
+                    public void didLongPressed(PostMediaCell cell) {
+                        createMenu(cell, false);
                     }
 
                     @Override
                     public boolean canPerformActions() {
                         return actionBar != null && !actionBar.isActionModeShowed();
                     }
+
+                    @Override
+                    public void didPressUrl(String url) {
+                        if (url.startsWith("@")) {
+                            MessagesController.openByUserName(url.substring(1), PostCreateActivity.this, 0);
+                        } else if (url.startsWith("#")) {
+                            MessagesActivity fragment = new MessagesActivity(null);
+                            fragment.setSearchString(url);
+                            presentFragment(fragment);
+                        }
+                    }
+
+                    @Override
+                    public void needOpenWebView(String url, String title, String originalUrl, int w, int h) {
+                        BottomSheet.Builder builder = new BottomSheet.Builder(mContext);
+                        builder.setCustomView(new WebFrameLayout(mContext, builder.create(), title, originalUrl, url, w, h));
+                        builder.setOverrideTabletWidth(true);
+                        showDialog(builder.create());
+                    }
+
+                    @Override
+                    public void didPressReplyMessage(PostMediaCell cell, int id) {
+//                        scrollToMessageId(id, cell.getMessageObject().getId(), true);
+                    }
+
+                    @Override
+                    public void didClickedImage(PostMediaCell cell) {
+                        PostObject post = cell.getPostObject();
+
+                        PhotoViewer.getInstance().setParentActivity(getParentActivity());
+                        PhotoViewer.getInstance().openPhoto(post, PostCreateActivity.this);
+
+                        //TODO open location view
+//                                LocationActivity fragment = new LocationActivity();
+//                                fragment.setMessageObject(post);
+//                                presentFragment(fragment);
+
+                    }
+
+                    @Override
+                    public void didPressedOther(PostMediaCell cell) {
+                        createMenu(cell, true);
+                    }
                 });
+                ((PostMediaCell) view).setAllowedToSetPhoto(openAnimationEnded);
+
 
             }
 
@@ -1473,8 +1489,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             }
 
 
-            if (view instanceof PostMediaCellOld) {
-                PostMediaCellOld cell = (PostMediaCellOld) view;
+            if (view instanceof PostMediaCell) {
+                PostMediaCell cell = (PostMediaCell) view;
                 cell.setPostObject(post);
             }
         }
@@ -1581,6 +1597,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            image = ImageServiceMock.getRandomImage();
             post.setImage(image);
             post.setPreviewImage(image);
+            post.setVenue(VenueServiceMock.getRandomVenue());
             //TODO-temp
 //            PostCreateActivity.this.postObject = new PostObject(post);
             PostCreateActivity.this.postObjects.add(new PostObject(post));
