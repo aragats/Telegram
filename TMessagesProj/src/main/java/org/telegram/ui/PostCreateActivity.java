@@ -755,8 +755,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            progressView.setVisibility(View.VISIBLE);
 //            postListView.setEmptyView(null);
 //        } else {
-            progressView.setVisibility(View.INVISIBLE);
-            postListView.setEmptyView(emptyViewContainer);
+        progressView.setVisibility(View.INVISIBLE);
+        postListView.setEmptyView(emptyViewContainer);
 //        }
 
         updateBottomOverlay();
@@ -800,8 +800,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            postLayoutManager.scrollToPositionWithOffset(postObjects.size() - 1, -100000 - postListView.getPaddingTop());
 //        }
     }
-
-
 
 
     private void checkActionBarMenu() {
@@ -1089,6 +1087,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     public void createMenu(View v, boolean single) {
+        //TODO MOCK
+        if(true) {
+            return;
+        }
         if (actionBar.isActionModeShowed()) {
             return;
         }
@@ -1100,49 +1102,50 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (postObject == null) {
             return;
         }
-        final int type = getPostType(postObject);
+         int type = getPostType(postObject);
 
+        type = 1;
         selectedObject = null;
         actionBar.hideActionMode();
 
-        if (single || type < 2 || type == 20) {
-            if (type >= 0) {
-                selectedObject = postObject;
-                if (getParentActivity() == null) {
-                    return;
-                }
-                AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-
-                CharSequence[] items = null;
-                int[] options = null;
-
-                if (type == 0) {
-                    items = new CharSequence[]{LocaleController.getString("Retry", R.string.Retry), LocaleController.getString("Delete", R.string.Delete)};
-                    options = new int[]{0, 1};
-                } else if (type == 1) {
-                    items = new CharSequence[]{LocaleController.getString("Delete", R.string.Delete)};
-                    options = new int[]{1};
-                } else if (type == 20) {
-                    items = new CharSequence[]{LocaleController.getString("Retry", R.string.Retry), LocaleController.getString("Copy", R.string.Copy), LocaleController.getString("Delete", R.string.Delete)};
-                    options = new int[]{0, 3, 1};
-                }
-
-                final int[] finalOptions = options;
-                builder.setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (finalOptions == null || selectedObject == null || i < 0 || i >= finalOptions.length) {
-                            return;
-                        }
-                        processSelectedOption(finalOptions[i]);
-                    }
-                });
-
-                builder.setTitle(LocaleController.getString("Message", R.string.Message));
-                showDialog(builder.create());
-            }
+//        if (single || type < 2 || type == 20) {
+//            if (type >= 0) {
+        selectedObject = postObject;
+        if (getParentActivity() == null) {
             return;
         }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
+
+        CharSequence[] items = null;
+        int[] options = null;
+
+        if (type == 0) {
+            items = new CharSequence[]{LocaleController.getString("Retry", R.string.Retry), LocaleController.getString("Delete", R.string.Delete)};
+            options = new int[]{0, 1};
+        } else if (type == 1) {
+            items = new CharSequence[]{LocaleController.getString("Delete", R.string.Delete)};
+            options = new int[]{1};
+        } else if (type == 20) {
+            items = new CharSequence[]{LocaleController.getString("Retry", R.string.Retry), LocaleController.getString("Copy", R.string.Copy), LocaleController.getString("Delete", R.string.Delete)};
+            options = new int[]{0, 3, 1};
+        }
+
+        final int[] finalOptions = options;
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (finalOptions == null || selectedObject == null || i < 0 || i >= finalOptions.length) {
+                    return;
+                }
+                processSelectedOption(finalOptions[i]);
+            }
+        });
+
+        builder.setTitle(LocaleController.getString("Message", R.string.Message));
+        showDialog(builder.create());
+//            }
+//            return;
+//        }
         actionBar.showActionMode();
 
         if (Build.VERSION.SDK_INT >= 11) {
@@ -1400,7 +1403,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     @Override
                     public void didPressedCancelSendButton(PostMediaCell cell) {
-
+                        PostObject postObject = cell.getPostObject();
+                        postObjects.remove(postObject);
+                        postObjects.clear();
+                        postCreateAdapter.notifyDataSetChanged();
                     }
 
                     @Override
@@ -1437,6 +1443,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                        scrollToMessageId(id, cell.getMessageObject().getId(), true);
                     }
 
+                    //TODO Now I do not use it in PostMedia, but I can. Look at PostMedia.didClickedImage
                     @Override
                     public void didClickedImage(PostMediaCell cell) {
                         PostObject post = cell.getPostObject();
@@ -1600,6 +1607,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             post.setVenue(VenueServiceMock.getRandomVenue());
             //TODO-temp
 //            PostCreateActivity.this.postObject = new PostObject(post);
+            //DELETE ALL to store only one
+            PostCreateActivity.this.postObjects.clear();
             PostCreateActivity.this.postObjects.add(new PostObject(post));
 
             postCreateAdapter.notifyDataSetChanged();
