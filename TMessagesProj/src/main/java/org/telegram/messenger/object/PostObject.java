@@ -66,7 +66,16 @@ public class PostObject {
         return this.post.getImage();
     }
 
-//    public PostObject(TLRPC.TL_dialog dialog) {
+    public String getAddress() {
+        return this.post.getVenue().getAddress();
+    }
+
+    @Deprecated
+    public Post getPost() {
+        return post;
+    }
+
+    //    public PostObject(TLRPC.TL_dialog dialog) {
 //        peer = dialog.peer;
 //        top_message = dialog.top_message;
 //        unread_count = dialog.unread_count;

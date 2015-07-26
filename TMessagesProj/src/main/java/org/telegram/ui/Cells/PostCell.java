@@ -289,8 +289,7 @@ public class PostCell extends BaseCell {
     public void buildLayout() {
         String nameString = "";
         String timeString = "";
-        String countString = null;
-        CharSequence messageString = "";
+        CharSequence addressString = "";
         TextPaint currentNamePaint = namePaint;
         TextPaint currentMessagePaint = messagePaint;
         boolean checkMessage = true;
@@ -302,7 +301,7 @@ public class PostCell extends BaseCell {
         }
 
         if (postObject == null) {
-            lastPrintString = messageString;
+            lastPrintString = addressString;
             currentMessagePaint = messagePrintingPaint;
             if (lastMessageDate != 0) {
                 timeString = LocaleController.stringForMessageListDate(lastMessageDate);
@@ -313,27 +312,28 @@ public class PostCell extends BaseCell {
             if (lastMessageDate != 0) {
                 timeString = LocaleController.stringForMessageListDate(lastMessageDate);
             } else {
-                timeString = LocaleController.stringForMessageListDate(postObject.getCreatedDate());
+                timeString = LocaleController.stringForMessageListDate(postObject.getCreatedDate() / 1000);
             }
 
             lastPrintString = null;
 
-            String name = "";
-            name = postObject.getAuthor();
+            String address = "";
+            address = postObject.getAddress();
 
 
             checkMessage = false;
 
             currentMessagePaint = messagePrintingPaint;
 
-            String mess = postObject.getMessage();
-            if (mess.length() > 150) {
-                mess = mess.substring(0, 150);
+            String distance = "n km";
+            if (distance.length() > 150) {
+                distance = distance.substring(0, 150);
             }
-            mess = mess.replace("\n", " ");
+            distance = distance.replace("\n", " ");
 
-//                messageString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", name, postObject.messageText)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
-            messageString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", name, mess)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+//                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", address, postObject.messageText)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+            // address: distance
+            addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distance)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
 
 
 //            if (unreadCount != 0) {
@@ -356,8 +356,10 @@ public class PostCell extends BaseCell {
         //  here was building name string
 
 
-        if (nameString.length() == 0) {
-            nameString = LocaleController.getString("HiddenName", R.string.HiddenName);
+        nameString = postObject.getVenueName();
+        if (StringUtils.isEmpty(nameString)) {
+//            nameString = LocaleController.getString("HiddenName", R.string.HiddenName);
+            nameString = "Point";
         }
 
         int nameWidth;
@@ -402,18 +404,18 @@ public class PostCell extends BaseCell {
         }
 
         if (checkMessage) {
-            if (messageString == null) {
-                messageString = "";
+            if (addressString == null) {
+                addressString = "";
             }
-            String mess = messageString.toString();
+            String mess = addressString.toString();
             if (mess.length() > 150) {
                 mess = mess.substring(0, 150);
             }
             mess = mess.replace("\n", " ");
-            messageString = Emoji.replaceEmoji(mess, messagePaint.getFontMetricsInt(), AndroidUtilities.dp(17));
+            addressString = Emoji.replaceEmoji(mess, messagePaint.getFontMetricsInt(), AndroidUtilities.dp(17));
         }
         messageWidth = Math.max(AndroidUtilities.dp(12), messageWidth);
-        CharSequence messageStringFinal = TextUtils.ellipsize(messageString, currentMessagePaint, messageWidth - AndroidUtilities.dp(12), TextUtils.TruncateAt.END);
+        CharSequence messageStringFinal = TextUtils.ellipsize(addressString, currentMessagePaint, messageWidth - AndroidUtilities.dp(12), TextUtils.TruncateAt.END);
         try {
             messageLayout = new StaticLayout(messageStringFinal, currentMessagePaint, messageWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
         } catch (Exception e) {
@@ -550,7 +552,8 @@ public class PostCell extends BaseCell {
                 backgroundWidth = w + AndroidUtilities.dp(12);
 
 //                photoImage.setImageCoords(avatarLeft, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
-                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
+//                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
+                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
 
 
                 photoImage.setForcePreview(false);
@@ -558,6 +561,8 @@ public class PostCell extends BaseCell {
 
                 invalidate();
             }
+
+            textTop = AndroidUtilities.dp(75) + photoHeight;
         }
 
     }
