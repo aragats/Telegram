@@ -329,7 +329,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         }
 //            actionBar.setTitle(LocaleController.getString("AppName", R.string.AppName));
         actionBar.setTitle("Whats going on?");
-
+        //TODO in LaunchActivity if setAllowOverlayText is TRUE you can change the text.
+//        actionBar.setTitleOverlayText("Verbinde...");
         actionBar.setAllowOverlayTitle(true);
 
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
