@@ -77,8 +77,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private EmptyTextProgressView searchEmptyView;
     private ProgressBar progressView;
     private LinearLayout emptyView;
-    //TODO delete it?
-    private ActionBarMenuItem passcodeItem;
     private ImageView floatingButton;
 
     private int prevPosition;
@@ -87,14 +85,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private boolean floatingHidden;
     private final AccelerateDecelerateInterpolator floatingInterpolator = new AccelerateDecelerateInterpolator();
 
-    private String selectAlertString;
-    private String selectAlertStringGroup;
-    private boolean serverOnly;
-
     private static boolean postsLoaded;
     private boolean searching;
     private boolean searchWas;
-    private boolean onlySelect;
     private String selectedPost;
     private String searchString;
     private String openedPostId;
@@ -197,10 +190,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         super.onFragmentCreate();
 
         if (getArguments() != null) {
-            onlySelect = arguments.getBoolean("onlySelect", false);
-            serverOnly = arguments.getBoolean("serverOnly", false);
-            selectAlertString = arguments.getString("selectAlertString");
-            selectAlertStringGroup = arguments.getString("selectAlertStringGroup");
+            //example of retrieving arguments.
         }
 
         if (searchString == null) {
@@ -258,10 +248,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         ResourceLoader.loadRecources(context);
 
         ActionBarMenu menu = actionBar.createMenu();
-        if (!onlySelect && searchString == null) {
-            passcodeItem = menu.addItem(1, R.drawable.lock_close);
-            updatePasscodeButton();
-        }
         ActionBarMenuItem item = menu.addItem(0, R.drawable.ic_ab_search).setIsSearchField(true).setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
             @Override
             public void onSearchExpand() {
@@ -272,11 +258,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         progressView.setVisibility(View.INVISIBLE);
                         emptyView.setVisibility(View.INVISIBLE);
                     }
-                    if (!onlySelect) {
-                        floatingButton.setVisibility(View.GONE);
-                    }
+                    floatingButton.setVisibility(View.GONE);
                 }
-                updatePasscodeButton();
             }
 
             @Override
@@ -297,12 +280,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         progressView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(emptyView);
                     }
-                    if (!onlySelect) {
-                        floatingButton.setVisibility(View.VISIBLE);
-                        floatingHidden = true;
-                        ViewProxy.setTranslationY(floatingButton, AndroidUtilities.dp(100));
-                        hideFloatingButton(false);
-                    }
+                    floatingButton.setVisibility(View.VISIBLE);
+                    floatingHidden = true;
+                    ViewProxy.setTranslationY(floatingButton, AndroidUtilities.dp(100));
+                    hideFloatingButton(false);
                     if (postListView.getAdapter() != postsAdapter) {
                         postListView.setAdapter(postsAdapter);
                         postsAdapter.notifyDataSetChanged();
@@ -311,7 +292,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 if (postsSearchAdapter != null) {
                     postsSearchAdapter.searchPosts(null);
                 }
-                updatePasscodeButton();
                 return true;
             }
 
@@ -342,33 +322,31 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         item.setVisibility(View.INVISIBLE);
 
 
-        if (onlySelect) {
+        if (searchString != null) {
             actionBar.setBackButtonImage(R.drawable.ic_ab_back);
-            actionBar.setTitle(LocaleController.getString("SelectChat", R.string.SelectChat));
         } else {
-            if (searchString != null) {
-                actionBar.setBackButtonImage(R.drawable.ic_ab_back);
-            } else {
-                actionBar.setBackButtonDrawable(new MenuDrawable());
-            }
-//            actionBar.setTitle(LocaleController.getString("AppName", R.string.AppName));
-            actionBar.setTitle("Whats going on?");
+            actionBar.setBackButtonDrawable(new MenuDrawable());
         }
+//            actionBar.setTitle(LocaleController.getString("AppName", R.string.AppName));
+        actionBar.setTitle("Whats going on?");
+
         actionBar.setAllowOverlayTitle(true);
 
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
                 if (id == -1) {
-                    if (onlySelect) {
-                        finishFragment();
-                    } else if (parentLayout != null) {
+                    //TODO block drawer Menu here.
+//                    if (onlySelect) {
+//                        finishFragment();
+//                    } else
+                    if (parentLayout != null) {
                         parentLayout.getDrawerLayoutContainer().openDrawer(false);
                     }
                 } else if (id == 1) {
-                    UserConfig.appLocked = !UserConfig.appLocked;
-                    UserConfig.saveConfig(false);
-                    updatePasscodeButton();
+//                    UserConfig.appLocked = !UserConfig.appLocked;
+//                    UserConfig.saveConfig(false);
+//                    updatePasscodeButton();
                 }
             }
         });
@@ -424,17 +402,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     return;
                 }
 
-                if (onlySelect) {
-//                    didSelectResult(post_id, true, false);
-                } else {
-                    Bundle args = new Bundle();
 
+                if (actionBar != null) {
+                    actionBar.closeSearchField();
+                }
 
-                    if (actionBar != null) {
-                        actionBar.closeSearchField();
-                    }
-
-                    // TODO here action on click to post. Open new Activity for example
+                // TODO here action on click to post. Open new Activity for example
 
 //                    if (AndroidUtilities.isTablet()) {
 //                        if (!StringUtils.isEmpty(openedPostId) && openedPostId.equals(post_id)) {
@@ -451,86 +424,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 //                    } else {
 //                        presentFragment(new ChatActivity(args));
 //                    }
-                }
+
             }
         });
         postListView.setOnItemLongClickListener(new RecyclerListView.OnItemLongClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                if (onlySelect || searching && searchWas || getParentActivity() == null) {
-                    if (searchWas && searching) {
-                        RecyclerView.Adapter adapter = postListView.getAdapter();
-                        if (adapter == postsSearchAdapter) {
-                            Object item = postsSearchAdapter.getItem(position);
-                            if (item instanceof String) {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                                builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                                builder.setMessage(LocaleController.getString("ClearSearch", R.string.ClearSearch));
-                                builder.setPositiveButton(LocaleController.getString("ClearButton", R.string.ClearButton).toUpperCase(), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        postsSearchAdapter.clearRecentHashtags();
-                                    }
-                                });
-                                builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                                showDialog(builder.create());
-                                return;
-                            }
-                        }
-                    }
-                    return;
-                }
-                PostObject postObject;
+                onItemLongClickHandle(view, position);
 
-                postObject = PostsController.getInstance().postObjects.get(position);
-
-                selectedPost = postObject.getId();
-
-                /*AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-
-
-                builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                showDialog(builder.create());*/
-
-                BottomSheet.Builder builder = new BottomSheet.Builder(getParentActivity());
-//                int lower_id = (int) selectedPost;
-//                int high_id = (int) (selectedPost >> 32);
-
-//                final boolean isChat = lower_id < 0 && high_id != 1;
-                builder.setItems(new CharSequence[]{LocaleController.getString("ClearHistory", R.string.ClearHistory),
-                        LocaleController.getString("Delete", R.string.Delete)}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, final int which) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                        builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                        if (which == 0) {
-                            builder.setMessage(LocaleController.getString("AreYouSureClearHistory", R.string.AreYouSureClearHistory));
-                        } else {
-
-                            builder.setMessage(LocaleController.getString("AreYouSureDeleteThisChat", R.string.AreYouSureDeleteThisChat));
-
-                        }
-                        builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                if (which != 0) {
-
-                                    PostsController.getInstance().deletePost(selectedPost, 0, false);
-
-                                    if (AndroidUtilities.isTablet()) {
-                                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats, selectedPost);
-                                    }
-                                } else {
-                                    PostsController.getInstance().deletePost(selectedPost, 0, true);
-                                }
-                            }
-                        });
-                        builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                        showDialog(builder.create());
-                    }
-                });
-                showDialog(builder.create());
             }
         });
 
@@ -577,7 +478,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         frameLayout.addView(progressView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER));
 
         floatingButton = new ImageView(context);
-        floatingButton.setVisibility(onlySelect ? View.GONE : View.VISIBLE);
+        floatingButton.setVisibility(View.VISIBLE);
         floatingButton.setScaleType(ImageView.ScaleType.CENTER);
         floatingButton.setBackgroundResource(R.drawable.floating_states);
         floatingButton.setImageResource(R.drawable.floating_pencil);
@@ -658,7 +559,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
         if (searchString == null) {
             //TODO find way not to pass PostActivity
-            postsAdapter = new PostsAdapter(context, serverOnly, PostsActivity.this);
+            postsAdapter = new PostsAdapter(context, PostsActivity.this);
             if (AndroidUtilities.isTablet() && StringUtils.isEmpty(openedPostId)) {
                 postsAdapter.setOpenedPostId(openedPostId);
             }
@@ -667,7 +568,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         int type = 0;
         if (searchString != null) {
             type = 2;
-        } else if (!onlySelect) {
+        } else {
             type = 1;
         }
         postsSearchAdapter = new PostsSearchAdapter(context, type);
@@ -714,7 +615,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (!onlySelect && floatingButton != null) {
+        if (floatingButton != null) {
             floatingButton.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
@@ -798,26 +699,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             updateVisibleRows(0);
         } else if (id == NotificationCenter.messageReceivedByAck || id == NotificationCenter.messageReceivedByServer || id == NotificationCenter.messageSendError) {
             updateVisibleRows(PostsController.UPDATE_MASK_SEND_STATE);
-        } else if (id == NotificationCenter.didSetPasscode) {
-            updatePasscodeButton();
         }
     }
 
-    private void updatePasscodeButton() {
-        if (passcodeItem == null) {
-            return;
-        }
-        if (UserConfig.passcodeHash.length() != 0 && !searching) {
-            passcodeItem.setVisibility(View.VISIBLE);
-            if (UserConfig.appLocked) {
-                passcodeItem.setIcon(R.drawable.lock_close);
-            } else {
-                passcodeItem.setIcon(R.drawable.lock_open);
-            }
-        } else {
-            passcodeItem.setVisibility(View.GONE);
-        }
-    }
 
     private void hideFloatingButton(boolean hide) {
         if (floatingHidden == hide) {
@@ -841,11 +725,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 PostCell cell = (PostCell) child;
                 if ((mask & PostsController.UPDATE_MASK_NEW_MESSAGE) != 0) {
                     cell.checkCurrentPostIndex();
-                    if (!serverOnly && AndroidUtilities.isTablet()) {
+                    if (AndroidUtilities.isTablet()) {
                         cell.setPostSelected(cell.getPostId().equals(openedPostId));
                     }
                 } else if ((mask & PostsController.UPDATE_MASK_SELECT_DIALOG) != 0) {
-                    if (!serverOnly && AndroidUtilities.isTablet()) {
+                    if (AndroidUtilities.isTablet()) {
                         cell.setPostSelected(cell.getPostId().equals(openedPostId));
                     }
                 } else {
@@ -879,5 +763,88 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     public ActionBar getActionBar() {
         return actionBar;
+    }
+
+
+    private void onItemLongClickHandle(View view, int position) {
+        //TODO-temp mock
+        if (true) {
+            return;
+        }
+        if (searching && searchWas || getParentActivity() == null) {
+            if (searchWas && searching) {
+                RecyclerView.Adapter adapter = postListView.getAdapter();
+                if (adapter == postsSearchAdapter) {
+                    Object item = postsSearchAdapter.getItem(position);
+                    if (item instanceof String) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
+                        builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
+                        builder.setMessage(LocaleController.getString("ClearSearch", R.string.ClearSearch));
+                        builder.setPositiveButton(LocaleController.getString("ClearButton", R.string.ClearButton).toUpperCase(), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                postsSearchAdapter.clearRecentHashtags();
+                            }
+                        });
+                        builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
+                        showDialog(builder.create());
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+        PostObject postObject;
+
+        postObject = PostsController.getInstance().postObjects.get(position);
+
+        selectedPost = postObject.getId();
+
+                /*AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
+                builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
+
+
+                builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
+                showDialog(builder.create());*/
+
+        BottomSheet.Builder builder = new BottomSheet.Builder(getParentActivity());
+//                int lower_id = (int) selectedPost;
+//                int high_id = (int) (selectedPost >> 32);
+
+//                final boolean isChat = lower_id < 0 && high_id != 1;
+        builder.setItems(new CharSequence[]{LocaleController.getString("ClearHistory", R.string.ClearHistory),
+                LocaleController.getString("Delete", R.string.Delete)}, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, final int which) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
+                builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
+                if (which == 0) {
+                    builder.setMessage(LocaleController.getString("AreYouSureClearHistory", R.string.AreYouSureClearHistory));
+                } else {
+
+                    builder.setMessage(LocaleController.getString("AreYouSureDeleteThisChat", R.string.AreYouSureDeleteThisChat));
+
+                }
+                builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (which != 0) {
+
+                            PostsController.getInstance().deletePost(selectedPost, 0, false);
+
+                            if (AndroidUtilities.isTablet()) {
+                                NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats, selectedPost);
+                            }
+                        } else {
+                            PostsController.getInstance().deletePost(selectedPost, 0, true);
+                        }
+                    }
+                });
+                builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
+                showDialog(builder.create());
+            }
+        });
+        showDialog(builder.create());
+
     }
 }

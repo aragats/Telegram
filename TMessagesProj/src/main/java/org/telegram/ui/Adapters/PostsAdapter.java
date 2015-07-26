@@ -29,8 +29,6 @@ public class PostsAdapter extends RecyclerView.Adapter {
     //TODO find other way to get postActivity.
     private PostsActivity postsActivity;
     private Context mContext;
-    //TODO ???
-    private boolean serverOnly;
     private String openedPostId;
     private int currentCount;
 
@@ -41,9 +39,8 @@ public class PostsAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public PostsAdapter(Context context, boolean onlyFromServer, PostsActivity postsActivity) {
+    public PostsAdapter(Context context, PostsActivity postsActivity) {
         mContext = context;
-        serverOnly = onlyFromServer;
         this.postsActivity = postsActivity;
     }
 
@@ -105,7 +102,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
                 cell.setPostSelected(!StringUtils.isEmpty(postObject.getId()) && postObject.getId().equals(openedPostId));
             }
 
-            cell.setPostObject(postObject, i, serverOnly);
+            cell.setPostObject(postObject, i);
 
 //TODO in new version. This in  onCreateViewHolder  method on ChatActivity
             //Set delegate to open photo

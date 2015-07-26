@@ -181,7 +181,7 @@ public class PostCell extends BaseCell {
     }
 
     //TODO. I have 2 method for setting posts. setPostObject and setPost.
-    public void setPostObject(PostObject postObject, int i, boolean server) {
+    public void setPostObject(PostObject postObject, int i) {
         //TODO I should store id or object. And retrieve from Controller by id.
         currentPostId = postObject.getId();
         this.postObject = postObject;
