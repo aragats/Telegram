@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.Outline;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
@@ -65,6 +67,7 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.utils.StringUtils;
 
+//TODO refresh list https://www.bignerdranch.com/blog/implementing-swipe-to-refresh/
 /*
 TODO-aragats
  */
@@ -93,6 +96,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private String openedPostId;
 
     private MessagesActivityDelegate delegate;
+
+    // Swipe Refresh Layout
+    private SwipeRefreshLayout swipeRefreshLayout;
+
 
     //TODO-legacy. update according to new version.
     @Override
@@ -356,6 +363,23 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         FrameLayout frameLayout = new FrameLayout(context);
         fragmentView = frameLayout;
 
+        //
+        swipeRefreshLayout = new SwipeRefreshLayout(context);
+        swipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+//                refreshContent();
+                Toast.makeText(((Context) getParentActivity()), "REFRESH BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
+                // Probably refresh icon disappear when we update the adapter the content. Because I should not use this method. OR NOT . I think it is ok to use this method. according to tutorial
+//                swipeRefreshLayout.setRefreshing(false);
+//                postsAdapter.notifyDataSetChanged();
+            }
+        });
+
+        //
+
+
         postListView = new RecyclerListView(context);
         postListView.setVerticalScrollBarEnabled(true);
         postListView.setItemAnimator(null);
@@ -372,7 +396,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (Build.VERSION.SDK_INT >= 11) {
             postListView.setVerticalScrollbarPosition(LocaleController.isRTL ? ListView.SCROLLBAR_POSITION_LEFT : ListView.SCROLLBAR_POSITION_RIGHT);
         }
-        frameLayout.addView(postListView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+        //
+        swipeRefreshLayout.addView(postListView);
+        //
+        frameLayout.addView(swipeRefreshLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
         postListView.setOnItemClickListener(new RecyclerListView.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
