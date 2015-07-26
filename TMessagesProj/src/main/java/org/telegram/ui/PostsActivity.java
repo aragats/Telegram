@@ -77,6 +77,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private EmptyTextProgressView searchEmptyView;
     private ProgressBar progressView;
     private LinearLayout emptyView;
+    //TODO delete it?
     private ActionBarMenuItem passcodeItem;
     private ImageView floatingButton;
 
@@ -337,6 +338,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         });
         item.getSearchField().setHint(LocaleController.getString("Search", R.string.Search));
+        //TODO-TEMP search invisible
+        item.setVisibility(View.INVISIBLE);
+
+
         if (onlySelect) {
             actionBar.setBackButtonImage(R.drawable.ic_ab_back);
             actionBar.setTitle(LocaleController.getString("SelectChat", R.string.SelectChat));
@@ -346,7 +351,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             } else {
                 actionBar.setBackButtonDrawable(new MenuDrawable());
             }
-            actionBar.setTitle(LocaleController.getString("AppName", R.string.AppName));
+//            actionBar.setTitle(LocaleController.getString("AppName", R.string.AppName));
+            actionBar.setTitle("Whats going on?");
         }
         actionBar.setAllowOverlayTitle(true);
 
