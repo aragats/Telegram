@@ -1585,8 +1585,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (!isGoogleMapsInstalled()) {
             return;
         }
-        LocationActivity fragment = new LocationActivity();
-        fragment.setDelegate(new LocationActivity.LocationActivityDelegate() {
+        LocationActivityAragats fragment = new LocationActivityAragats();
+        fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override
             public void didSelectLocation(TLRPC.MessageMedia location) {
                 Venue venue = new Venue();
