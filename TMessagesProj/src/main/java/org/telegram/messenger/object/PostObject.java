@@ -5,6 +5,8 @@ import android.text.StaticLayout;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 
+import java.util.List;
+
 
 /**
  * Created by aragats on 27/12/14.
@@ -68,6 +70,16 @@ public class PostObject {
 
     public String getAddress() {
         return this.post.getVenue().getAddress();
+    }
+
+    public List<Double> getCoordinates() {
+//        return this.post.getCoordinates().getCoordinates();
+        return this.post.getVenue().getCoordinates().getCoordinates();
+    }
+
+
+    public VenueObject getVenueObject(){
+        return new VenueObject(this.post.getVenue());
     }
 
     @Deprecated
