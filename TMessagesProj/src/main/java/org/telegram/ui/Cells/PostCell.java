@@ -99,16 +99,16 @@ public class PostCell extends BaseCell {
     public boolean useSeparator = false;
 
     private int nameLeft;
-    private int nameTop = AndroidUtilities.dp(14);
+    private int nameTop = AndroidUtilities.dp(15);
     private StaticLayout nameLayout;
 
     private int timeLeft;
-    private int timeTop = AndroidUtilities.dp(14);
+    private int timeTop = AndroidUtilities.dp(15);
 //    private int timeTop = AndroidUtilities.dp(17);
     private StaticLayout timeLayout;
 
 
-    private int addressTop = AndroidUtilities.dp(33);
+    private int addressTop = AndroidUtilities.dp(34);
 //    private int addressTop = AndroidUtilities.dp(40);
     private int addressLeft;
     private StaticLayout addressLayout;
