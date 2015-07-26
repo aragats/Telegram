@@ -71,8 +71,8 @@ public class VenueServiceMock {
         Image image = ImageServiceMock.getRandomImage();
         result.setImage(image);
         result.setPreviewImage(image);
-        result.setAddress(PostServiceMock.generateString("ab c de fg rty  ui o ph jk", 40));
-        result.setName(PostServiceMock.generateString("ab c de fg rty  ui o ph jk", 40));
+        result.setAddress(PostServiceMock.generateString("ab c de fg rty  ui o ph jk", 60));
+        result.setName(PostServiceMock.generateString("ab c de fg rty  ui o ph jk", 60));
         result.setCoordinates(CoordinatesServiceMock.getRandomCoordinates());
         return result;
     }

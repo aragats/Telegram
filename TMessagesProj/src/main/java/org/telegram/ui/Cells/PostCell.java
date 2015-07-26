@@ -51,8 +51,9 @@ public class PostCell extends BaseCell {
         public abstract boolean canPerformActions();
     }
 
+    //Paint. set fond size for them
     private static TextPaint namePaint;
-    private static TextPaint messagePaint;
+    private static TextPaint addressPaint;
     private static TextPaint messagePrintingPaint;
     private static TextPaint timePaint;
 
@@ -63,7 +64,9 @@ public class PostCell extends BaseCell {
 
     private static TextPaint textPaint;
 
-    private static int fontSize = AndroidUtilities.dp(16);
+    //Text fond of text.
+    private static int fontSize = AndroidUtilities.dp(14);
+//    private static int fontSize = AndroidUtilities.dp(16);
 
     private PostObject.TextLayoutBlock block;
 
@@ -99,13 +102,15 @@ public class PostCell extends BaseCell {
     private StaticLayout nameLayout;
 
     private int timeLeft;
-    private int timeTop = AndroidUtilities.dp(17);
+    private int timeTop = AndroidUtilities.dp(13);
+//    private int timeTop = AndroidUtilities.dp(17);
     private StaticLayout timeLayout;
 
 
-    private int messageTop = AndroidUtilities.dp(40);
-    private int messageLeft;
-    private StaticLayout messageLayout;
+    private int addressTop = AndroidUtilities.dp(35);
+//    private int addressTop = AndroidUtilities.dp(40);
+    private int addressLeft;
+    private StaticLayout addressLayout;
 
     private boolean drawError;
     private int errorTop = AndroidUtilities.dp(39);
@@ -125,14 +130,14 @@ public class PostCell extends BaseCell {
 
         if (namePaint == null) {
             namePaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-            namePaint.setTextSize(AndroidUtilities.dp(17));
+            namePaint.setTextSize(AndroidUtilities.dp(14));
             namePaint.setColor(0xff212121);
             namePaint.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
 
-            messagePaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-            messagePaint.setTextSize(AndroidUtilities.dp(16));
-            messagePaint.setColor(0xff8f8f8f);
-            messagePaint.linkColor = 0xff8f8f8f;
+            addressPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+            addressPaint.setTextSize(AndroidUtilities.dp(14));
+            addressPaint.setColor(0xff8f8f8f);
+            addressPaint.linkColor = 0xff8f8f8f;
 
             linePaint = new Paint();
             linePaint.setColor(0xffdcdcdc);
@@ -141,7 +146,7 @@ public class PostCell extends BaseCell {
             backPaint.setColor(0x0f000000);
 
             messagePrintingPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-            messagePrintingPaint.setTextSize(AndroidUtilities.dp(16));
+            messagePrintingPaint.setTextSize(AndroidUtilities.dp(14));
             messagePrintingPaint.setColor(0xff4d83b3);
 
             timePaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
@@ -291,7 +296,7 @@ public class PostCell extends BaseCell {
         String timeString = "";
         CharSequence addressString = "";
         TextPaint currentNamePaint = namePaint;
-        TextPaint currentMessagePaint = messagePaint;
+        TextPaint currentAddressPaint = addressPaint;
         boolean checkMessage = true;
 
         if (!LocaleController.isRTL) {
@@ -302,7 +307,7 @@ public class PostCell extends BaseCell {
 
         if (postObject == null) {
             lastPrintString = addressString;
-            currentMessagePaint = messagePrintingPaint;
+            currentAddressPaint = messagePrintingPaint;
             if (lastMessageDate != 0) {
                 timeString = LocaleController.stringForMessageListDate(lastMessageDate);
             }
@@ -323,7 +328,7 @@ public class PostCell extends BaseCell {
 
             checkMessage = false;
 
-            currentMessagePaint = messagePrintingPaint;
+            currentAddressPaint = messagePrintingPaint;
 
             String distance = "n km";
             if (distance.length() > 150) {
@@ -331,9 +336,9 @@ public class PostCell extends BaseCell {
             }
             distance = distance.replace("\n", " ");
 
-//                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", address, postObject.messageText)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+//                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", address, postObject.messageText)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
             // address: distance
-            addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distance)), messagePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+            addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distance)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
 
 
 //            if (unreadCount != 0) {
@@ -380,26 +385,27 @@ public class PostCell extends BaseCell {
             FileLog.e("tmessages", e);
         }
 
-        int messageWidth = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.leftBaseline + 16);
+        int addressWidth = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.leftBaseline + 16);
 
         if (!LocaleController.isRTL) {
-            messageLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
+            addressLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
             avatarLeft = AndroidUtilities.dp(AndroidUtilities.isTablet() ? 13 : 9);
             textLeft = AndroidUtilities.dp(9);
         } else {
-            messageLeft = AndroidUtilities.dp(16);
+            addressLeft = AndroidUtilities.dp(16);
             avatarLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.isTablet() ? 65 : 61);
             textLeft = getMeasuredWidth() - AndroidUtilities.dp(61);
         }
-        avatarImage.setImageCoords(avatarLeft, avatarTop, AndroidUtilities.dp(52), AndroidUtilities.dp(52));
+//        avatarImage.setImageCoords(avatarLeft, avatarTop, AndroidUtilities.dp(52), AndroidUtilities.dp(52));
+        avatarImage.setImageCoords(avatarLeft, avatarTop, AndroidUtilities.dp(45), AndroidUtilities.dp(45));
         if (drawError) {
             int w = errorDrawable.getIntrinsicWidth() + AndroidUtilities.dp(8);
-            messageWidth -= w;
+            addressWidth -= w;
             if (!LocaleController.isRTL) {
                 errorLeft = getMeasuredWidth() - errorDrawable.getIntrinsicWidth() - AndroidUtilities.dp(11);
             } else {
                 errorLeft = AndroidUtilities.dp(11);
-                messageLeft += w;
+                addressLeft += w;
             }
         }
 
@@ -407,17 +413,17 @@ public class PostCell extends BaseCell {
             if (addressString == null) {
                 addressString = "";
             }
-            String mess = addressString.toString();
-            if (mess.length() > 150) {
-                mess = mess.substring(0, 150);
+            String address = addressString.toString();
+            if (address.length() > 150) {
+                address = address.substring(0, 150);
             }
-            mess = mess.replace("\n", " ");
-            addressString = Emoji.replaceEmoji(mess, messagePaint.getFontMetricsInt(), AndroidUtilities.dp(17));
+            address = address.replace("\n", " ");
+            addressString = Emoji.replaceEmoji(address, addressPaint.getFontMetricsInt(), AndroidUtilities.dp(17));
         }
-        messageWidth = Math.max(AndroidUtilities.dp(12), messageWidth);
-        CharSequence messageStringFinal = TextUtils.ellipsize(addressString, currentMessagePaint, messageWidth - AndroidUtilities.dp(12), TextUtils.TruncateAt.END);
+        addressWidth = Math.max(AndroidUtilities.dp(12), addressWidth);
+        CharSequence addressStringFinal = TextUtils.ellipsize(addressString, currentAddressPaint, addressWidth - AndroidUtilities.dp(12), TextUtils.TruncateAt.END);
         try {
-            messageLayout = new StaticLayout(messageStringFinal, currentMessagePaint, messageWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+            addressLayout = new StaticLayout(addressStringFinal, currentAddressPaint, addressWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
         } catch (Exception e) {
             FileLog.e("tmessages", e);
         }
@@ -437,12 +443,12 @@ public class PostCell extends BaseCell {
                     }
                 }
             }
-            if (messageLayout != null && messageLayout.getLineCount() > 0) {
-                left = messageLayout.getLineLeft(0);
+            if (addressLayout != null && addressLayout.getLineCount() > 0) {
+                left = addressLayout.getLineLeft(0);
                 if (left == 0) {
-                    widthpx = Math.ceil(messageLayout.getLineWidth(0));
-                    if (widthpx < messageWidth) {
-                        messageLeft += (messageWidth - widthpx);
+                    widthpx = Math.ceil(addressLayout.getLineWidth(0));
+                    if (widthpx < addressWidth) {
+                        addressLeft += (addressWidth - widthpx);
                     }
                 }
             }
@@ -459,12 +465,12 @@ public class PostCell extends BaseCell {
 //                    nameMuteLeft = (int) (nameLeft + left + AndroidUtilities.dp(6));
 //                }
             }
-            if (messageLayout != null && messageLayout.getLineCount() > 0) {
-                left = messageLayout.getLineRight(0);
-                if (left == messageWidth) {
-                    widthpx = Math.ceil(messageLayout.getLineWidth(0));
-                    if (widthpx < messageWidth) {
-                        messageLeft -= (messageWidth - widthpx);
+            if (addressLayout != null && addressLayout.getLineCount() > 0) {
+                left = addressLayout.getLineRight(0);
+                if (left == addressWidth) {
+                    widthpx = Math.ceil(addressLayout.getLineWidth(0));
+                    if (widthpx < addressWidth) {
+                        addressLeft -= (addressWidth - widthpx);
                     }
                 }
             }
@@ -624,6 +630,7 @@ public class PostCell extends BaseCell {
         //
 
         //TODO null, 0 ??? s ext adn size. int)postObject.getImage().getSize()
+//        avatarImage.setImage(R.drawable.pin);
         avatarImage.setImage(postObject.getVenuePreviewImageUrl(), null, avatarDrawable, null, 0);
 
         //Photo
@@ -665,10 +672,10 @@ public class PostCell extends BaseCell {
         timeLayout.draw(canvas);
         canvas.restore();
 
-        if (messageLayout != null) {
+        if (addressLayout != null) {
             canvas.save();
-            canvas.translate(messageLeft, messageTop);
-            messageLayout.draw(canvas);
+            canvas.translate(addressLeft, addressTop);
+            addressLayout.draw(canvas);
             canvas.restore();
         }
 
