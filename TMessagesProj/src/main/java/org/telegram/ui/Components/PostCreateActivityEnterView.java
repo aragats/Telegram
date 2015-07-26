@@ -678,7 +678,14 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
     }
 
 
+    //TODO method to change sendButton to attachButton
     private void checkSendButton(final boolean animated) {
+        //TODO mock because I do not change the button.
+        if(true) {
+            sendButton.setVisibility(View.INVISIBLE);
+            attachButton.setVisibility(View.VISIBLE);
+            return;
+        }
         String message = getTrimmedString(messageEditText.getText().toString());
         if (message.length() > 0 || forceShowSendButton) {
             if (attachButton != null && attachButton.getVisibility() == View.VISIBLE) {
