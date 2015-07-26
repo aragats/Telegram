@@ -39,8 +39,8 @@ public class ImageServiceMock {
     public static Image generateImage2() {
         Image result = new Image();
         result.setSize(0);
-        result.setHeight(1224);
-        result.setWidth(1632);
+        result.setHeight(1632);
+        result.setWidth(1224);
         result.setUrl("http://cs622031.vk.me/v622031634/2af54/Rba5Mi6iPNw.jpg");
         return result;
     }
