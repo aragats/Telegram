@@ -99,15 +99,16 @@ public class PostCell extends BaseCell {
     public boolean useSeparator = false;
 
     private int nameLeft;
+    private int nameTop = AndroidUtilities.dp(14);
     private StaticLayout nameLayout;
 
     private int timeLeft;
-    private int timeTop = AndroidUtilities.dp(13);
+    private int timeTop = AndroidUtilities.dp(14);
 //    private int timeTop = AndroidUtilities.dp(17);
     private StaticLayout timeLayout;
 
 
-    private int addressTop = AndroidUtilities.dp(35);
+    private int addressTop = AndroidUtilities.dp(33);
 //    private int addressTop = AndroidUtilities.dp(40);
     private int addressLeft;
     private StaticLayout addressLayout;
@@ -119,6 +120,7 @@ public class PostCell extends BaseCell {
     private int avatarLeft;
 
     private int avatarTop = AndroidUtilities.dp(10);
+    private int avatarSize = AndroidUtilities.dp(46);
 
     private boolean isSelected;
 
@@ -397,7 +399,7 @@ public class PostCell extends BaseCell {
             textLeft = getMeasuredWidth() - AndroidUtilities.dp(61);
         }
 //        avatarImage.setImageCoords(avatarLeft, avatarTop, AndroidUtilities.dp(52), AndroidUtilities.dp(52));
-        avatarImage.setImageCoords(avatarLeft, avatarTop, AndroidUtilities.dp(45), AndroidUtilities.dp(45));
+        avatarImage.setImageCoords(avatarLeft, avatarTop, avatarSize, avatarSize);
         if (drawError) {
             int w = errorDrawable.getIntrinsicWidth() + AndroidUtilities.dp(8);
             addressWidth -= w;
@@ -662,7 +664,7 @@ public class PostCell extends BaseCell {
 
         if (nameLayout != null) {
             canvas.save();
-            canvas.translate(nameLeft, AndroidUtilities.dp(13));
+            canvas.translate(nameLeft, nameTop);
             nameLayout.draw(canvas);
             canvas.restore();
         }

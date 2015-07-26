@@ -1067,11 +1067,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (postCreateActivityEnterView != null) {
             postCreateActivityEnterView.hideEmojiPopup();
             String text = postCreateActivityEnterView.getFieldText();
-            if (text != null) {
+            if (text != null || !postObjects.isEmpty()) {
                 SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
                 //TODO save text before pause.
-                editor.putString("new_post_text", text);
+                if (text != null) {
+                    editor.putString("new_post_text", text);
+                }
                 if (!postObjects.isEmpty()) {
                     editor.putString("new_post_photo", postObjects.get(0).getImage().getUrl());
                 }
@@ -1631,13 +1633,21 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
         if (photos != null && !photos.isEmpty()) {
             //
+            String photoUrl = photos.get(0);
+            if (StringUtils.isEmpty(photoUrl)) {
+                return;
+            }
+            File file = new File(photoUrl);
+            if (!file.exists()) {
+                return;
+            }
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             // TODO THIS Do not allow decode the file.
 //            options.inJustDecodeBounds = true;
 
 //Returns null, sizes are in the options variable
-            Bitmap bitmap = BitmapFactory.decodeFile(photos.get(0), options);
+            Bitmap bitmap = BitmapFactory.decodeFile(photoUrl, options);
             int width = options.outWidth;
             int height = options.outHeight;
 //If you want, the MIME type will also be decoded (if possible)
@@ -1651,7 +1661,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             Post post = new Post();
             post.setId(PostServiceMock.generateString("1234567890", 5));
             Image image = new Image();
-            image.setUrl(photos.get(0));
+            image.setUrl(photoUrl);
             image.setWidth(width);
             image.setHeight(height);
             image.setBitmap(bitmap);
