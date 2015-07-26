@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,9 +55,12 @@ import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
+import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
+import org.telegram.messenger.dto.Venue;
 import org.telegram.messenger.object.PostObject;
+import org.telegram.messenger.object.VenueObject;
 import org.telegram.messenger.service.mock.PostServiceMock;
 import org.telegram.messenger.service.mock.VenueServiceMock;
 import org.telegram.ui.ActionBar.ActionBar;
@@ -124,6 +128,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     protected ArrayList<PostObject> postObjects = new ArrayList<>();
+    protected VenueObject venueObject;
 
     private boolean loading = false;
 
@@ -324,7 +329,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //
 
 
-
         avatarContainer = new FrameLayoutFixed(context);
         avatarContainer.setBackgroundResource(R.drawable.bar_selector);
         avatarContainer.setPadding(AndroidUtilities.dp(8), 0, AndroidUtilities.dp(8), 0);
@@ -354,7 +358,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         nameTextView.setGravity(Gravity.LEFT);
         nameTextView.setCompoundDrawablePadding(AndroidUtilities.dp(4));
         nameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
-        nameTextView.setText("Venue Name");
+        nameTextView.setText("Venue name");
         avatarContainer.addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 54, 0, 0, 22));
 
         onlineTextView = new TextView(context);
@@ -366,7 +370,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         onlineTextView.setEllipsize(TextUtils.TruncateAt.END);
         onlineTextView.setGravity(Gravity.LEFT);
         avatarContainer.addView(onlineTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 54, 0, 0, 4));
-
 
 
         ActionBarMenu menu = actionBar.createMenu();
@@ -834,9 +837,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (nameTextView == null) {
             return;
         }
-//        if (currentChat != null) {
-        nameTextView.setText("My Title");
-//        }
+        String name = "Current location";
+        if (venueObject != null) {
+            if (!StringUtils.isEmpty(venueObject.getName())) {
+                name = venueObject.getName();
+            }
+            nameTextView.setText(name);
+        }
     }
 
     private void updateTitleIcons() {
@@ -845,7 +852,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         int rightIcon = 0;
         nameTextView.setCompoundDrawablesWithIntrinsicBounds(leftIcon, 0, rightIcon, 0);
 
-        if(muteItem != null) {
+        if (muteItem != null) {
             if (rightIcon != 0) {
                 muteItem.setText(LocaleController.getString("UnmuteNotifications", R.string.UnmuteNotifications));
             } else {
@@ -858,21 +865,32 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (onlineTextView == null) {
             return;
         }
-        CharSequence printString = "printing";
-        printString = TextUtils.replace(printString, new String[]{"..."}, new String[]{""});
-        onlineTextView.setText(printString);
+//        CharSequence addressString = "printing";
+        CharSequence addressString = "address";
+        if (venueObject != null && !StringUtils.isEmpty(venueObject.getAddress())) {
+            addressString = venueObject.getAddress();
+        }
+        addressString = TextUtils.replace(addressString, new String[]{"..."}, new String[]{""});
+        onlineTextView.setText(addressString);
     }
 
     private void checkAndUpdateAvatar() {
+//        ImageView imageView = new ImageView(this.getParentActivity());
+//        imageView.setImageResource(R.drawable.pin);
+
 
         if (avatarImageView != null) {
             AvatarDrawable avatarDrawable = new AvatarDrawable();
 //            avatarImageView.setImage(newPhoto, "50_50", avatarDrawable);
 //            avatarImageView.setImage("/storage/emulated/0/Telegram/Telegram Images/730111210_6623.jpg", "50_50", avatarDrawable);
             //TODO probably save venueObject. into field in Activity.
-            if (avatarImageView != null) {
-                avatarImageView.setImage(PostsController.getInstance().getCurrentVenueObject().getVenuePreviewImageUrl(), "50_50", avatarDrawable);
+            if (venueObject != null && !StringUtils.isEmpty(venueObject.getVenuePreviewImageUrl())) {
+                avatarImageView.setImage(venueObject.getVenuePreviewImageUrl(), "50_50", avatarDrawable);
+            } else {
+                avatarImageView.setImageResource(R.drawable.pin);
+//                    avatarImageView.setImage(PostsController.getInstance().getCurrentVenueObject().getVenuePreviewImageUrl(), "50_50", avatarDrawable);
             }
+
         }
     }
 
@@ -1054,7 +1072,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 SharedPreferences.Editor editor = preferences.edit();
                 //TODO save text before pause.
                 editor.putString("new_post_text", text);
-                if(!postObjects.isEmpty()) {
+                if (!postObjects.isEmpty()) {
                     editor.putString("new_post_photo", postObjects.get(0).getImage().getUrl());
                 }
                 editor.commit();
@@ -1571,13 +1589,31 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         fragment.setDelegate(new LocationActivity.LocationActivityDelegate() {
             @Override
             public void didSelectLocation(TLRPC.MessageMedia location) {
-                Toast.makeText(getParentActivity(), location.venue_id + " " + location.geo.lat + " " + location.geo._long, Toast.LENGTH_LONG).show();
+                Venue venue = new Venue();
+                Coordinates coordinates = new Coordinates();
+                coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
+                coordinates.setType("Point");
+                venue.setCoordinates(coordinates);
+                venue.setFoursquareId(location.venue_id);
+                Image image = new Image();
+                image.setUrl(location.iconUrl);
+                venue.setImage(image);
+                venue.setPreviewImage(image);
+                venue.setName(location.title);
+                venue.setAddress(location.address);
+                if (StringUtils.isEmpty(venue.getAddress())) {
+                    venue.setAddress(location.geo._long + ", " + location.geo.lat);
+                }
+                venueObject = new VenueObject(venue);
+//                location.iconUrl;
+//                Toast.makeText(getParentActivity(), location.venue_id + " " + location.geo.lat + " " + location.geo._long, Toast.LENGTH_LONG).show();
 //                            SendMessagesHelper.getInstance().sendMessage(location, dialog_id, replyingMessageObject);
 //                            moveScrollToLastMessage();
 //                            showReplyPanel(false, null, null, null, false, true);
 //                            if (paused) {
 //                                scrollToTopOnResume = true;
 //                            }
+                updateVenue();
             }
         });
         presentFragment(fragment);
@@ -1699,6 +1735,17 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             FileLog.e("tmessages", e);
             return false;
         }
+    }
+
+
+    private void updateVenue() {
+        if (venueObject != null) {
+            updateTitle();
+            updateSubtitle();
+            checkAndUpdateAvatar();
+
+        }
+
     }
 
 }

@@ -3330,6 +3330,8 @@ public class TLRPC {
         public String last_name;
         public int user_id;
         public WebPage webpage;
+        //TODO-aragats
+        public String iconUrl;
 
         public static MessageMedia TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
             MessageMedia result = null;

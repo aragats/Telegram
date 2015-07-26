@@ -163,6 +163,7 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
 
                                         JSONObject location = object.getJSONObject("location");
                                         TLRPC.TL_messageMediaVenue venue = new TLRPC.TL_messageMediaVenue();
+                                        venue.iconUrl = iconUrl;
                                         venue.geo = new TLRPC.TL_geoPoint();
                                         venue.geo.lat = location.getDouble("lat");
                                         venue.geo._long = location.getDouble("lng");

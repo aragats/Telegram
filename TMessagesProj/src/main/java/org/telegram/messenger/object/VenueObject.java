@@ -41,7 +41,11 @@ public class VenueObject {
         return this.venue.getName();
     }
 
-//
+    public Venue getVenue() {
+        return venue;
+    }
+
+    //
 //
 //
 //    public long id;
