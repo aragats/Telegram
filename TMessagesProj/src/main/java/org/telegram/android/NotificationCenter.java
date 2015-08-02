@@ -19,6 +19,7 @@ public class NotificationCenter {
 
     public static final int venuesNeedReload = -1;
     public static final int postsNeedReload = -2;
+    public static final int postRequestFinished = -3;
 
 
     private static int totalEvents = 1;

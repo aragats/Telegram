@@ -19,6 +19,7 @@ import org.telegram.messenger.service.mock.PostServiceMock;
 import org.telegram.messenger.service.mock.VenueServiceMock;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 //import org.telegram.messenger.TLRPC;
@@ -32,11 +33,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public Post currentPost;
 
 
-    public ArrayList<Post> posts = new ArrayList<>();
+    public List<Post> posts = new ArrayList<>();
     public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
 
-    public int totalDialogsCount = 0;
-    public boolean loadingPosts = false;
+    private boolean loadingPosts = false;
 
 
     public int fontSize = AndroidUtilities.dp(16);
@@ -102,16 +102,11 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
     public void cleanUp() {
-        ContactsController.getInstance().cleanup();
         MediaController.getInstance().cleanup();
         NotificationsController.getInstance().cleanup();
-        SendMessagesHelper.getInstance().cleanUp();
-        SecretChatHelper.getInstance().cleanUp();
 
         postsMap.clear();
         posts.clear();
-
-        totalDialogsCount = 0;
 
         loadingPosts = false;
 
@@ -123,7 +118,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void loadPosts(final int offset, final int count, boolean fromCache) {
+    public void loadPosts(final int offset, final int count, boolean reload, boolean fromCache) {
         if (loadingPosts) {
             return;
         }
@@ -133,12 +128,16 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         //TODO here async  request
         PostResponse postResponse = PostServiceMock.getPosts("location", null, offset, count);
 //        after getting response.
-        processLoadedPosts(postResponse, offset, count);
+        processLoadedPosts(postResponse, offset, count, reload);
 
     }
 
 
-    public void processLoadedPosts(PostResponse postResponse, final int offset, final int count) {
+    public void processLoadedPosts(PostResponse postResponse, final int offset, final int count, boolean reload) {
+        if (reload) {
+            posts.clear();
+            postsMap.clear();
+        }
         posts.addAll(postResponse.getPosts());
         for (Post post : posts) {
             postsMap.putIfAbsent(post.getId(), post);
@@ -147,6 +146,8 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!postResponse.getPosts().isEmpty()) {
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
+        } else {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished);
         }
 
 
@@ -171,5 +172,13 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     public void setCurrentPost(Post currentPost) {
         this.currentPost = currentPost;
+    }
+
+    public boolean isLoadingPosts() {
+        return loadingPosts;
+    }
+
+    public void setLoadingPosts(boolean loadingPosts) {
+        this.loadingPosts = loadingPosts;
     }
 }

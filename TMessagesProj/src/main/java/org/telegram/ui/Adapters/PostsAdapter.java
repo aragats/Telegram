@@ -56,7 +56,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemCount() {
         int count = PostsController.getInstance().posts.size();
-        if (count == 0 && PostsController.getInstance().loadingPosts) {
+        if (count == 0 && PostsController.getInstance().isLoadingPosts()) {
             return 0;
         }
 //        if (!PostsController.getInstance().dialogsEndReached) {

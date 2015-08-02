@@ -64,6 +64,7 @@ import org.telegram.ui.Components.EmptyTextProgressView;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
+import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 //TODO refresh list https://www.bignerdranch.com/blog/implementing-swipe-to-refresh/
@@ -201,6 +202,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
         if (searchString == null) {
             //TODO learn NotificationCenter class especiallu case when post notification. There is different situations when notify when animation or not.
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.dialogsNeedReload);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
@@ -218,7 +220,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
 
         if (!postsLoaded) {
-            PostsController.getInstance().loadPosts(0, 20, true);
+            PostsController.getInstance().loadPosts(0, Constants.POST_COUNT, true, true);
             ContactsController.getInstance().checkInviteText();
             postsLoaded = true;
         }
@@ -229,6 +231,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
         if (searchString == null) {
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.dialogsNeedReload);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
@@ -279,7 +282,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 searchWas = false;
                 if (postListView != null) {
                     searchEmptyView.setVisibility(View.INVISIBLE);
-                    if (PostsController.getInstance().loadingPosts && PostsController.getInstance().posts.isEmpty()) {
+                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
                         emptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(progressView);
                     } else {
@@ -368,8 +371,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                PostsController.getInstance().loadPosts(0, Constants.POST_COUNT, true, true);
 //                refreshContent();
-                Toast.makeText(((Context) getParentActivity()), "REFRESH BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(((Context) getParentActivity()), "REFRESH BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
                 // Probably refresh icon disappear when we update the adapter the content. Because I should not use this method. OR NOT . I think it is ok to use this method. according to tutorial
 //                swipeRefreshLayout.setRefreshing(false);
 //                postsAdapter.notifyDataSetChanged();
@@ -555,7 +559,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 //TODO fix it.
                 if (visibleItemCount > 0) {
                     if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().posts.size() - 1) {
-                        PostsController.getInstance().loadPosts(PostsController.getInstance().posts.size(), 20, true);
+                        PostsController.getInstance().loadPosts(PostsController.getInstance().posts.size(), Constants.POST_COUNT, false, true);
                     }
                 }
 
@@ -612,7 +616,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         });
 
-        if (PostsController.getInstance().loadingPosts && PostsController.getInstance().posts.isEmpty()) {
+        if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
             searchEmptyView.setVisibility(View.INVISIBLE);
             emptyView.setVisibility(View.INVISIBLE);
             postListView.setEmptyView(progressView);
@@ -663,7 +667,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     @Override
     @SuppressWarnings("unchecked")
     public void didReceivedNotification(int id, Object... args) {
-        if (id == NotificationCenter.postsNeedReload) {
+        if (id == NotificationCenter.postRequestFinished) {
+            if(swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        } else if (id == NotificationCenter.postsNeedReload) {
             if (postsAdapter != null) {
                 if (postsAdapter.isDataSetChanged()) {
                     postsAdapter.notifyDataSetChanged();
@@ -676,7 +684,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             if (postListView != null) {
                 try {
-                    if (PostsController.getInstance().loadingPosts && PostsController.getInstance().posts.isEmpty()) {
+                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
                         searchEmptyView.setVisibility(View.INVISIBLE);
                         emptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(progressView);
@@ -693,6 +701,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 } catch (Exception e) {
                     FileLog.e("tmessages", e); //TODO fix it in other way?
                 }
+            }
+            if(swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
             }
         } else if (id == NotificationCenter.emojiDidLoaded) {
             if (postListView != null) {

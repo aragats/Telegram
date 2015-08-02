@@ -11,4 +11,8 @@ public class Constants {
     public static final String WGO_DOCUMENT = "Whats going on. Documents";
     public static final String WGOFaqUrl = "WGOFaqUrl";
     public static final String WGO_FAQ = "WGOFAQ";
+
+
+
+    public static int POST_COUNT = 20;
 }
