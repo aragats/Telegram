@@ -2,9 +2,7 @@ package org.telegram.ui;
 
 import android.graphics.Bitmap;
 
-import org.telegram.android.MessageObject;
-import org.telegram.messenger.TLRPC;
-import org.telegram.messenger.object.PostObject;
+import org.telegram.messenger.dto.Post;
 
 /**
  * Created by aragats on 05/07/15.
@@ -12,13 +10,13 @@ import org.telegram.messenger.object.PostObject;
 //TODO-aragats. This is copy form PhotoViewerProvvider from PhotoViewer.
 public interface PostPhotoViewerProvider {
 
-    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(PostObject postObject);
+    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(Post post);
 
-    Bitmap getThumbForPhoto(PostObject postObject, int index);
+    Bitmap getThumbForPhoto(Post post, int index);
 
 //    void willSwitchFromPhoto(MessageObject messageObject, TLRPC.FileLocation fileLocation, int index);
 
-    public void willSwitchFromPhoto(PostObject postObject);
+    public void willSwitchFromPhoto(Post post);
 
 
     void willHidePhotoViewer();

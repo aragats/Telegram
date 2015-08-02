@@ -85,4 +85,15 @@ public class Post {
     public void setCreatedDate(long createdDate) {
         this.createdDate = createdDate;
     }
+
+
+    public String getVenuePreviewImageUrl() {
+        return this.getVenue().getImage().getUrl();
+    }
+
+
+    public String getPreviewImageUrl() {
+        return this.getPreviewImage().getUrl();
+    }
+
 }

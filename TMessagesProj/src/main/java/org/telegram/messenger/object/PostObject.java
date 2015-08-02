@@ -13,12 +13,6 @@ import java.util.List;
  */
 public class PostObject {
 
-    public static class TextLayoutBlock {
-        public StaticLayout textLayout;
-        public float textXOffset = 0;
-        public float textYOffset = 0;
-        public int charactersOffset = 0;
-    }
 
     private Post post;
 

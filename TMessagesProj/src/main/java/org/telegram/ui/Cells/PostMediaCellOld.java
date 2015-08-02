@@ -25,8 +25,8 @@ import java.util.Locale;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.ImageReceiver;
 import org.telegram.messenger.dto.Image;
-import org.telegram.messenger.object.PostObject;
-import org.telegram.messenger.object.UserObject;
+import org.telegram.messenger.dto.Post;
+import org.telegram.messenger.dto.User;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.RadialProgress;
 //TODO-aragats
@@ -37,7 +37,7 @@ public class PostMediaCellOld extends BaseCell {
 
         public abstract void didPressedOther(PostMediaCellOld cell);
 
-        public abstract void didPressedUserAvatar(PostCell cell, UserObject userObject);
+        public abstract void didPressedUserAvatar(PostCell cell, User userObject);
 
         public abstract void didPressedCancelSendButton(PostCell cell);
 
@@ -58,7 +58,7 @@ public class PostMediaCellOld extends BaseCell {
     private int buttonX;
     private int buttonY;
 
-    private PostObject postObject;
+    private Post post;
     private AvatarDrawable imageDrawable;
 
     private static Drawable backgroundMediaDrawableOutSelected;
@@ -182,10 +182,10 @@ public class PostMediaCellOld extends BaseCell {
     }
 
 
-    public void setPostObject(PostObject postObjectObject) {
+    public void setPost(Post post) {
 
-        this.postObject = postObjectObject;
-        if (this.postObject != null) {
+        this.post = post;
+        if (this.post != null) {
             updateSecretTimeText();
 
             if (AndroidUtilities.isTablet()) {
@@ -204,8 +204,8 @@ public class PostMediaCellOld extends BaseCell {
 
 
             //TODO Full or Image
-            if (this.postObject.getPreviewImage() != null) {
-                Image previewImage = this.postObject.getPreviewImage();
+            if (this.post.getPreviewImage() != null) {
+                Image previewImage = this.post.getPreviewImage();
 
                 float scale = (float) previewImage.getWidth() / (float) photoWidth; // scale calculate
 
@@ -302,11 +302,11 @@ public class PostMediaCellOld extends BaseCell {
     private void updateSecretTimeText() {
         String currentInfoString = "";
 
-        if (this.postObject == null) {
+        if (this.post == null) {
             return;
         }
         //TODO info about image. Size. or so on.
-        String str = "" + this.postObject.getPreviewImage().getSize();
+        String str = "" + this.post.getPreviewImage().getSize();
         if (str == null) {
             return;
         }
@@ -324,7 +324,7 @@ public class PostMediaCellOld extends BaseCell {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (this.postObject == null) {
+        if (this.post == null) {
             return;
         }
 
@@ -389,7 +389,7 @@ public class PostMediaCellOld extends BaseCell {
     }
 
 
-    public PostObject getPostObject() {
-        return postObject;
+    public Post getPost() {
+        return post;
     }
 }

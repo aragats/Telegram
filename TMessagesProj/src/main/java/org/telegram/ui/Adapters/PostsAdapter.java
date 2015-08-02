@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.RecyclerView;
-import org.telegram.messenger.object.PostObject;
+import org.telegram.messenger.dto.Post;
 import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.PhotoViewer;
@@ -55,7 +55,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        int count = PostsController.getInstance().postObjects.size();
+        int count = PostsController.getInstance().posts.size();
         if (count == 0 && PostsController.getInstance().loadingPosts) {
             return 0;
         }
@@ -66,12 +66,12 @@ public class PostsAdapter extends RecyclerView.Adapter {
         return count;
     }
 
-    public PostObject getItem(int i) {
+    public Post getItem(int i) {
 
-        if (i < 0 || i >= PostsController.getInstance().postObjects.size()) {
+        if (i < 0 || i >= PostsController.getInstance().posts.size()) {
             return null;
         }
-        return PostsController.getInstance().postObjects.get(i);
+        return PostsController.getInstance().posts.get(i);
 
     }
 
@@ -96,24 +96,23 @@ public class PostsAdapter extends RecyclerView.Adapter {
         if (viewHolder.getItemViewType() == 0) {
             PostCell cell = (PostCell) viewHolder.itemView;
             cell.useSeparator = (i != getItemCount() - 1);
-            PostObject postObject;
-            postObject = PostsController.getInstance().postObjects.get(i);
+            Post post = PostsController.getInstance().posts.get(i);
             if (AndroidUtilities.isTablet()) {
-                cell.setPostSelected(!StringUtils.isEmpty(postObject.getId()) && postObject.getId().equals(openedPostId));
+                cell.setPostSelected(!StringUtils.isEmpty(post.getId()) && post.getId().equals(openedPostId));
             }
 
-            cell.setPostObject(postObject, i);
+            cell.setPostObject(post, i);
 
 //TODO in new version. This in  onCreateViewHolder  method on ChatActivity
             //Set delegate to open photo
             ((PostCell) cell).setDelegate(new PostCell.PostCellDelegate() {
                 @Override
                 public void didClickedImage(PostCell cell) {
-                    PostObject postObject = cell.getPostObject();
+                    Post cellPost = cell.getPost();
 //                    mContext - is getParentActivity form Post Activity. look at instance creation of PostAdapter
                     PhotoViewer.getInstance().setParentActivity((Activity)mContext);
-//                    PhotoViewer.getInstance().openPhoto(postObject, postsActivity);
-                    PhotoViewer.getInstance().openPhotoNew(postObject, postsActivity, postsActivity);
+//                    PhotoViewer.getInstance().openPhoto(post, postsActivity);
+                    PhotoViewer.getInstance().openPhotoNew(cellPost, postsActivity, postsActivity);
                 }
 
                 @Override
@@ -146,7 +145,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int i) {
-        if (i == PostsController.getInstance().postObjects.size()) {
+        if (i == PostsController.getInstance().posts.size()) {
             return 1; //LoadingCell
         }
         return 0; //PostCell

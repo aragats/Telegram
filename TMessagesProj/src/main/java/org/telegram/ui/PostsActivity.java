@@ -50,8 +50,7 @@ import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 //TODO delte it or reuse.
-import org.telegram.messenger.UserConfig;
-import org.telegram.messenger.object.PostObject;
+import org.telegram.messenger.dto.Post;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -103,26 +102,26 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     //TODO-legacy. update according to new version.
     @Override
-    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(PostObject postObjectObject) {
-        if (postObjectObject == null) {
+    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(Post post) {
+        if (post == null) {
             return null;
         }
         int count = this.postListView.getChildCount();
 
         for (int a = 0; a < count; a++) {
-            PostObject postObjectToOpen = null;
+            Post postToOpen = null;
             ImageReceiver imageReceiver = null;
             View view = this.postListView.getChildAt(a);
             if (view instanceof PostCell) {
                 PostCell cell = (PostCell) view;
-                PostObject post = cell.getPostObject();
-                if (post != null && post.getId() != null && post.getId().equals(postObjectObject.getId())) {
-                    postObjectToOpen = post;
+                Post cellPost = cell.getPost();
+                if (cellPost != null && cellPost.getId() != null && cellPost.getId().equals(post.getId())) {
+                    postToOpen = cellPost;
                     imageReceiver = cell.getPhotoImage();
                 }
             }
 
-            if (postObjectToOpen != null) {
+            if (postToOpen != null) {
                 int coords[] = new int[2];
                 view.getLocationInWindow(coords);
                 PhotoViewer.PlaceProviderObject object = new PhotoViewer.PlaceProviderObject();
@@ -140,12 +139,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     }
 
     @Override
-    public Bitmap getThumbForPhoto(PostObject postObject, int index) {
+    public Bitmap getThumbForPhoto(Post post, int index) {
         return null;
     }
 
     @Override
-    public void willSwitchFromPhoto(PostObject postObject) {
+    public void willSwitchFromPhoto(Post post) {
 
     }
 
@@ -280,7 +279,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 searchWas = false;
                 if (postListView != null) {
                     searchEmptyView.setVisibility(View.INVISIBLE);
-                    if (PostsController.getInstance().loadingPosts && PostsController.getInstance().postObjects.isEmpty()) {
+                    if (PostsController.getInstance().loadingPosts && PostsController.getInstance().posts.isEmpty()) {
                         emptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(progressView);
                     } else {
@@ -410,16 +409,16 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 String message_id = "";
                 RecyclerView.Adapter adapter = postListView.getAdapter();
                 if (adapter == postsAdapter) {
-                    PostObject postObject = postsAdapter.getItem(position);
+                    Post postObject = postsAdapter.getItem(position);
                     if (postObject == null) {
                         return;
                     }
                     post_id = postObject.getId();
                 } else if (adapter == postsSearchAdapter) {
                     Object obj = postsSearchAdapter.getItem(position);
-                    if (obj instanceof PostObject) {
-                        PostObject postObject = (PostObject) obj;
-                        post_id = postObject.getId();
+                    if (obj instanceof Post) {
+                        Post post = (Post) obj;
+                        post_id = post.getId();
                         postsSearchAdapter.addHashtagsFromMessage(postsSearchAdapter.getLastSearchString());
                     } else if (obj instanceof String) {
                         actionBar.openSearchField((String) obj);
@@ -555,8 +554,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 }
                 //TODO fix it.
                 if (visibleItemCount > 0) {
-                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().postObjects.size() - 1) {
-                        PostsController.getInstance().loadPosts(PostsController.getInstance().postObjects.size(), 20, true);
+                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().posts.size() - 1) {
+                        PostsController.getInstance().loadPosts(PostsController.getInstance().posts.size(), 20, true);
                     }
                 }
 
@@ -613,7 +612,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         });
 
-        if (PostsController.getInstance().loadingPosts && PostsController.getInstance().postObjects.isEmpty()) {
+        if (PostsController.getInstance().loadingPosts && PostsController.getInstance().posts.isEmpty()) {
             searchEmptyView.setVisibility(View.INVISIBLE);
             emptyView.setVisibility(View.INVISIBLE);
             postListView.setEmptyView(progressView);
@@ -677,7 +676,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             if (postListView != null) {
                 try {
-                    if (PostsController.getInstance().loadingPosts && PostsController.getInstance().postObjects.isEmpty()) {
+                    if (PostsController.getInstance().loadingPosts && PostsController.getInstance().posts.isEmpty()) {
                         searchEmptyView.setVisibility(View.INVISIBLE);
                         emptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(progressView);
@@ -822,11 +821,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             return;
         }
-        PostObject postObject;
+        Post post = PostsController.getInstance().posts.get(position);
 
-        postObject = PostsController.getInstance().postObjects.get(position);
-
-        selectedPost = postObject.getId();
+        selectedPost = post.getId();
 
                 /*AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
                 builder.setTitle(LocaleController.getString("AppName", R.string.AppName));

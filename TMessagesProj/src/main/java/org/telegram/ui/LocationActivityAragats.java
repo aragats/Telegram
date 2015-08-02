@@ -46,7 +46,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.telegram.android.AndroidUtilities;
-import org.telegram.android.ContactsController;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MessagesController;
 import org.telegram.android.NotificationCenter;
@@ -54,8 +53,8 @@ import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
-import org.telegram.messenger.object.PostObject;
-import org.telegram.messenger.object.VenueObject;
+import org.telegram.messenger.dto.Post;
+import org.telegram.messenger.dto.Venue;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -63,7 +62,6 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.Adapters.BaseLocationAdapter;
 import org.telegram.ui.Adapters.LocationActivityAdapter;
 import org.telegram.ui.Adapters.LocationActivitySearchAdapter;
-import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.MapPlaceholderDrawable;
@@ -103,7 +101,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
     private Location userLocation;
     private int markerTop;
 
-    private PostObject postObject;
+    private Post post;
     private boolean userLocationMoved = false;
     private boolean firstWas = false;
     private CircleOptions circleOptions;
@@ -123,7 +121,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
     @Override
     public boolean needAddActionBar() {
-        return postObject != null;
+        return post != null;
     }
 
     @Override
@@ -131,7 +129,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         super.onFragmentCreate();
         swipeBackEnabled = false;
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.closeChats);
-        if (postObject != null) {
+        if (post != null) {
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         }
         return true;
@@ -180,7 +178,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     }
                 } else if (id == share) {
                     try {
-                        List<Double> coordinates = postObject.getCoordinates();
+                        List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
                         double lat = coordinates.get(1);
                         double lon = coordinates.get(0);
                         getParentActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("geo:" + lat + "," + lon + "?q=" + lat + "," + lon)));
@@ -192,8 +190,8 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         });
 
         ActionBarMenu menu = actionBar.createMenu();
-        if (postObject != null) {
-            VenueObject venue = postObject.getVenueObject();
+        if (post != null) {
+            Venue venue = post.getVenue();
             if (venue != null && !StringUtils.isEmpty(venue.getName())) {
                 actionBar.setTitle(venue.getName());
                 if (!StringUtils.isEmpty(venue.getAddress())) {
@@ -280,7 +278,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             });
         }
 
-        if (postObject != null) {
+        if (post != null) {
             mapView = new MapView(context);
             frameLayout.setBackgroundDrawable(new MapPlaceholderDrawable());
             mapView.onCreate(null);
@@ -330,7 +328,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             distanceTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
             bottomView.addView(distanceTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 33, LocaleController.isRTL ? 72 : 12, 0));
 
-            List<Double> coordinates = postObject.getCoordinates();
+            List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
             userLocation = new Location("network");
             userLocation.setLatitude(coordinates.get(1));
             userLocation.setLongitude(coordinates.get(0));
@@ -367,7 +365,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 public void onClick(View v) {
                     if (myLocation != null) {
                         try {
-                            List<Double> coordinates = postObject.getCoordinates();
+                            List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(Locale.US, "http://maps.google.com/maps?saddr=%f,%f&daddr=%f,%f", myLocation.getLatitude(), myLocation.getLongitude(), coordinates.get(1), coordinates.get(0))));
                             getParentActivity().startActivity(intent);
                         } catch (Exception e) {
@@ -754,7 +752,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
     }
 
     private void updateUserData() {
-        if (postObject != null && avatarImageView != null) {
+        if (post != null && avatarImageView != null) {
            //TODO location is from user. below photo and name.
             Object user = null;
             if (user != null) {
@@ -775,7 +773,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             return;
         }
         myLocation = new Location(location);
-        if (postObject != null) {
+        if (post != null) {
             if (userLocation != null && distanceTextView != null) {
                 float distance = location.distanceTo(userLocation);
                 if (distance < 1000) {
@@ -804,8 +802,8 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         }
     }
 
-    public void setPostObject(PostObject post) {
-        postObject = post;
+    public void setPost(Post post) {
+        this.post = post;
     }
 
     @Override

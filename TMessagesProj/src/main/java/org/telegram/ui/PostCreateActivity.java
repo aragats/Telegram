@@ -35,7 +35,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,8 +58,6 @@ import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.Venue;
-import org.telegram.messenger.object.PostObject;
-import org.telegram.messenger.object.VenueObject;
 import org.telegram.messenger.service.mock.PostServiceMock;
 import org.telegram.messenger.service.mock.VenueServiceMock;
 import org.telegram.ui.ActionBar.ActionBar;
@@ -119,7 +116,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private TextView sendTextView;
     private FrameLayout sendButtonContainer;
 
-    private PostObject selectedObject;
+    private Post selectedObject;
     private boolean wasPaused = false;
     private TLRPC.WebPage foundWebPage;
     private Runnable waitingForCharaterEnterRunnable;
@@ -127,8 +124,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private boolean openAnimationEnded = false;
 
 
-    protected ArrayList<PostObject> postObjects = new ArrayList<>();
-    protected VenueObject venueObject;
+    protected ArrayList<Post> posts = new ArrayList<>();
+    protected Venue venue;
 
     private boolean loading = false;
 
@@ -747,7 +744,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         bottomOverlayChatText.setTextColor(0xff3e6fa1);
         bottomOverlayChat.addView(bottomOverlayChatText, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER));
 
-//        if (loading && postObjects.isEmpty()) {
+//        if (loading && posts.isEmpty()) {
 //            progressView.setVisibility(View.VISIBLE);
 //            postListView.setEmptyView(null);
 //        } else {
@@ -793,7 +790,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
     private void moveScrollToLastPost() {
 //        if (postListView != null) {
-//            postLayoutManager.scrollToPositionWithOffset(postObjects.size() - 1, -100000 - postListView.getPaddingTop());
+//            postLayoutManager.scrollToPositionWithOffset(posts.size() - 1, -100000 - postListView.getPaddingTop());
 //        }
     }
 
@@ -814,8 +811,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
 
-    private int getPostType(PostObject postObject) {
-        if (postObject == null) {
+    private int getPostType(Post post) {
+        if (post == null) {
             return -1;
         } else {
             return -1;
@@ -838,9 +835,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             return;
         }
         String name = "Current location";
-        if (venueObject != null) {
-            if (!StringUtils.isEmpty(venueObject.getName())) {
-                name = venueObject.getName();
+        if (venue != null) {
+            if (!StringUtils.isEmpty(venue.getName())) {
+                name = venue.getName();
             }
             nameTextView.setText(name);
         }
@@ -867,8 +864,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         }
 //        CharSequence addressString = "printing";
         CharSequence addressString = "address";
-        if (venueObject != null && !StringUtils.isEmpty(venueObject.getAddress())) {
-            addressString = venueObject.getAddress();
+        if (venue != null && !StringUtils.isEmpty(venue.getAddress())) {
+            addressString = venue.getAddress();
         }
         addressString = TextUtils.replace(addressString, new String[]{"..."}, new String[]{""});
         onlineTextView.setText(addressString);
@@ -883,12 +880,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             AvatarDrawable avatarDrawable = new AvatarDrawable();
 //            avatarImageView.setImage(newPhoto, "50_50", avatarDrawable);
 //            avatarImageView.setImage("/storage/emulated/0/Telegram/Telegram Images/730111210_6623.jpg", "50_50", avatarDrawable);
-            //TODO probably save venueObject. into field in Activity.
-            if (venueObject != null && !StringUtils.isEmpty(venueObject.getVenuePreviewImageUrl())) {
-                avatarImageView.setImage(venueObject.getVenuePreviewImageUrl(), "50_50", avatarDrawable);
+            //TODO probably save venue. into field in Activity.
+            if (venue != null && !StringUtils.isEmpty(venue.getPreviewImage().getUrl())) {
+                avatarImageView.setImage(venue.getPreviewImage().getUrl(), "50_50", avatarDrawable);
             } else {
                 avatarImageView.setImageResource(R.drawable.pin);
-//                    avatarImageView.setImage(PostsController.getInstance().getCurrentVenueObject().getVenuePreviewImageUrl(), "50_50", avatarDrawable);
+//                    avatarImageView.setImage(PostsController.getInstance().getCurrentVenue().getVenuePreviewImageUrl(), "50_50", avatarDrawable);
             }
 
         }
@@ -1035,7 +1032,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             postCreateActivityEnterView.setFieldText(lastMessageText);
         }
         String lastPhotoURL = preferences.getString("new_post_photo", null);
-        if (!StringUtils.isEmpty(lastPhotoURL) && postObjects.isEmpty()) {
+        if (!StringUtils.isEmpty(lastPhotoURL) && posts.isEmpty()) {
             preferences.edit().remove("new_post_photo").commit();
             ArrayList<String> photos = new ArrayList<>();
             photos.add(lastPhotoURL);
@@ -1067,15 +1064,15 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (postCreateActivityEnterView != null) {
             postCreateActivityEnterView.hideEmojiPopup();
             String text = postCreateActivityEnterView.getFieldText();
-            if (text != null || !postObjects.isEmpty()) {
+            if (text != null || !posts.isEmpty()) {
                 SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
                 //TODO save text before pause.
                 if (text != null) {
                     editor.putString("new_post_text", text);
                 }
-                if (!postObjects.isEmpty()) {
-                    editor.putString("new_post_photo", postObjects.get(0).getImage().getUrl());
+                if (!posts.isEmpty()) {
+                    editor.putString("new_post_photo", posts.get(0).getImage().getUrl());
                 }
                 editor.commit();
             }
@@ -1133,14 +1130,14 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             return;
         }
 
-        PostObject postObject = null;
+        Post post = null;
         if (v instanceof PostMediaCell) {
-            postObject = ((PostMediaCell) v).getPostObject();
+            post = ((PostMediaCell) v).getPost();
         }
-        if (postObject == null) {
+        if (post == null) {
             return;
         }
-        int type = getPostType(postObject);
+        int type = getPostType(post);
 
         type = 1;
         selectedObject = null;
@@ -1148,7 +1145,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 //        if (single || type < 2 || type == 20) {
 //            if (type >= 0) {
-        selectedObject = postObject;
+        selectedObject = post;
         if (getParentActivity() == null) {
             return;
         }
@@ -1212,7 +1209,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             return;
         }
         if (option == 1) {
-            final PostObject finalSelectedObject = selectedObject;
+            final Post finalSelectedObject = selectedObject;
             AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
             builder.setMessage(LocaleController.formatString("AreYouSureDeleteMessages", R.string.AreYouSureDeleteMessages, LocaleController.formatPluralString("messages", 1)));
             builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
@@ -1318,20 +1315,21 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     @Override
-    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(PostObject postObject) {
+    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(Post postObject) {
         if (postObject == null) {
             return null;
         }
         int count = postListView.getChildCount();
 
         for (int a = 0; a < count; a++) {
-            PostObject postToOpen = null;
+            Post postToOpen = null;
             ImageReceiver imageReceiver = null;
             View view = postListView.getChildAt(a);
             if (view instanceof PostMediaCell) {
                 PostMediaCell cell = (PostMediaCell) view;
-                PostObject post = cell.getPostObject();
-                if (post != null && post.getId() == postObject.getId()) {
+                Post post = cell.getPost();
+                if (post != null && !StringUtils.isEmpty(post.getId())
+                        &&  post.getId().equals(postObject.getId())) {
                     postToOpen = post;
                     imageReceiver = cell.getPhotoImage();
                 }
@@ -1354,12 +1352,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     @Override
-    public Bitmap getThumbForPhoto(PostObject postObject, int index) {
+    public Bitmap getThumbForPhoto(Post post, int index) {
         return null;
     }
 
     @Override
-    public void willSwitchFromPhoto(PostObject postObject) {
+    public void willSwitchFromPhoto(Post post) {
     }
 
     @Override
@@ -1405,7 +1403,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
         @Override
         public int getItemCount() {
-            return postObjects.size();
+            return posts.size();
         }
 
         @Override
@@ -1441,9 +1439,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     @Override
                     public void didPressedCancelSendButton(PostMediaCell cell) {
-                        PostObject postObject = cell.getPostObject();
-                        postObjects.remove(postObject);
-                        postObjects.clear();
+                        Post post = cell.getPost();
+                        posts.remove(post);
+                        posts.clear();
                         postCreateAdapter.notifyDataSetChanged();
                     }
 
@@ -1484,7 +1482,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     //TODO Now I do not use it in PostMedia, but I can. Look at PostMedia.didClickedImage
                     @Override
                     public void didClickedImage(PostMediaCell cell) {
-                        PostObject post = cell.getPostObject();
+                        Post post = cell.getPost();
 
                         PhotoViewer.getInstance().setParentActivity(getParentActivity());
                         PhotoViewer.getInstance().openPhoto(post, PostCreateActivity.this);
@@ -1517,8 +1515,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 return;
             }
 
-//            PostObject post = postObjects.get(postObjects.size() - position - (!endReached ? 0 : 1));
-            PostObject post = postObjects.get(position);
+//            PostObject post = posts.get(posts.size() - position - (!endReached ? 0 : 1));
+            Post post = posts.get(position);
             View view = holder.itemView;
 
 //            int type = post.contentType;
@@ -1536,7 +1534,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
             if (view instanceof PostMediaCell) {
                 PostMediaCell cell = (PostMediaCell) view;
-                cell.setPostObject(post);
+                cell.setPost(post);
             }
         }
 
@@ -1544,16 +1542,16 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         public int getItemViewType(int position) {
             return 1;
 //            int offset = 1;
-//            if (postObjects.size() != 0) {
+//            if (posts.size() != 0) {
 //                offset = 0;
 //                if (position == 0) {
 //                    return 5;
 //                }
 //            }
-//            if (position == (postObjects.size() + 1 - offset)) {
+//            if (position == (posts.size() + 1 - offset)) {
 //                return 5;
 //            }
-//            PostObject post = postObjects.get(postObjects.size() - position - offset);
+//            PostObject post = posts.get(posts.size() - position - offset);
 ////            return post.contentType;
 //            return 1;
         }
@@ -1562,23 +1560,23 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
         }
 
-        public void updateRowWithPostObject(PostObject postObject) {
-            int index = postObjects.indexOf(postObject);
+        public void updateRowWithPost(Post post) {
+            int index = posts.indexOf(post);
             if (index == -1) {
                 return;
             }
-//            notifyItemChanged(postObjects.size() - (!endReached ? 0 : 1) - index);
-            notifyItemChanged(postObjects.size() - index);
+//            notifyItemChanged(posts.size() - (!endReached ? 0 : 1) - index);
+            notifyItemChanged(posts.size() - index);
         }
 
-        public void removePostObject(PostObject postObject) {
-            int index = postObjects.indexOf(postObject);
+        public void removePost(Post post) {
+            int index = posts.indexOf(post);
             if (index == -1) {
                 return;
             }
-            postObjects.remove(index);
-//            notifyItemRemoved(postObjects.size() - (!endReached ? 0 : 1) - index);
-            notifyItemRemoved(postObjects.size() - index);
+            posts.remove(index);
+//            notifyItemRemoved(posts.size() - (!endReached ? 0 : 1) - index);
+            notifyItemRemoved(posts.size() - index);
         }
     }
 
@@ -1606,7 +1604,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 if (StringUtils.isEmpty(venue.getAddress())) {
                     venue.setAddress(location.geo._long + ", " + location.geo.lat);
                 }
-                venueObject = new VenueObject(venue);
+                PostCreateActivity.this.venue = venue;
 //                location.iconUrl;
 //                Toast.makeText(getParentActivity(), location.venue_id + " " + location.geo.lat + " " + location.geo._long, Toast.LENGTH_LONG).show();
 //                            SendMessagesHelper.getInstance().sendMessage(location, dialog_id, replyingMessageObject);
@@ -1670,10 +1668,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             post.setPreviewImage(image);
             post.setVenue(VenueServiceMock.getRandomVenue());
             //TODO-temp
-//            PostCreateActivity.this.postObject = new PostObject(post);
+//            PostCreateActivity.this.post = new PostObject(post);
             //DELETE ALL to store only one
-            PostCreateActivity.this.postObjects.clear();
-            PostCreateActivity.this.postObjects.add(new PostObject(post));
+            PostCreateActivity.this.posts.clear();
+            PostCreateActivity.this.posts.add(post);
 
             postCreateAdapter.notifyDataSetChanged();
         }
@@ -1749,7 +1747,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     private void updateVenue() {
-        if (venueObject != null) {
+        if (venue != null) {
             updateTitle();
             updateSubtitle();
             checkAndUpdateAvatar();

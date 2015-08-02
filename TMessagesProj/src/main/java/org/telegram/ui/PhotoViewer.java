@@ -65,7 +65,7 @@ import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.UserConfig;
 import org.telegram.android.MessageObject;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.object.PostObject;
+import org.telegram.messenger.dto.Post;
 import org.telegram.ui.Adapters.MentionsAdapter;
 import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
@@ -100,9 +100,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     //TODO-aragats new
     private PostPhotoViewerProvider postPlaceProvider;
     //TODO-aragats new
-    private ArrayList<PostObject> imagesPostObjectArr = new ArrayList<PostObject>();
+    private ArrayList<Post> imagesPostArr = new ArrayList<Post>();
     //TODO-aragats new
-    private PostObject currentPostObjectObject;
+    private Post currentPost;
     //TODO-aragats new
     private PostsActivity parentPostActivity;
 
@@ -850,8 +850,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 } else if (id == gallery_menu_save) {
                     File f = null;
                     //TODO-aragats new
-                    if(currentPostObjectObject != null) {
-                        currentFileNames[0] = Utilities.MD5(currentPostObjectObject.getImage().getUrl()) + ".jpg";
+                    if(currentPost != null) {
+                        currentFileNames[0] = Utilities.MD5(currentPost.getImage().getUrl()) + ".jpg";
                         f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);
                     }
                     else
@@ -2107,11 +2107,11 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
 
     //TODO-aragats new
-    private void onPhotoShowNew(final PostObject postObject, final PlaceProviderObject object) {
+    private void onPhotoShowNew(final Post post, final PlaceProviderObject object) {
         classGuid = ConnectionsManager.getInstance().generateClassGuid();
         currentMessageObject = null;
         //TODO-aragat new
-        currentPostObjectObject = null;
+        currentPost = null;
         //
         currentFileLocation = null;
         currentPathObject = null;
@@ -2132,7 +2132,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         canShowBottom = true;
         imagesArr.clear();
         //TODO-aragats new
-        imagesPostObjectArr.clear();
+        imagesPostArr.clear();
         //
         imagesArrLocations.clear();
         imagesArrLocationsSizes.clear();
@@ -2183,8 +2183,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
         }
 
-        if (postObject != null) {
-            imagesPostObjectArr.add(postObject);
+        if (post != null) {
+            imagesPostArr.add(post);
 
             menuItem.showSubItem(gallery_menu_showall);
 //            else
@@ -2201,7 +2201,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         classGuid = ConnectionsManager.getInstance().generateClassGuid();
         currentMessageObject = null;
         //TODO-aragat new
-        currentPostObjectObject = null;
+        currentPost = null;
         //
         currentFileLocation = null;
         currentPathObject = null;
@@ -2222,7 +2222,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         canShowBottom = true;
         imagesArr.clear();
         //TODO-aragats new
-        imagesPostObjectArr.clear();
+        imagesPostArr.clear();
         //
         imagesArrLocations.clear();
         imagesArrLocationsSizes.clear();
@@ -2606,31 +2606,31 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentFileNames[0] = getFileName(index);
         currentFileNames[1] = getFileName(index + 1);
         currentFileNames[2] = getFileName(index - 1);
-        postPlaceProvider.willSwitchFromPhoto(currentPostObjectObject);
+        postPlaceProvider.willSwitchFromPhoto(currentPost);
         int prevIndex = currentIndex;
         currentIndex = index;
 
         boolean sameImage = false;
 
-        if (!imagesPostObjectArr.isEmpty()) {
+        if (!imagesPostArr.isEmpty()) {
             menuItem.showSubItem(gallery_menu_delete);
-            if (currentIndex < 0 || currentIndex >= imagesPostObjectArr.size()) {
+            if (currentIndex < 0 || currentIndex >= imagesPostArr.size()) {
                 closePhoto(false, false);
                 return;
             }
-            currentPostObjectObject = imagesPostObjectArr.get(currentIndex);
+            currentPost = imagesPostArr.get(currentIndex);
 
                 nameTextView.setText("USER-Aragats");
-            long date = currentPostObjectObject.getCreatedDate();
+            long date = currentPost.getCreatedDate();
             String dateString = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, LocaleController.formatterYear.format(new Date(date)), LocaleController.formatterDay.format(new Date(date)));
 
                 dateTextView.setText(dateString);
-            CharSequence caption = currentPostObjectObject.getMessage();
+            CharSequence caption = currentPost.getMessage();
             setCurrentCaption(caption);
 
             if (totalImagesCount != 0 && !needSearchImageInArr) {
 
-                actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, (totalImagesCount - imagesPostObjectArr.size()) + currentIndex + 1, totalImagesCount));
+                actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, (totalImagesCount - imagesPostArr.size()) + currentIndex + 1, totalImagesCount));
 
             }
 //            if (currentMessageObject.messageOwner.ttl != 0) {
@@ -2651,7 +2651,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 showAfterAnimation = currentPlaceObject;
             }
         }
-        currentPlaceObject = postPlaceProvider.getPlaceForPhoto(currentPostObjectObject);
+        currentPlaceObject = postPlaceProvider.getPlaceForPhoto(currentPost);
         if (currentPlaceObject != null) {
             if (animationInProgress == 0) {
                 currentPlaceObject.imageReceiver.setVisible(false, true);
@@ -2935,10 +2935,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     //TODO-aragats new
     private void setIndexToImagePostNew(ImageReceiver imageReceiver, int index) {
         imageReceiver.setOrientation(0, false);
-        if (!imagesPostObjectArr.isEmpty()) {
+        if (!imagesPostArr.isEmpty()) {
             imageReceiver.setParentMessageObject(null);
-            if (index >= 0 && index < imagesPostObjectArr.size() && imagesPostObjectArr.get(index) != null) {
-                PostObject postObject = imagesPostObjectArr.get(index);
+            if (index >= 0 && index < imagesPostArr.size() && imagesPostArr.get(index) != null) {
+                Post post = imagesPostArr.get(index);
                 int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
                 Bitmap placeHolder = null;
                 if (currentThumb != null && imageReceiver == centerImage) {
@@ -2948,7 +2948,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 if (placeHolder == null) {
                     placeHolder = postPlaceProvider.getThumbForPhoto(null, index);
                 }
-                String path = postObject.getImage().getUrl();
+                String path = post.getImage().getUrl();
                 int imageSize = 0;
                 //TODO set Image for imageReceiver
                 imageReceiver.setImage(path, String.format(Locale.US, "%d_%d", size, size), placeHolder != null ? new BitmapDrawable(null, placeHolder) : null, null, imageSize);
@@ -2958,14 +2958,14 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
 
 
-//        PostObject postObject = null;
-//        if (!imagesPostObjectArr.isEmpty() && index < imagesPostObjectArr.size() && index >= 0) {
-//            postObject = imagesPostObjectArr.get(index);
+//        PostObject post = null;
+//        if (!imagesPostArr.isEmpty() && index < imagesPostArr.size() && index >= 0) {
+//            post = imagesPostArr.get(index);
 //        }
 //
 //        //TODO set Image for imageReceiver
-//        if (postObject != null) {
-//            imageReceiver.setImage(postObject.getImage().getUrl(), null, new AvatarDrawable(), null, 0);
+//        if (post != null) {
+//            imageReceiver.setImage(post.getImage().getUrl(), null, new AvatarDrawable(), null, 0);
 //        } else {
 //            imageReceiver.setImageBitmap((Bitmap) null);
 //        }
@@ -3222,13 +3222,13 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
     //TODO-aragats new
     //final PostPhotoViewerProvider provider, PostsActivity postsActivity are the same class.
-    public void openPhotoNew(final PostObject postObject, final PostPhotoViewerProvider provider, PostsActivity postsActivity) {
-        if (parentActivity == null || isVisible || provider == null || checkAnimation() || postObject == null) {
+    public void openPhotoNew(final Post post, final PostPhotoViewerProvider provider, PostsActivity postsActivity) {
+        if (parentActivity == null || isVisible || provider == null || checkAnimation() || post == null) {
             return;
         }
 
         //filocation we do not need here. messageObject is used to find ChatMediaCell by id from messageObject. // method is implemented in provider.
-        final PlaceProviderObject object = provider.getPlaceForPhoto(postObject);
+        final PlaceProviderObject object = provider.getPlaceForPhoto(post);
         if (object == null) {
             return;
         }
@@ -3246,7 +3246,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
 
         try {
-            if (postObject.getImage() != null) {
+            if (post.getImage() != null) {
                 windowLayoutParams.type = WindowManager.LayoutParams.LAST_APPLICATION_WINDOW;
                 windowLayoutParams.flags = 0;
                 windowLayoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
@@ -3288,7 +3288,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         if (object != null) {
             disableShowCheck = true;
             animationInProgress = 1;
-            onPhotoShowNew(postObject, object);
+            onPhotoShowNew(post, object);
 
             final Rect drawRegion = object.imageReceiver.getDrawRegion();
             int orientation = object.imageReceiver.getOrientation();
@@ -3423,19 +3423,19 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         } else {
             backgroundDrawable.setAlpha(255);
             ViewProxy.setAlpha(containerView, 1.0f);
-            onPhotoShowNew(postObject, object);
+            onPhotoShowNew(post, object);
         }
     }
 
 
     //TODO-legacy rewrite this method accrodign to new openPhoto because this version is legacy from previous revision
     //TODO my openPhoto
-    public void openPhoto(final PostObject postObject, final PostPhotoViewerProvider provider) {
+    public void openPhoto(final Post post, final PostPhotoViewerProvider provider) {
         if (parentActivity == null || isVisible || provider == null || checkAnimation()) {
             return;
         }
         //filocation we do not need here. messageObject is used to find ChatMediaCell by id from messageObject. // method is implemented in provider.
-        final PlaceProviderObject object = provider.getPlaceForPhoto(postObject);
+        final PlaceProviderObject object = provider.getPlaceForPhoto(post);
         if (object == null) {
             return;
         }
@@ -3474,7 +3474,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
         disableShowCheck = true;
         animationInProgress = 1;
-        onPhotoShow(postObject, object);
+        onPhotoShow(post, object);
         isVisible = true;
         backgroundDrawable.setAlpha(255);
         toggleActionBar(true, false);
@@ -3592,7 +3592,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
 
     //TODO-aragats my photo opener.
-    private void onPhotoShow(final PostObject postObject, final PlaceProviderObject object) {
+    private void onPhotoShow(final Post post, final PlaceProviderObject object) {
         classGuid = ConnectionsManager.getInstance().generateClassGuid();
 //        currentMessageObject = null;  // TODO I removed it because it break getting  currentPlaceObject
         currentFileLocation = null;
@@ -3612,7 +3612,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         canShowBottom = true;
         imagesArr.clear();
         //new
-        imagesPostObjectArr.clear();
+        imagesPostArr.clear();
         imagesArrLocations.clear();
         imagesArrLocationsSizes.clear();
         avatarsArr.clear();
@@ -3634,8 +3634,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
         }
 
-        if (postObject != null) {
-            imagesPostObjectArr.add(postObject);
+        if (post != null) {
+            imagesPostArr.add(post);
             menuItem.showSubItem(gallery_menu_showall);
             setImageIndexPost(0, true);
         }
@@ -3654,7 +3654,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentFileNames[0] = getFileName(index);
         currentFileNames[1] = getFileName(index + 1);
         currentFileNames[2] = getFileName(index - 1);
-        postPlaceProvider.willSwitchFromPhoto(currentPostObjectObject);
+        postPlaceProvider.willSwitchFromPhoto(currentPost);
         int prevIndex = currentIndex;
         currentIndex = index;
 
@@ -3662,15 +3662,15 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
 //        currentMessageObject = imagesArr.get(currentIndex); // TODO is important to load data.
 
-        if (!imagesPostObjectArr.isEmpty()) {
+        if (!imagesPostArr.isEmpty()) {
             //TODO in new version there is not deleteButton
 //            deleteButton.setVisibility(View.VISIBLE);
-            currentPostObjectObject = imagesPostObjectArr.get(currentIndex);
+            currentPost = imagesPostArr.get(currentIndex);
 
-            nameTextView.setText(ContactsController.formatName(this.currentPostObjectObject.getVenueName(), ""));
-            dateTextView.setText(LocaleController.formatterYearMax.format(currentPostObjectObject.getCreatedDate()));
+            nameTextView.setText(ContactsController.formatName(this.currentPost.getVenue().getName(), ""));
+            dateTextView.setText(LocaleController.formatterYearMax.format(currentPost.getCreatedDate()));
 
-            actionBar.setTitle(LocaleController.formatString("Of", org.telegram.messenger.R.string.Of, (totalImagesCount - imagesPostObjectArr.size()) + currentIndex + 1, totalImagesCount));
+            actionBar.setTitle(LocaleController.formatString("Of", org.telegram.messenger.R.string.Of, (totalImagesCount - imagesPostArr.size()) + currentIndex + 1, totalImagesCount));
 
             menuItem.showSubItem(gallery_menu_save);
             shareButton.setVisibility(View.VISIBLE);
@@ -3685,7 +3685,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
         }
         //TODO delete currentMessageObject
-        currentPlaceObject = postPlaceProvider.getPlaceForPhoto(currentPostObjectObject);
+        currentPlaceObject = postPlaceProvider.getPlaceForPhoto(currentPost);
         if (currentPlaceObject != null) {
             if (animationInProgress == 0) {
                 currentPlaceObject.imageReceiver.setVisible(false, true);
@@ -3769,14 +3769,14 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     //TODO-aragats my new
     private void setIndexToImagePost(ImageReceiver imageReceiver, int index) {
 
-        PostObject postObject = null;
-        if (!imagesPostObjectArr.isEmpty() && index < imagesPostObjectArr.size() && index >= 0) {
-            postObject = imagesPostObjectArr.get(index);
+        Post post = null;
+        if (!imagesPostArr.isEmpty() && index < imagesPostArr.size() && index >= 0) {
+            post = imagesPostArr.get(index);
         }
 
         //TODO set Image for imageReceiver
-        if (postObject != null) {
-            imageReceiver.setImage(postObject.getImage().getUrl(), null, new AvatarDrawable(), null, 0);
+        if (post != null) {
+            imageReceiver.setImage(post.getImage().getUrl(), null, new AvatarDrawable(), null, 0);
         } else {
             imageReceiver.setImageBitmap((Bitmap) null);
         }
@@ -3846,7 +3846,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         if (placeProvider != null) {
             object1 = placeProvider.getPlaceForPhoto(currentMessageObject, currentFileLocation, currentIndex);
         } else if (this.postPlaceProvider != null) {
-            object1 = this.postPlaceProvider.getPlaceForPhoto(currentPostObjectObject);
+            object1 = this.postPlaceProvider.getPlaceForPhoto(currentPost);
         }
         //TODO
         final PlaceProviderObject object = object1;
@@ -4030,7 +4030,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         disableShowCheck = true;
         currentMessageObject = null;
         //TODO-aragats my custom
-        currentPostObjectObject = null;
+        currentPost = null;
         //
         currentFileLocation = null;
         currentPathObject = null;

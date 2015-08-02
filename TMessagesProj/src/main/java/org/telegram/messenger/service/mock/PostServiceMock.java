@@ -3,7 +3,6 @@ package org.telegram.messenger.service.mock;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;
-import org.telegram.messenger.object.PostObject;
 import org.telegram.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -97,13 +96,13 @@ public class PostServiceMock {
     }
 
 
-    public static List<PostObject> convertPost(List<Post> posts) {
-        List<PostObject> result = new ArrayList<>();
-        for (Post post : posts) {
-            result.add(new PostObject(post));
-        }
-        return result;
-    }
+//    public static List<PostObject> convertPost(List<Post> posts) {
+//        List<PostObject> result = new ArrayList<>();
+//        for (Post post : posts) {
+//            result.add(new PostObject(post));
+//        }
+//        return result;
+//    }
 
 
 }

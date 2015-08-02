@@ -16,8 +16,8 @@ import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.R;
+import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;
-import org.telegram.messenger.object.PostObject;
 import org.telegram.messenger.service.mock.PostServiceMock;
 import org.telegram.ui.Cells.GreySectionCell;
 import org.telegram.ui.Cells.HashtagSearchCell;
@@ -88,7 +88,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
         lastPostsSearchString = query;
         //TODO move to controller ?
         PostResponse response = PostServiceMock.getPosts("location", query, offset, count);
-        searchResult.addAll(PostServiceMock.convertPost(response.getPosts()));
+        searchResult.addAll(response.getPosts());
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!response.getPosts().isEmpty()) {
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
@@ -167,7 +167,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
         searchResult.clear();
         //TODO move to controller.
         PostResponse response = PostServiceMock.getPosts("location", query, 0, 20);
-        searchResult.addAll(PostServiceMock.convertPost(response.getPosts()));
+        searchResult.addAll(response.getPosts());
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!response.getPosts().isEmpty()) {
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
@@ -333,18 +333,18 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
             case 0: {
 //                PostCell cell = (PostCell) holder.itemView;
 //                cell.useSeparator = (position != getItemCount() - 1);
-//                PostObject postObject = (PostObject) searchResult.get(position);
+//                PostObject post = (PostObject) searchResult.get(position);
                 //TODO open ?? wie in PostsAdapter.
 //                if (AndroidUtilities.isTablet()) {
-//                    cell.setPostSelected(!StringUtils.isEmpty(postObject.getId()) && postObject.getId().equals(openedPostId));
+//                    cell.setPostSelected(!StringUtils.isEmpty(post.getId()) && post.getId().equals(openedPostId));
 //                }
-//                cell.setPostObject(postObject, position, true);
+//                cell.setPost(post, position, true);
 
                 //Copied from 2.
                 PostCell cell = (PostCell) holder.itemView;
                 cell.useSeparator = (position != getItemCount() - 1);
-                PostObject postObject = (PostObject) getItem(position);
-                cell.setPost(postObject.getId(), postObject, postObject.getCreatedDate());
+                Post post = (Post) getItem(position);
+                cell.setPost(post.getId(), post, post.getCreatedDate());
                 break;
             }
             case 1: {
@@ -361,8 +361,8 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
             case 2: {
                 PostCell cell = (PostCell) holder.itemView;
                 cell.useSeparator = (position != getItemCount() - 1);
-                PostObject postObject = (PostObject) getItem(position);
-                cell.setPost(postObject.getId(), postObject, postObject.getCreatedDate());
+                Post post = (Post) getItem(position);
+                cell.setPost(post.getId(), post, post.getCreatedDate());
                 break;
             }
             case 3: {

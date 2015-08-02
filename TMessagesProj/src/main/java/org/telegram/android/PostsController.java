@@ -12,14 +12,13 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;
-import org.telegram.messenger.object.PostObject;
-import org.telegram.messenger.object.VenueObject;
+import org.telegram.messenger.dto.Venue;
 import org.telegram.messenger.service.mock.PostServiceMock;
 import org.telegram.messenger.service.mock.VenueServiceMock;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 //import org.telegram.messenger.TLRPC;
@@ -28,16 +27,13 @@ import java.util.concurrent.ConcurrentHashMap;
 //TODO Look at MessagesController methods. There are many good examples and best practice.
 public class PostsController implements NotificationCenter.NotificationCenterDelegate {
 
-    private ConcurrentHashMap<String, VenueObject> venuesMap = new ConcurrentHashMap<String, VenueObject>(100, 1.0f, 2);
+    public Venue currentVenue;
 
-    public List<VenueObject> venueObjects = new ArrayList<VenueObject>();
-    public VenueObject currentVenueObject;
-
+    public Post currentPost;
 
 
-
-    public ArrayList<PostObject> postObjects = new ArrayList<>();
-    public ConcurrentHashMap<String, PostObject> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
+    public ArrayList<Post> posts = new ArrayList<>();
+    public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
 
     public int totalDialogsCount = 0;
     public boolean loadingPosts = false;
@@ -60,7 +56,6 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public static final int UPDATE_MASK_NEW_MESSAGE = 2048;
     public static final int UPDATE_MASK_SEND_STATE = 4096;
     public static final int UPDATE_MASK_ALL = UPDATE_MASK_AVATAR | UPDATE_MASK_STATUS | UPDATE_MASK_NAME | UPDATE_MASK_CHAT_AVATAR | UPDATE_MASK_CHAT_NAME | UPDATE_MASK_CHAT_MEMBERS | UPDATE_MASK_USER_PRINT | UPDATE_MASK_USER_PHONE | UPDATE_MASK_READ_DIALOG_MESSAGE | UPDATE_MASK_PHONE;
-
 
 
     private static volatile PostsController Instance = null;
@@ -114,7 +109,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         SecretChatHelper.getInstance().cleanUp();
 
         postsMap.clear();
-        postObjects.clear();
+        posts.clear();
 
         totalDialogsCount = 0;
 
@@ -123,23 +118,9 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-
-
-
-
-
-
-
-
     public void deletePost(final String did, int offset, final boolean onlyHistory) {
         // TODO Delete Post
     }
-
-
-
-
-
-
 
 
     public void loadPosts(final int offset, final int count, boolean fromCache) {
@@ -149,6 +130,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         loadingPosts = true;
 //        NotificationCenter.getInstance().postNotificationName(NotificationCenter.dialogsNeedReload);
 
+        //TODO here async  request
         PostResponse postResponse = PostServiceMock.getPosts("location", null, offset, count);
 //        after getting response.
         processLoadedPosts(postResponse, offset, count);
@@ -156,11 +138,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-
-    public void processLoadedPosts(PostResponse postResponse,  final int offset,  final int count) {
-        postObjects.addAll(PostServiceMock.convertPost(postResponse.getPosts()));
-        for (PostObject postObject : postObjects) {
-            postsMap.putIfAbsent(postObject.getId(), postObject);
+    public void processLoadedPosts(PostResponse postResponse, final int offset, final int count) {
+        posts.addAll(postResponse.getPosts());
+        for (Post post : posts) {
+            postsMap.putIfAbsent(post.getId(), post);
         }
         loadingPosts = false;
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
@@ -173,17 +154,22 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     public void loadCurrentVenue(String location) {
-        this.currentVenueObject = new VenueObject(VenueServiceMock.getRandomVenue());
+        this.currentVenue = VenueServiceMock.getRandomVenue();
     }
 
-    public VenueObject getCurrentVenueObject() {
-        return this.currentVenueObject;
+    public Venue getCurrentVenue() {
+        return currentVenue;
     }
 
+    public void setCurrentVenue(Venue currentVenue) {
+        this.currentVenue = currentVenue;
+    }
 
+    public Post getCurrentPost() {
+        return currentPost;
+    }
 
-
-
-
-
+    public void setCurrentPost(Post currentPost) {
+        this.currentPost = currentPost;
+    }
 }

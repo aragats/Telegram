@@ -30,7 +30,8 @@ import org.telegram.android.PostsController;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.dto.Image;
-import org.telegram.messenger.object.PostObject;
+import org.telegram.messenger.dto.Post;
+import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.utils.StringUtils;
 
@@ -68,7 +69,7 @@ public class PostCell extends BaseCell {
     private static int fontSize = AndroidUtilities.dp(14);
 //    private static int fontSize = AndroidUtilities.dp(16);
 
-    private PostObject.TextLayoutBlock block;
+    private TextLayoutBlock block;
 
     //Text
     private static Drawable errorDrawable;
@@ -79,7 +80,7 @@ public class PostCell extends BaseCell {
 
     private String currentPostId;
     private long lastMessageDate;
-    private PostObject postObject;
+    private Post post;
     private int index;
 
     private ImageReceiver avatarImage;
@@ -183,28 +184,28 @@ public class PostCell extends BaseCell {
         imageDrawable = new AvatarDrawable();
     }
 
-    public PostObject getPostObject() {
-        return postObject;
+    public Post getPost() {
+        return post;
     }
 
-    //TODO. I have 2 method for setting posts. setPostObject and setPost.
-    public void setPostObject(PostObject postObject, int i) {
+    //TODO. I have 2 method for setting posts. setPost and setPost.
+    public void setPostObject(Post post, int i) {
         //TODO I should store id or object. And retrieve from Controller by id.
-        currentPostId = postObject.getId();
-        this.postObject = postObject;
+        currentPostId = post.getId();
+        this.post = post;
         index = i;
         //TODO I use it to calculate build layout before onMeasure will be invoked. And by this way, correct layout
         buildLayout();
         update(0);
     }
 
-    public void setPost(String postId, PostObject postObject, long date) {
+    public void setPost(String postId, Post post, long date) {
         currentPostId = postId;
-        this.postObject = postObject;
+        this.post = post;
         lastMessageDate = date;
-//        lastUnreadState = postObject != null && postObject.isUnread();
-//        if (this.postObject != null) {
-//            lastSendState = this.postObject.getCreatedDate();
+//        lastUnreadState = post != null && post.isUnread();
+//        if (this.post != null) {
+//            lastSendState = this.post.getCreatedDate();
 //        }
         //TODO I use it to calculate build layout before onMeasure will be invoked. And by this way, correct layout
         buildLayout();
@@ -307,7 +308,7 @@ public class PostCell extends BaseCell {
             nameLeft = AndroidUtilities.dp(14);
         }
 
-        if (postObject == null) {
+        if (post == null) {
             lastPrintString = addressString;
             currentAddressPaint = messagePrintingPaint;
             if (lastMessageDate != 0) {
@@ -319,13 +320,13 @@ public class PostCell extends BaseCell {
             if (lastMessageDate != 0) {
                 timeString = LocaleController.stringForMessageListDate(lastMessageDate);
             } else {
-                timeString = LocaleController.stringForMessageListDate(postObject.getCreatedDate() / 1000);
+                timeString = LocaleController.stringForMessageListDate(post.getCreatedDate() / 1000);
             }
 
             lastPrintString = null;
 
             String address = "";
-            address = postObject.getAddress();
+            address = post.getVenue().getAddress();
 
 
             checkMessage = false;
@@ -338,7 +339,7 @@ public class PostCell extends BaseCell {
             }
             distance = distance.replace("\n", " ");
 
-//                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", address, postObject.messageText)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+//                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", address, post.messageText)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
             // address: distance
             addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distance)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
 
@@ -349,7 +350,7 @@ public class PostCell extends BaseCell {
 //            } else {
 //                drawCount = false;
 //            }
-            //TODO postObject.isOut(). errorSend.
+            //TODO post.isOut(). errorSend.
         }
 
         int timeWidth = (int) Math.ceil(timePaint.measureText(timeString));
@@ -363,7 +364,7 @@ public class PostCell extends BaseCell {
         //  here was building name string
 
 
-        nameString = postObject.getVenueName();
+        nameString = post.getVenue().getName();
         if (StringUtils.isEmpty(nameString)) {
 //            nameString = LocaleController.getString("HiddenName", R.string.HiddenName);
             nameString = "Point";
@@ -482,13 +483,13 @@ public class PostCell extends BaseCell {
         //TEXT
 
         // TODO It should be before creating Cell. somewhere in generating entities. Because it is static layout. in Cell we just find the position. !!
-        generateTextLayout(this.postObject);
+        generateTextLayout(this.post);
 
 
         /// TEXT
         //Photo
 
-        if (this.postObject != null) {
+        if (this.post != null) {
 
             if (AndroidUtilities.isTablet()) {
                 photoWidth = (int) (AndroidUtilities.getMinTabletSide() * 1.0f); //0.7f
@@ -523,8 +524,8 @@ public class PostCell extends BaseCell {
             }
 
 
-            if (postObject.getPreviewImage() != null) {
-                Image previewImage = this.postObject.getPreviewImage();
+            if (post.getPreviewImage() != null) {
+                Image previewImage = this.post.getPreviewImage();
 
                 float scale = (float) previewImage.getWidth() / (float) photoWidth; // scale calculate
 
@@ -584,17 +585,17 @@ public class PostCell extends BaseCell {
     }
 
     public void checkCurrentPostIndex() {
-        PostObject postObject = null;
+        Post post = null;
 
-        if (index < PostsController.getInstance().postObjects.size()) {
-            postObject = PostsController.getInstance().postObjects.get(index);
+        if (index < PostsController.getInstance().posts.size()) {
+            post = PostsController.getInstance().posts.get(index);
         }
 
-        if (postObject != null) {
-            if (!StringUtils.isEmpty(postObject.getId())
+        if (post != null) {
+            if (!StringUtils.isEmpty(post.getId())
                     && !StringUtils.isEmpty(currentPostId)
-                    && !currentPostId.equals(postObject.getId())) {
-                currentPostId = postObject.getId();
+                    && !currentPostId.equals(post.getId())) {
+                currentPostId = post.getId();
                 update(0);
             }
         }
@@ -602,7 +603,7 @@ public class PostCell extends BaseCell {
 
     public void update(int mask) {
 
-//        PostObject postObject = PostsController.getInstance().postsMap.get(currentPostId);
+//        PostObject post = PostsController.getInstance().postsMap.get(currentPostId);
 
 
         if (mask != 0) {
@@ -626,18 +627,18 @@ public class PostCell extends BaseCell {
 
 
         //TODO-DELETE
-//        if(postObject == null) {
+//        if(post == null) {
 //            return;
 //        }
         //
 
-        //TODO null, 0 ??? s ext adn size. int)postObject.getImage().getSize()
+        //TODO null, 0 ??? s ext adn size. int)post.getImage().getSize()
 //        avatarImage.setImage(R.drawable.pin);
-        avatarImage.setImage(postObject.getVenuePreviewImageUrl(), null, avatarDrawable, null, 0);
+        avatarImage.setImage(post.getVenuePreviewImageUrl(), null, avatarDrawable, null, 0);
 
         //Photo
         // TODO null ?
-        photoImage.setImage(postObject.getPreviewImageUrl(), null, imageDrawable, null, 0); // TODO fix it. Create drawable.
+        photoImage.setImage(post.getPreviewImageUrl(), null, imageDrawable, null, 0); // TODO fix it. Create drawable.
 
         //Photo
 
@@ -718,17 +719,17 @@ public class PostCell extends BaseCell {
 
     //TODO utils method ?
     // TODO It should be before creating Cell. somewhere in generating entities. Because it is static layout. in Cell we just find the position. !!
-    private void generateTextLayout(PostObject postObject) {
-        if (postObject == null || postObject.getMessage() == null || postObject.getMessage().length() == 0) {
+    private void generateTextLayout(Post post) {
+        if (post == null || post.getMessage() == null || post.getMessage().length() == 0) {
             return;
         }
 
-        CharSequence messageText = postObject.getMessage();
+        CharSequence messageText = post.getMessage();
 
         messageText = Emoji.replaceEmoji(messageText, textPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
 
-        if (messageText instanceof Spannable && containsUrls(postObject.getMessage())) {
-            if (postObject.getMessage().length() < 100) {
+        if (messageText instanceof Spannable && containsUrls(post.getMessage())) {
+            if (post.getMessage().length() < 100) {
                 Linkify.addLinks((Spannable) messageText, Linkify.WEB_URLS | Linkify.PHONE_NUMBERS);
             } else {
                 Linkify.addLinks((Spannable) messageText, Linkify.WEB_URLS);
@@ -762,7 +763,7 @@ public class PostCell extends BaseCell {
             FileLog.e("tmessages", e);
             return;
         }
-        this.block = new PostObject.TextLayoutBlock();
+        this.block = new TextLayoutBlock();
 
         this.block.textLayout = textLayout;
         this.block.textYOffset = 0;

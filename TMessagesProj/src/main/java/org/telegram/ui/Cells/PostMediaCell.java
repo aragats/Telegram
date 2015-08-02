@@ -13,26 +13,18 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
-import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.ImageReceiver;
 import org.telegram.android.MediaController;
 import org.telegram.android.MessageObject;
-import org.telegram.messenger.R;
 import org.telegram.messenger.dto.Image;
-import org.telegram.messenger.object.PostObject;
+import org.telegram.messenger.dto.Post;
 import org.telegram.ui.Components.AvatarDrawable;
-import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RadialProgress;
 import org.telegram.ui.Components.ResourceLoader;
 
@@ -74,7 +66,7 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
     private AvatarDrawable imageDrawable;
 //    private ImageReceiver imageDrawable;
 
-    protected PostObject postObject;
+    protected Post post;
 
     private int layoutWidth;
     //TODO height of cell?
@@ -240,7 +232,7 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
                 } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
                     otherPressed = false;
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-//                    if (postObject.type == 9) {
+//                    if (post.type == 9) {
 //                        if (!(x >= photoImage.getImageX() + backgroundWidth - AndroidUtilities.dp(50) && x <= photoImage.getImageX() + backgroundWidth && y >= photoImage.getImageY() && y <= photoImage.getImageY() + photoImage.getImageHeight())) {
 //                            otherPressed = false;
 //                        }
@@ -279,7 +271,7 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 
 
     //TODO-aragats-old old method from PostMediaOld.
-    public void setPostObject(PostObject postObjectObject) {
+    public void setPost(Post post) {
 
 
 //        currentInfoString = "INFO";
@@ -288,8 +280,8 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 //        infoLayout = new StaticLayout(str2, infoPaint, infoWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
 
 
-        this.postObject = postObjectObject;
-        if (this.postObject != null) {
+        this.post = post;
+        if (this.post != null) {
 //            updateSecretTimeText();
 
             if (AndroidUtilities.isTablet()) {
@@ -308,8 +300,8 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 
 
             //TODO Full or Image
-            if (this.postObject.getPreviewImage() != null) {
-                Image previewImage = this.postObject.getPreviewImage();
+            if (this.post.getPreviewImage() != null) {
+                Image previewImage = this.post.getPreviewImage();
 
                 float scale = (float) previewImage.getWidth() / (float) photoWidth; // scale calculate
 
@@ -403,12 +395,12 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
         if (allowedToSetPhoto == value) {
             return;
         }
-        if (postObject != null) {
+        if (post != null) {
             allowedToSetPhoto = value;
             if (value) {
-                PostObject temp = postObject;
-                postObject = null;
-                setPostObject(temp);
+                Post temp = post;
+                post = null;
+                setPost(temp);
             }
         }
     }
@@ -417,7 +409,7 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
     //TODO-aragats-old is old method from previous method. But I should rake from ChatBaseCell
     @Override
     protected void onDraw(Canvas canvas) {
-        if (this.postObject == null) {
+        if (this.post == null) {
             return;
         }
 
@@ -455,7 +447,7 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 
 //            photoImage.setPressed(isPressed() && isCheckPressed || !isCheckPressed && isPressed || isHighlighted);
 //        photoImage.setPressed(isPressed());
-//        photoImage.setVisible(!PhotoViewer.getInstance().isShowingImage(postObject), false);
+//        photoImage.setVisible(!PhotoViewer.getInstance().isShowingImage(post), false);
 //        imageDrawn = photoImage.draw(canvas);
 
 
@@ -532,14 +524,14 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
     @Override
     public void onSuccessDownload(String fileName) {
 //        radialProgress.setProgress(1, true);
-//        if (postObject.type == 8 && lastDownloadedGifMessage != null && lastDownloadedGifMessage.getId() == postObject.getId()) {
+//        if (post.type == 8 && lastDownloadedGifMessage != null && lastDownloadedGifMessage.getId() == post.getId()) {
 //            buttonState = 2;
 //            didPressedButton(true);
 //        } else if (!photoNotSet) {
 //            updateButtonState(true);
 //        }
 //        if (photoNotSet) {
-//            setPostObject(postObject);
+//            setPost(post);
 //        }
     }
 
@@ -562,7 +554,7 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
     }
 
 
-    public PostObject getPostObject() {
-        return postObject;
+    public Post getPost() {
+        return post;
     }
 }
