@@ -850,17 +850,16 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 } else if (id == gallery_menu_save) {
                     File f = null;
                     //TODO-aragats new
-                    if(currentPost != null) {
+                    if (currentPost != null) {
                         currentFileNames[0] = Utilities.MD5(currentPost.getImage().getUrl()) + ".jpg";
                         f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);
-                    }
-                    else
+                    } else
                         //new
-                    if (currentMessageObject != null) {
-                        f = FileLoader.getPathToMessage(currentMessageObject.messageOwner);
-                    } else if (currentFileLocation != null) {
-                        f = FileLoader.getPathToAttach(currentFileLocation, avatarsUserId != 0);
-                    }
+                        if (currentMessageObject != null) {
+                            f = FileLoader.getPathToMessage(currentMessageObject.messageOwner);
+                        } else if (currentFileLocation != null) {
+                            f = FileLoader.getPathToAttach(currentFileLocation, avatarsUserId != 0);
+                        }
 
                     if (f != null && f.exists()) {
                         MediaController.saveFile(f.toString(), parentActivity, currentFileNames[0].endsWith("mp4") ? 1 : 0, null);
@@ -2196,7 +2195,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
 
-
     private void onPhotoShow(final MessageObject messageObject, final TLRPC.FileLocation fileLocation, final ArrayList<MessageObject> messages, final ArrayList<Object> photos, int index, final PlaceProviderObject object) {
         classGuid = ConnectionsManager.getInstance().generateClassGuid();
         currentMessageObject = null;
@@ -2594,7 +2592,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
 
-
     //TODO-aragats new
     private void setImageIndexPostNew(int index, boolean init) {
         if (currentIndex == index) {
@@ -2620,11 +2617,11 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
             currentPost = imagesPostArr.get(currentIndex);
 
-                nameTextView.setText("USER-Aragats");
+            nameTextView.setText("USER-Aragats");
             long date = currentPost.getCreatedDate();
             String dateString = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, LocaleController.formatterYear.format(new Date(date)), LocaleController.formatterDay.format(new Date(date)));
 
-                dateTextView.setText(dateString);
+            dateTextView.setText(dateString);
             CharSequence caption = currentPost.getMessage();
             setCurrentCaption(caption);
 
@@ -3219,7 +3216,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
 
-
     //TODO-aragats new
     //final PostPhotoViewerProvider provider, PostsActivity postsActivity are the same class.
     public void openPhotoNew(final Post post, final PostPhotoViewerProvider provider, PostsActivity postsActivity) {
@@ -3242,7 +3238,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 //don't promt
             }
         }
-
 
 
         try {
