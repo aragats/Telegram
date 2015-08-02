@@ -95,8 +95,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private String searchString;
     private String openedPostId;
 
-    private MessagesActivityDelegate delegate;
-
     // Swipe Refresh Layout
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -202,6 +200,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
         if (searchString == null) {
             //TODO learn NotificationCenter class especiallu case when post notification. There is different situations when notify when animation or not.
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.dialogsNeedReload);
@@ -231,6 +230,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
         if (searchString == null) {
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.dialogsNeedReload);
@@ -246,7 +246,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.messageSendError);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.didSetPasscode);
         }
-        delegate = null;
     }
 
     @Override
@@ -485,18 +484,19 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         });
 
         TextView textView = new TextView(context);
-        textView.setText(LocaleController.getString("NoChats", R.string.NoChats));
+//        textView.setText(LocaleController.getString("NoChats", R.string.NoChats));
+        textView.setText("There are not recent posts around your.");
         textView.setTextColor(0xff959595);
         textView.setGravity(Gravity.CENTER);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
         emptyView.addView(textView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 
         textView = new TextView(context);
-        String help = LocaleController.getString("NoChatsHelp", R.string.NoChatsHelp);
-        if (AndroidUtilities.isTablet() && !AndroidUtilities.isSmallTablet()) {
-            help = help.replace("\n", " ");
-        }
-        textView.setText(help);
+//        String help = LocaleController.getString("NoChatsHelp", R.string.NoChatsHelp);
+//        if (AndroidUtilities.isTablet() && !AndroidUtilities.isSmallTablet()) {
+//            help = help.replace("\n", " ");
+//        }
+        textView.setText("Please check whether your gps is enabled.");
         textView.setTextColor(0xff959595);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         textView.setGravity(Gravity.CENTER);
@@ -667,8 +667,25 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     @Override
     @SuppressWarnings("unchecked")
     public void didReceivedNotification(int id, Object... args) {
-        if (id == NotificationCenter.postRequestFinished) {
-            if(swipeRefreshLayout != null) {
+        if (id == NotificationCenter.undefinedLocation) {
+//            Toast.makeText(((Context) getParentActivity()), "Please, enable gps on your phone", Toast.LENGTH_SHORT).show();
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
+            builder.setTitle("Whats going on?");
+            builder.setMessage("Please, enable gps on your phone.");
+            builder.setPositiveButton("OK", null);
+//            builder.setPositiveButton(LocaleController.getString("ClearButton", R.string.ClearButton).toUpperCase(), new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialogInterface, int i) {
+//                    postsSearchAdapter.clearRecentHashtags();
+//                }
+//            });
+            builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
+            showDialog(builder.create());
+        } else if (id == NotificationCenter.postRequestFinished) {
+            if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);
             }
         } else if (id == NotificationCenter.postsNeedReload) {
@@ -702,7 +719,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     FileLog.e("tmessages", e); //TODO fix it in other way?
                 }
             }
-            if(swipeRefreshLayout != null) {
+            if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);
             }
         } else if (id == NotificationCenter.emojiDidLoaded) {
@@ -780,17 +797,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         }
     }
 
-    public void setDelegate(MessagesActivityDelegate delegate) {
-        this.delegate = delegate;
-    }
-
     public void setSearchString(String string) {
         searchString = string;
     }
 
-    public boolean isMainDialogList() {
-        return delegate == null && searchString == null;
-    }
 
     private void didSelectResult(final String dialog_id, boolean useAlert, final boolean param) {
         //TODO here onlySelect Posts (Dialog)

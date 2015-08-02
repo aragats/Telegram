@@ -1041,6 +1041,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         ActionBarMenu menu = actionBar.createMenu();
 
         menuItem = menu.addItem(0, R.drawable.ic_ab_other);
+        //TODO-aragats
         menuItem.addSubItem(gallery_menu_showall, LocaleController.getString("ShowAllMedia", R.string.ShowAllMedia), 0);
         menuItem.addSubItem(gallery_menu_save, LocaleController.getString("SaveToGallery", R.string.SaveToGallery), 0);
         menuItem.addSubItem(gallery_menu_delete, LocaleController.getString("Delete", R.string.Delete), 0);
@@ -1102,6 +1103,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     } else if (currentFileLocation != null) {
                         f = FileLoader.getPathToAttach(currentFileLocation, avatarsUserId != 0);
                     }
+//
+//                    else if(currentPost != null) {
+//                        f = currentPost.getImage().getUrl();
+//                    }
 
                     if (f.exists()) {
                         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -2184,11 +2189,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
         if (post != null) {
             imagesPostArr.add(post);
-
-            menuItem.showSubItem(gallery_menu_showall);
-//            else
-//            menuItem.hideSubItem(gallery_menu_showall);
-
+            menuItem.hideSubItem(gallery_menu_showall);
             setImageIndexPostNew(0, true);
         }
 
@@ -2610,26 +2611,26 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         boolean sameImage = false;
 
         if (!imagesPostArr.isEmpty()) {
-            menuItem.showSubItem(gallery_menu_delete);
             if (currentIndex < 0 || currentIndex >= imagesPostArr.size()) {
                 closePhoto(false, false);
                 return;
             }
             currentPost = imagesPostArr.get(currentIndex);
 
-            nameTextView.setText("USER-Aragats");
+            //TODO name of venue (user) !!!
+            nameTextView.setText(currentPost.getVenue().getName());
             long date = currentPost.getCreatedDate();
             String dateString = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, LocaleController.formatterYear.format(new Date(date)), LocaleController.formatterDay.format(new Date(date)));
-
             dateTextView.setText(dateString);
+
             CharSequence caption = currentPost.getMessage();
             setCurrentCaption(caption);
 
+            //TODO  It is title 1 of 1
             if (totalImagesCount != 0 && !needSearchImageInArr) {
-
                 actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, (totalImagesCount - imagesPostArr.size()) + currentIndex + 1, totalImagesCount));
-
             }
+
 //            if (currentMessageObject.messageOwner.ttl != 0) {
 //                menuItem.hideSubItem(gallery_menu_save);
 //                shareButton.setVisibility(View.GONE);
@@ -2637,8 +2638,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 //                menuItem.showSubItem(gallery_menu_save);
 //                shareButton.setVisibility(View.VISIBLE);
 //            }
+            menuItem.hideSubItem(gallery_menu_delete);
             menuItem.showSubItem(gallery_menu_save);
-            shareButton.setVisibility(View.VISIBLE);
+            shareButton.setVisibility(View.GONE);
         }
 
         if (currentPlaceObject != null) {

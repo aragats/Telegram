@@ -10,6 +10,7 @@ package org.telegram.android;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.location.Location;
 
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.dto.Post;
@@ -17,6 +18,7 @@ import org.telegram.messenger.dto.PostResponse;
 import org.telegram.messenger.dto.Venue;
 import org.telegram.messenger.service.mock.PostServiceMock;
 import org.telegram.messenger.service.mock.VenueServiceMock;
+import org.telegram.ui.LocationActivityAragats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,6 +125,12 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             return;
         }
         loadingPosts = true;
+        Location location = LocationActivityAragats.getLastLocation();
+        if(location == null) {
+            loadingPosts = false;
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
+            return;
+        }
 //        NotificationCenter.getInstance().postNotificationName(NotificationCenter.dialogsNeedReload);
 
         //TODO here async  request

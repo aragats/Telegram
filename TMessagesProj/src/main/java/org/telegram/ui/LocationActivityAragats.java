@@ -738,7 +738,8 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         }
     }
 
-    private Location getLastLocation() {
+    //TODO method to get location
+    public static Location getLastLocation() {
         LocationManager lm = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
         List<String> providers = lm.getProviders(true);
         Location l = null;
