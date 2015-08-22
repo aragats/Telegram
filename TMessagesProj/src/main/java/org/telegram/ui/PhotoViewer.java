@@ -85,6 +85,7 @@ import org.telegram.ui.Components.PhotoFilterView;
 import org.telegram.ui.Components.PhotoPickerBottomLayout;
 import org.telegram.ui.Components.PhotoViewerCaptionEnterView;
 import org.telegram.ui.Components.SizeNotifierRelativeLayoutPhoto;
+import org.telegram.utils.StringUtils;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -849,7 +850,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     closePhoto(true, false);
                 } else if (id == gallery_menu_save) {
                     File f = null;
-                    //TODO-aragats new
+                    //TODO-aragats new. It is important do not save again from the internet but use saved in cache.
                     if (currentPost != null) {
                         currentFileNames[0] = Utilities.MD5(currentPost.getImage().getUrl()) + ".jpg";
                         f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);
@@ -1097,18 +1098,20 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 }
                 try {
                     File f = null;
+//                    String text = null;
 
                     if (currentMessageObject != null) {
                         f = FileLoader.getPathToMessage(currentMessageObject.messageOwner);
                     } else if (currentFileLocation != null) {
                         f = FileLoader.getPathToAttach(currentFileLocation, avatarsUserId != 0);
+                    } else if (currentPost != null) {
+                        //TODO-aragats new. It is important do not save again from the internet but use saved in cache. But actually it load the file from cache, because already loaded.
+                        currentFileNames[0] = Utilities.MD5(currentPost.getImage().getUrl()) + ".jpg";
+                        f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);
+//                        text = currentPost.getMessage();
                     }
-//
-//                    else if(currentPost != null) {
-//                        f = currentPost.getImage().getUrl();
-//                    }
 
-                    if (f.exists()) {
+                    if (f != null && f.exists()) {
                         Intent intent = new Intent(Intent.ACTION_SEND);
                         if (f.toString().endsWith("mp4")) {
                             intent.setType("video/mp4");
@@ -1116,6 +1119,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                             intent.setType("image/jpeg");
                         }
                         intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(f));
+//                        if (!StringUtils.isEmpty(text)) {
+//                            intent.putExtra(Intent.EXTRA_TEXT, text);
+//                        }
 
                         parentActivity.startActivityForResult(Intent.createChooser(intent, LocaleController.getString("ShareFile", R.string.ShareFile)), 500);
                     } else {
@@ -2150,7 +2156,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentThumb = object != null ? object.thumb : null;
         menuItem.setVisibility(View.VISIBLE);
         bottomLayout.setVisibility(View.VISIBLE);
-        shareButton.setVisibility(View.GONE);
+//        shareButton.setVisibility(View.GONE);
+        shareButton.setVisibility(View.VISIBLE);
         menuItem.hideSubItem(gallery_menu_showall);
         ViewProxy.setTranslationY(actionBar, 0);
         ViewProxy.setTranslationY(pickerView, 0);
@@ -2640,7 +2647,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 //            }
             menuItem.hideSubItem(gallery_menu_delete);
             menuItem.showSubItem(gallery_menu_save);
-            shareButton.setVisibility(View.GONE);
+//            shareButton.setVisibility(View.GONE);
+            shareButton.setVisibility(View.VISIBLE);
         }
 
         if (currentPlaceObject != null) {
