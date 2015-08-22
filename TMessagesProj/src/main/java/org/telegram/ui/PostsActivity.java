@@ -11,14 +11,17 @@ package org.telegram.ui;
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -47,6 +50,7 @@ import org.telegram.android.NotificationCenter;
 import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
+import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 //TODO delte it or reuse.
@@ -672,18 +676,24 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-            builder.setTitle("Whats going on?");
-            builder.setMessage("Please, enable gps on your phone.");
-            builder.setPositiveButton("OK", null);
-//            builder.setPositiveButton(LocaleController.getString("ClearButton", R.string.ClearButton).toUpperCase(), new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialogInterface, int i) {
-//                    postsSearchAdapter.clearRecentHashtags();
-//                }
-//            });
-            builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-            showDialog(builder.create());
+            Activity context = getParentActivity();
+            if(context != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Whats going on?");
+                builder.setMessage("Please, enable gps on your phone.");
+//            builder.setPositiveButton("OK", null);
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        //TODO example of invoking application context
+                        Context applicationContext = ApplicationLoader.applicationContext;
+                        PostsActivity.this.getParentActivity().startActivity(myIntent);
+                    }
+                });
+                builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
+                showDialog(builder.create());
+            }
         } else if (id == NotificationCenter.postRequestFinished) {
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);

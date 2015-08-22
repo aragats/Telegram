@@ -13,14 +13,18 @@ import android.content.SharedPreferences;
 import android.location.Location;
 
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.dto.Coordinates;
+import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;
 import org.telegram.messenger.dto.Venue;
 import org.telegram.messenger.service.mock.PostServiceMock;
 import org.telegram.messenger.service.mock.VenueServiceMock;
 import org.telegram.ui.LocationActivityAragats;
+import org.telegram.utils.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -126,7 +130,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         }
         loadingPosts = true;
         Location location = LocationActivityAragats.getLastLocation();
-        if(location == null) {
+        if (location == null) {
             loadingPosts = false;
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             return;
@@ -162,8 +166,22 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void loadCurrentVenue(String location) {
-        this.currentVenue = VenueServiceMock.getRandomVenue();
+    public void loadCurrentVenue(String loc) {
+        Location location = LocationActivityAragats.getLastLocation();
+        if(location == null) {
+//            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
+            return;
+        }
+        Venue venue = new Venue();
+        Coordinates coordinates = new Coordinates();
+        coordinates.setCoordinates(Arrays.asList(location.getLongitude(), location.getLatitude()));
+        coordinates.setType("Point");
+        venue.setCoordinates(coordinates);
+        if (StringUtils.isEmpty(venue.getAddress())) {
+            venue.setAddress(location.getLongitude() + ", " + location.getLatitude());
+        }
+//        this.currentVenue = VenueServiceMock.getRandomVenue();
+        this.currentVenue = venue;
     }
 
     public Venue getCurrentVenue() {

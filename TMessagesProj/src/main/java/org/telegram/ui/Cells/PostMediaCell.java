@@ -495,7 +495,9 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
 
         //DELETE BUTTON
         Drawable buttonDrawable = ResourceLoader.audioStatesDrawable[4][0];
-        setDrawableBounds(buttonDrawable, buttonX, buttonY);
+//        setDrawableBounds(buttonDrawable, buttonX, buttonY);
+        setDrawableBounds(buttonDrawable, buttonX + AndroidUtilities.dp(3), buttonY + AndroidUtilities.dp(3)); // I took it from deleteProgressRect.set(
+
         buttonDrawable.draw(canvas);
 
 //        ImageView imageView = new ImageView(this.getContext());

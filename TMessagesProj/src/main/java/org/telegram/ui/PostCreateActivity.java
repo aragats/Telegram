@@ -118,12 +118,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
     private Post selectedObject;
     private boolean wasPaused = false;
-    private TLRPC.WebPage foundWebPage;
     private Runnable waitingForCharaterEnterRunnable;
 
     private boolean openAnimationEnded = false;
 
 
+    //TODO - here are post for ???
     protected ArrayList<Post> posts = new ArrayList<>();
     protected Venue venue;
 
@@ -881,7 +881,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            avatarImageView.setImage(newPhoto, "50_50", avatarDrawable);
 //            avatarImageView.setImage("/storage/emulated/0/Telegram/Telegram Images/730111210_6623.jpg", "50_50", avatarDrawable);
             //TODO probably save venue. into field in Activity.
-            if (venue != null && !StringUtils.isEmpty(venue.getPreviewImage().getUrl())) {
+            if (venue != null && venue.getPreviewImage() != null && !StringUtils.isEmpty(venue.getPreviewImage().getUrl())) {
                 avatarImageView.setImage(venue.getPreviewImage().getUrl(), "50_50", avatarDrawable);
             } else {
                 avatarImageView.setImageResource(R.drawable.pin);
@@ -1038,6 +1038,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             photos.add(lastPhotoURL);
             didSelectPhotos(photos);
         }
+        venue = PostsController.getInstance().getCurrentVenue();
+        PostsController.getInstance().setCurrentVenue(null);
+        updateVenue();
+
 
         if (bottomOverlayChat.getVisibility() != View.VISIBLE) {
             postCreateActivityEnterView.setFieldFocused(true);
@@ -1075,6 +1079,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     editor.putString("new_post_photo", posts.get(0).getImage().getUrl());
                 }
                 editor.commit();
+                PostsController.getInstance().setCurrentVenue(venue);
             }
             postCreateActivityEnterView.setFieldFocused(false);
         }
@@ -1329,7 +1334,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 PostMediaCell cell = (PostMediaCell) view;
                 Post post = cell.getPost();
                 if (post != null && !StringUtils.isEmpty(post.getId())
-                        &&  post.getId().equals(postObject.getId())) {
+                        && post.getId().equals(postObject.getId())) {
                     postToOpen = post;
                     imageReceiver = cell.getPhotoImage();
                 }
@@ -1605,6 +1610,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     venue.setAddress(location.geo._long + ", " + location.geo.lat);
                 }
                 PostCreateActivity.this.venue = venue;
+                PostsController.getInstance().setCurrentVenue(venue);
 //                location.iconUrl;
 //                Toast.makeText(getParentActivity(), location.venue_id + " " + location.geo.lat + " " + location.geo._long, Toast.LENGTH_LONG).show();
 //                            SendMessagesHelper.getInstance().sendMessage(location, dialog_id, replyingMessageObject);
