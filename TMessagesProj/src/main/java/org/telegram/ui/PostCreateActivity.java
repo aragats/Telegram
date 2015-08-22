@@ -100,6 +100,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private LinearLayoutManager postLayoutManager;
     //TODO-aragats
     private PostCreateActivityAdapter postCreateAdapter;
+    //TODO BackupImageView contain ImageReceiver. So it more advanced. staff. It surrounds ImageReceiver
     private BackupImageView avatarImageView;
     private TextView bottomOverlayChatText;
     private FrameLayout bottomOverlayChat;

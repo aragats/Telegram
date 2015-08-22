@@ -88,6 +88,9 @@ public class Post {
 
 
     public String getVenuePreviewImageUrl() {
+        if(this.getVenue() == null || this.getVenue().getImage() == null) {
+            return null;
+        }
         return this.getVenue().getImage().getUrl();
     }
 

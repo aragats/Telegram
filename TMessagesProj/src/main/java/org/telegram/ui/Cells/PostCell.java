@@ -105,12 +105,12 @@ public class PostCell extends BaseCell {
 
     private int timeLeft;
     private int timeTop = AndroidUtilities.dp(15);
-//    private int timeTop = AndroidUtilities.dp(17);
+    //    private int timeTop = AndroidUtilities.dp(17);
     private StaticLayout timeLayout;
 
 
     private int addressTop = AndroidUtilities.dp(34);
-//    private int addressTop = AndroidUtilities.dp(40);
+    //    private int addressTop = AndroidUtilities.dp(40);
     private int addressLeft;
     private StaticLayout addressLayout;
 
@@ -634,7 +634,14 @@ public class PostCell extends BaseCell {
 
         //TODO null, 0 ??? s ext adn size. int)post.getImage().getSize()
 //        avatarImage.setImage(R.drawable.pin);
-        avatarImage.setImage(post.getVenuePreviewImageUrl(), null, avatarDrawable, null, 0);
+        String url = post.getVenuePreviewImageUrl();
+        if (!StringUtils.isEmpty(url)) {
+            avatarImage.setImage(post.getVenuePreviewImageUrl(), null, avatarDrawable, null, 0);
+        }
+        {
+//        avatarImage.setImageResource(R.drawable.pin);
+            avatarImage.setImageBitmap(getResources().getDrawable(R.drawable.pin));
+        }
 
         //Photo
         // TODO null ?
