@@ -894,8 +894,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            avatarImageView.setImage(newPhoto, "50_50", avatarDrawable);
 //            avatarImageView.setImage("/storage/emulated/0/Telegram/Telegram Images/730111210_6623.jpg", "50_50", avatarDrawable);
             //TODO probably save venue. into field in Activity.
-            if (venue != null && venue.getPreviewImage() != null && !StringUtils.isEmpty(venue.getPreviewImage().getUrl())) {
-                avatarImageView.setImage(venue.getPreviewImage().getUrl(), "50_50", avatarDrawable);
+            if (venue != null && venue.getImage() != null && !StringUtils.isEmpty(venue.getImage().getUrl())) {
+                avatarImageView.setImage(venue.getImage().getUrl(), "50_50", avatarDrawable);
             } else {
                 avatarImageView.setImageResource(R.drawable.pin);
 //                    avatarImageView.setImage(PostsController.getInstance().getCurrentVenue().getVenuePreviewImageUrl(), "50_50", avatarDrawable);
@@ -1616,7 +1616,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 Image image = new Image();
                 image.setUrl(location.iconUrl);
                 venue.setImage(image);
-                venue.setPreviewImage(image);
                 venue.setName(location.title);
                 venue.setAddress(location.address);
                 if (StringUtils.isEmpty(venue.getAddress())) {

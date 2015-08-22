@@ -11,7 +11,6 @@ public class Post {
     private String id;
     private String message;
     private Venue venue;
-    private User user;
     private Coordinates coordinates;
     private Image previewImage;
     private Image image;
@@ -44,14 +43,6 @@ public class Post {
 
     public void setVenue(Venue venue) {
         this.venue = venue;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Coordinates getCoordinates() {

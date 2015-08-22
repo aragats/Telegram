@@ -74,7 +74,6 @@ public class PostServiceMock {
         Image image = ImageServiceMock.getRandomImage();
         post.setPreviewImage(image);
         post.setImage(image);
-        post.setUser(UserServiceMock.getRandomUser());
         post.setVenue(VenueServiceMock.getRandomVenue());
         return post;
     }

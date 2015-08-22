@@ -12,7 +12,6 @@ public class Venue {
     private Coordinates coordinates;
     // distance in meters;
     private int distance;
-    private Image previewImage;
     private Image image;
 
     public String getId() {
@@ -61,14 +60,6 @@ public class Venue {
 
     public void setDistance(int distance) {
         this.distance = distance;
-    }
-
-    public Image getPreviewImage() {
-        return previewImage;
-    }
-
-    public void setPreviewImage(Image previewImage) {
-        this.previewImage = previewImage;
     }
 
     public Image getImage() {
