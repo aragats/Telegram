@@ -38,9 +38,6 @@ public class PostObject {
         return this.post.getMessage();
     }
 
-    public String getAuthor() {
-        return this.post.getUser().getFirstName() + " " + post.getUser().getLastName();
-    }
 
     public String getVenueName() {
         return this.post.getVenue().getName();

@@ -25,10 +25,6 @@ public class VenueObject {
     }
 
 
-    public String getVenuePreviewImageUrl() {
-        return this.venue.getPreviewImage().getUrl();
-    }
-
     public String getAddress() {
         return this.venue.getAddress();
     }

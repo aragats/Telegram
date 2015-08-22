@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //TODO Look at MessagesController methods. There are many good examples and best practice.
 public class PostsController implements NotificationCenter.NotificationCenterDelegate {
 
+    private Location currentLocation;
     public Venue currentVenue;
 
     public Post currentPost;
@@ -139,6 +140,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             return;
         }
+        currentLocation = location;
 //        NotificationCenter.getInstance().postNotificationName(NotificationCenter.dialogsNeedReload);
 
         //TODO here async  request
@@ -146,6 +148,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //        after getting response.
         processLoadedPosts(postResponse, offset, count, reload);
 
+    }
+
+    public Location getCurrentLocation(){
+        return currentLocation;
     }
 
 
@@ -176,6 +182,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             return;
         }
+
         Venue venue = new Venue();
         Coordinates coordinates = new Coordinates();
         coordinates.setCoordinates(Arrays.asList(location.getLongitude(), location.getLatitude()));

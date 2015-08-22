@@ -12,6 +12,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Build;
 import android.text.Layout;
 import android.text.Spannable;
@@ -29,10 +30,12 @@ import org.telegram.android.LocaleController;
 import org.telegram.android.PostsController;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
+import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
+import org.telegram.ui.LocationActivityAragats;
 import org.telegram.utils.StringUtils;
 
 public class PostCell extends BaseCell {
@@ -333,15 +336,33 @@ public class PostCell extends BaseCell {
 
             currentAddressPaint = messagePrintingPaint;
 
-            String distance = "n km";
-            if (distance.length() > 150) {
-                distance = distance.substring(0, 150);
+//            String distance = "n km";
+//            String distance = LocaleController.formatString("AccurateTo", R.string.AccurateTo, LocaleController.formatPluralString("Meters", (int) gpsLocation.getAccuracy()));
+//            String distance = LocaleController.formatString("AccurateTo", R.string.AccurateTo, LocaleController.formatPluralString("Meters", (int) PostsController.getInstance().getCurrentLocation().getAccuracy()));
+
+            String distanceStr = "";
+            Location userLocation = PostsController.getInstance().getCurrentLocation();
+            if (userLocation != null && post.getCoordinates() != null) {
+                Coordinates coordinates = post.getCoordinates();
+                Location location = new Location("network");
+                location.setLongitude(coordinates.getCoordinates().get(0));
+                location.setLatitude(coordinates.getCoordinates().get(1));
+                float distance = location.distanceTo(userLocation);
+                if (distance < 1000) {
+                    distanceStr = String.format("%d %s", (int) (distance), LocaleController.getString("MetersAway", R.string.MetersAway));
+                } else {
+                    distanceStr = String.format("%.2f %s", distance / 1000.0f, LocaleController.getString("KMetersAway", R.string.KMetersAway));
+                }
             }
-            distance = distance.replace("\n", " ");
+
+            if (distanceStr.length() > 150) {
+                distanceStr = distanceStr.substring(0, 150);
+            }
+            distanceStr = distanceStr.replace("\n", " ");
 
 //                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", address, post.messageText)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
             // address: distance
-            addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distance)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+            addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distanceStr)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
 
 
 //            if (unreadCount != 0) {
@@ -637,8 +658,7 @@ public class PostCell extends BaseCell {
         String url = post.getVenuePreviewImageUrl();
         if (!StringUtils.isEmpty(url)) {
             avatarImage.setImage(post.getVenuePreviewImageUrl(), null, avatarDrawable, null, 0);
-        }
-        {
+        } else {
 //        avatarImage.setImageResource(R.drawable.pin);
             avatarImage.setImageBitmap(getResources().getDrawable(R.drawable.pin));
         }

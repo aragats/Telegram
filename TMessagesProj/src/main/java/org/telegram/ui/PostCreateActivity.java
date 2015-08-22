@@ -264,7 +264,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     @Override
-    public View createView(Context context, LayoutInflater inflater) {
+    public View createView(final Context context, LayoutInflater inflater) {
 
         for (int a = 0; a < 4; a++) {
             postMediaCellsCache.add(new PostMediaCell(context));
@@ -297,13 +297,15 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 } else if (id == done_button) {
                     Toast.makeText(((Context) getParentActivity()), "DONE BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
                     Post post = posts.get(0);
-                    if (post != null) {
+                    if (post != null && venue != null) {
                         post.setVenue(venue);
+                        post.setCoordinates(venue.getCoordinates());
                         String text = postCreateActivityEnterView.getFieldText();
                         post.setMessage(text);
 
                     }
 
+                    //TODO many check text, venue, coordinates and so on.
                     if(post != null && venue != null) {
                         PostsController.getInstance().addPost(post);
                     }
@@ -1684,7 +1686,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            image = ImageServiceMock.getRandomImage();
             post.setImage(image);
             post.setPreviewImage(image);
-            post.setVenue(VenueServiceMock.getRandomVenue());
+//            post.setVenue(VenueServiceMock.getRandomVenue());
             //TODO-temp
 //            PostCreateActivity.this.post = new PostObject(post);
             //DELETE ALL to store only one
