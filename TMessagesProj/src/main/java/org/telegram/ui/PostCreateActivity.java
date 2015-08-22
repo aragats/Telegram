@@ -295,6 +295,18 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     finishFragment();
                 } else if (id == done_button) {
                     Toast.makeText(((Context) getParentActivity()), "DONE BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
+                    Post post = posts.get(0);
+                    if (post != null) {
+                        post.setVenue(venue);
+                        String text = postCreateActivityEnterView.getFieldText();
+                        post.setMessage(text);
+
+                    }
+
+                    if(post != null && venue != null) {
+                        PostsController.getInstance().addPost(post);
+                    }
+
 
                 } else if (id == attach_photo) {
                     attachPhotoHandle();

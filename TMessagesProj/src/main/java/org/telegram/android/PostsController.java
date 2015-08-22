@@ -119,6 +119,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
+    public void addPost(Post post) {
+        PostServiceMock.addPost(post);
+    }
+
     public void deletePost(final String did, int offset, final boolean onlyHistory) {
         // TODO Delete Post
     }

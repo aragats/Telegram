@@ -22,7 +22,11 @@ public class PostServiceMock {
     private static List<Post> posts = new ArrayList<>();
 
     static {
-        posts.addAll(generatePosts(60));
+        posts.addAll(generatePosts(30));
+    }
+
+    public static void addPost(Post post) {
+        posts.add(post);
     }
 
     public static PostResponse getPosts(String location, String query, final int offset, final int count) {
