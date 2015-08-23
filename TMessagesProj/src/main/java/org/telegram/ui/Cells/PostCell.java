@@ -94,7 +94,7 @@ public class PostCell extends BaseCell {
     private AvatarDrawable avatarDrawable;
 
 
-    //IMmge
+    //Image
     private int photoWidth;
     private int photoHeight;
     private AvatarDrawable imageDrawable;
@@ -612,7 +612,9 @@ public class PostCell extends BaseCell {
 
 //                photoImage.setImageCoords(avatarLeft, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
 //                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
-                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
+                // orientation of image in the center of the screen.
+                int x = (getMeasuredWidth() - photoWidth)/2;
+                photoImage.setImageCoords(x, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
 
 
                 photoImage.setForcePreview(false);
