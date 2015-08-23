@@ -122,6 +122,16 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     public void addPost(Post post) {
         PostServiceMock.addPost(post);
+        //TODO mock loading
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
+        }
+        NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
+
+
     }
 
     public void deletePost(final String did, int offset, final boolean onlyHistory) {

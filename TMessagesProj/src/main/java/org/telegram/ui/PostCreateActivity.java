@@ -10,6 +10,7 @@ package org.telegram.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -112,6 +113,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private TextView bottomOverlayText;
     private TextView muteItem;
 
+    private ProgressDialog progressDialog;
+
 
     // Send button!
     private TextView sendTextView;
@@ -179,6 +182,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         //
 
         //TODO notification
+        //my
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.newPostSaved);
+        //
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.messagesDidLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
@@ -227,6 +233,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             postCreateActivityEnterView.onDestroy();
         }
         //TODO notification
+        //my
+        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.newPostSaved);
+        //
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.messagesDidLoaded);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
@@ -317,6 +326,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     //TODO many check text, venue, coordinates and so on.
                     if (post != null && venue != null) {
+                        progressDialog.show();
                         PostsController.getInstance().addPost(post);
                     }
 
@@ -330,6 +340,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 }
             }
         });
+
+
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Loading");
+        progressDialog.setCancelable(false);
 
 //        sendButtonContainer = new FrameLayoutFixed(context);
 //        sendButtonContainer.setBackgroundResource(R.drawable.bar_selector);
@@ -991,6 +1006,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             if (this.postCreateAdapter != null) {
                 postCreateAdapter.notifyDataSetChanged();
             }
+        } else if (id == NotificationCenter.newPostSaved) {
+            progressDialog.hide();
+
         }
     }
 
