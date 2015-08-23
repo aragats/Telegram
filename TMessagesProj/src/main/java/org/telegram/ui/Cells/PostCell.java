@@ -282,6 +282,7 @@ public class PostCell extends BaseCell {
                     imagePressed = true;
                     venuePressed = false;
                     result = true;
+                    // click on part upper to image // address, name of the place and venue photo.
                 } else if (x >= 0 && x <= getMeasuredWidth() && y >= 0 && y < photoImage.getImageY()) {
                     venuePressed = true;
                     imagePressed = false;
