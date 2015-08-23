@@ -35,8 +35,6 @@ import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
-import org.telegram.ui.LocationActivity;
-import org.telegram.ui.LocationActivityAragats;
 import org.telegram.utils.StringUtils;
 
 public class PostCell extends BaseCell {
@@ -689,9 +687,12 @@ public class PostCell extends BaseCell {
         String url = post.getVenuePreviewImageUrl();
         if (!StringUtils.isEmpty(url)) {
             avatarImage.setImage(post.getVenuePreviewImageUrl(), null, avatarDrawable, null, 0);
+//            avatarImage.setBackgroundResource(R.drawable.round_grey);
         } else {
-//        avatarImage.setImageResource(R.drawable.pin);
             avatarImage.setImageBitmap(getResources().getDrawable(R.drawable.pin));
+//            avatarImage.setBackgroundResource(R.drawable.round_grey);
+//            avatarImage.setImageResource(R.drawable.pin);
+
         }
 
         //Photo
@@ -715,6 +716,18 @@ public class PostCell extends BaseCell {
         if (StringUtils.isEmpty(currentPostId)) {
             return;
         }
+//        ColorDrawable cd = new ColorDrawable(0xFFFFFFFF);
+//        Drawable currentBackgroundDrawable = ResourceLoader.backgroundBlue;
+//        Drawable currentBackgroundDrawable = getContext().getResources().getDrawable(R.drawable.pin);;
+        Drawable currentBackgroundDrawable = getContext().getResources().getDrawable(R.drawable.floating_states);
+//        currentBackgroundDrawable = backgroundMediaDrawableOutSelected;
+
+
+//        setDrawableBounds(currentBackgroundDrawable, layoutWidth - backgroundWidth - AndroidUtilities.dp(9), AndroidUtilities.dp(1), backgroundWidth, layoutHeight - AndroidUtilities.dp(2));
+        setDrawableBounds(currentBackgroundDrawable, avatarLeft, avatarTop, avatarImage.getImageWidth(), avatarImage.getImageHeight());
+
+        // set background for message
+        currentBackgroundDrawable.draw(canvas);
 
         if (isSelected) {
             canvas.drawRect(0, 0, getMeasuredWidth(), getMeasuredHeight(), backPaint);

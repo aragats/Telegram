@@ -134,4 +134,17 @@ public class BackupImageView extends View {
         }
         imageReceiver.draw(canvas);
     }
+
+
+//    //TODO-aragats
+//    public void draw(Canvas canvas) {
+//        super.draw(canvas);
+//        imageReceiver.draw(canvas);
+//    }
+//
+//
+//    //TODO-aragats
+//    public void setImageCoords(int x, int y, int width, int height) {
+//        imageReceiver.setImageCoords(x, y, width, height);
+//    }
 }

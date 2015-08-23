@@ -171,6 +171,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     public boolean onFragmentCreate() {
         //TODO-temp
         PostsController.getInstance().loadCurrentVenue("location");
+        venue = PostsController.getInstance().getCurrentVenue();
 
 //        if(0==0) {
 //            return true;
@@ -296,17 +297,26 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     finishFragment();
                 } else if (id == done_button) {
                     Toast.makeText(((Context) getParentActivity()), "DONE BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
-                    Post post = posts.get(0);
-                    if (post != null && venue != null) {
+                    Post post = null;
+                    if (posts != null && !posts.isEmpty() && posts.get(0) != null && venue != null) {
+                        post = posts.get(0);
                         post.setVenue(venue);
+
+//                        //TODO invent better way. save prefix and saffux also ??  to build my custom utl instead of replacing from existing.
+//                        Image image = post.getVenue().getImage();
+//                        if(image != null && !StringUtils.isEmpty(image.getUrl())) {
+//                            image.setUrl(image.getUrl().replace("_64", "_bg_64"));
+//                            post.getVenue().setImage(image);
+//                        }
+
+
                         post.setCoordinates(venue.getCoordinates());
                         String text = postCreateActivityEnterView.getFieldText();
                         post.setMessage(text);
-
                     }
 
                     //TODO many check text, venue, coordinates and so on.
-                    if(post != null && venue != null) {
+                    if (post != null && venue != null) {
                         PostsController.getInstance().addPost(post);
                     }
 
@@ -1054,7 +1064,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             didSelectPhotos(photos);
         }
         venue = PostsController.getInstance().getCurrentVenue();
-        PostsController.getInstance().setCurrentVenue(null);
+//        PostsController.getInstance().setCurrentVenue(null);
         updateVenue();
 
 

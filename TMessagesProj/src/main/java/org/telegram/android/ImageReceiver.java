@@ -932,4 +932,15 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
             }
         }
     }
+//
+//    //TODO-aragats
+//    public void setBackgroundResource(int resId) {
+//        parentView.setBackgroundResource(resId);
+//    }
+//
+//    //TODO-aragats
+//    public void setBackgroundResource(int color) {
+//        parentView.setBackgroundColor(color);
+//    }
+
 }
