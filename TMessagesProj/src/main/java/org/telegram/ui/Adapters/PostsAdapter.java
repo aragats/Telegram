@@ -19,6 +19,7 @@ import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.dto.Post;
 import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
+import org.telegram.ui.LocationActivityAragats;
 import org.telegram.ui.PhotoViewer;
 import org.telegram.ui.PostsActivity;
 import org.telegram.utils.StringUtils;
@@ -110,9 +111,17 @@ public class PostsAdapter extends RecyclerView.Adapter {
                 public void didClickedImage(PostCell cell) {
                     Post cellPost = cell.getPost();
 //                    mContext - is getParentActivity form Post Activity. look at instance creation of PostAdapter
-                    PhotoViewer.getInstance().setParentActivity((Activity)mContext);
+                    PhotoViewer.getInstance().setParentActivity((Activity) mContext);
 //                    PhotoViewer.getInstance().openPhoto(post, postsActivity);
                     PhotoViewer.getInstance().openPhotoNew(cellPost, postsActivity, postsActivity);
+                }
+
+                @Override
+                public void didClickedVenue(PostCell cell) {
+                    Post cellPost = cell.getPost();
+                    LocationActivityAragats fragment = new LocationActivityAragats();
+                    fragment.setPost(cellPost);
+                    postsActivity.presentFragment(fragment);
                 }
 
                 @Override

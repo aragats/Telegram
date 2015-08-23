@@ -62,6 +62,7 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.Adapters.BaseLocationAdapter;
 import org.telegram.ui.Adapters.LocationActivityAdapter;
 import org.telegram.ui.Adapters.LocationActivitySearchAdapter;
+import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.MapPlaceholderDrawable;
@@ -317,7 +318,10 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             nameTextView.setEllipsize(TextUtils.TruncateAt.END);
             nameTextView.setSingleLine(true);
             nameTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
-            bottomView.addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 10, LocaleController.isRTL ? 72 : 12, 0));
+//            bottomView.addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 10, LocaleController.isRTL ? 72 : 12, 0));
+            // change the top margin to change the position
+            bottomView.addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 33, LocaleController.isRTL ? 72 : 12, 0));
+//            bottomView.addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 10, LocaleController.isRTL ? 72 : 172, 0));
 
             distanceTextView = new TextView(context);
             distanceTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
@@ -326,7 +330,9 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             distanceTextView.setEllipsize(TextUtils.TruncateAt.END);
             distanceTextView.setSingleLine(true);
             distanceTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
-            bottomView.addView(distanceTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 33, LocaleController.isRTL ? 72 : 12, 0));
+//            bottomView.addView(distanceTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 33, LocaleController.isRTL ? 72 : 12, 0));
+            // change the top margin to change the position
+            bottomView.addView(distanceTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 10, LocaleController.isRTL ? 72 : 12, 0));
 
             List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
             userLocation = new Location("network");
@@ -755,18 +761,29 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
     private void updateUserData() {
         if (post != null && avatarImageView != null) {
-           //TODO location is from user. below photo and name.
-            Object user = null;
-            if (user != null) {
+            //TODO location is from user. below photo and name.
+            if (post.getPreviewImage() != null) {
 //                TLRPC.FileLocation photo = null;
 //                if (user.photo != null) {
 //                    photo = user.photo.photo_small;
 //                }
-//                avatarImageView.setImage(photo, null, new AvatarDrawable(user));
-//                nameTextView.setText(ContactsController.formatName(user.first_name, user.last_name));
+//                avatarImageView.setImage(post.getImage().getUrl(), "50_50", avatarDrawable);
+                avatarImageView.setImage(post.getPreviewImage().getUrl(), null, new AvatarDrawable());
+                nameTextView.setText(post.getMessage());
             } else {
                 avatarImageView.setImageDrawable(null);
             }
+//            Object user = null;
+//            if (user != null) {
+////                TLRPC.FileLocation photo = null;
+////                if (user.photo != null) {
+////                    photo = user.photo.photo_small;
+////                }
+////                avatarImageView.setImage(photo, null, new AvatarDrawable(user));
+////                nameTextView.setText(ContactsController.formatName(user.first_name, user.last_name));
+//            } else {
+//                avatarImageView.setImageDrawable(null);
+//            }
         }
     }
 

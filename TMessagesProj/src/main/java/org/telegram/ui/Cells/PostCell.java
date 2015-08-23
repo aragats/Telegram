@@ -35,6 +35,7 @@ import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
+import org.telegram.ui.LocationActivity;
 import org.telegram.ui.LocationActivityAragats;
 import org.telegram.utils.StringUtils;
 
@@ -43,6 +44,9 @@ public class PostCell extends BaseCell {
 
     public static interface PostCellDelegate {
         public abstract void didClickedImage(PostCell cell);
+
+        public abstract void didClickedVenue(PostCell cell);
+
 
         public abstract void didPressedOther(PostCell cell);
 
@@ -55,6 +59,8 @@ public class PostCell extends BaseCell {
         public abstract boolean canPerformActions();
     }
 
+    private boolean imagePressed;
+    private boolean venuePressed;
     //Paint. set fond size for them
     private static TextPaint namePaint;
     private static TextPaint addressPaint;
@@ -273,9 +279,28 @@ public class PostCell extends BaseCell {
             if (delegate == null || delegate.canPerformActions()) {
 
                 if (x >= photoImage.getImageX() && x <= photoImage.getImageX() + backgroundWidth && y >= photoImage.getImageY() && y <= photoImage.getImageY() + photoImage.getImageHeight()) {
-//                    imagePressed = true;
+                    imagePressed = true;
+                    venuePressed = false;
+                    result = true;
+                } else if (x >= 0 && x <= getMeasuredWidth() && y >= 0 && y < photoImage.getImageY()) {
+                    venuePressed = true;
+                    imagePressed = false;
                     result = true;
                 }
+//                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
+
+
+//                else if (x >= addressLeft && x <= addressLeft + addressLayout.getWidth() && y >= addressTop && y <= addressTop + addressLayout.getHeight()) {
+//                    venuePressed = true;
+//                    imagePressed = false;
+//                    result = true;
+//                }
+
+//                else {
+//                    venuePressed = true;
+//                    imagePressed = false;
+//                    result = true;
+//                }
             }
 
             if (result) {
@@ -283,9 +308,14 @@ public class PostCell extends BaseCell {
             }
 
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
-//            imagePressed = false;
             playSoundEffect(SoundEffectConstants.CLICK);
-            didClickedImage();
+            if (imagePressed) {
+                imagePressed = false;
+                didClickedImage();
+            } else if (venuePressed) {
+                venuePressed = false;
+                didClickedVenue();
+            }
             invalidate();
         }
 
@@ -862,6 +892,11 @@ public class PostCell extends BaseCell {
         }
     }
 
+    private void didClickedVenue() {
+        if (this.delegate != null) {
+            this.delegate.didClickedVenue(this);
+        }
+    }
 
     public void setDelegate(PostCellDelegate delegate) {
         this.delegate = delegate;

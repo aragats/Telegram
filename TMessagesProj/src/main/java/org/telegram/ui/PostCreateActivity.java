@@ -1091,7 +1091,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     editor.putString("new_post_text", text);
                 }
                 if (!posts.isEmpty()) {
-                    editor.putString("new_post_photo", posts.get(0).getImage().getUrl());
+                    editor.putString("new_post_photo", posts.get(0).getPreviewImage().getUrl());
                 }
                 editor.commit();
                 PostsController.getInstance().setCurrentVenue(venue);
