@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.SparseArray;
 
+import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
@@ -29,10 +30,7 @@ import org.telegram.messenger.TLObject;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.ApplicationLoader;
 import org.telegram.ui.ActionBar.BaseFragment;
-import org.telegram.ui.ChatActivity;
-import org.telegram.ui.ProfileActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -3977,11 +3975,11 @@ public class MessagesController implements NotificationCenter.NotificationCenter
         if (user != null) {
             Bundle args = new Bundle();
             args.putInt("user_id", user.id);
-            if (type == 0) {
-                fragment.presentFragment(new ProfileActivity(args));
-            } else {
-                fragment.presentFragment(new ChatActivity(args));
-            }
+//            if (type == 0) {
+//                fragment.presentFragment(new ProfileActivity(args));
+//            } else {
+//                fragment.presentFragment(new ChatActivity(args));
+//            }
         } else {
             if (fragment.getParentActivity() == null) {
                 return;
@@ -4015,13 +4013,13 @@ public class MessagesController implements NotificationCenter.NotificationCenter
                                 MessagesStorage.getInstance().putUsersAndChats(users, null, false, true);
                                 Bundle args = new Bundle();
                                 args.putInt("user_id", user.id);
-                                if (fragment != null) {
-                                    if (type == 0) {
-                                        fragment.presentFragment(new ProfileActivity(args));
-                                    } else if (type == 1) {
-                                        fragment.presentFragment(new ChatActivity(args));
-                                    }
-                                }
+//                                if (fragment != null) {
+//                                    if (type == 0) {
+//                                        fragment.presentFragment(new ProfileActivity(args));
+//                                    } else if (type == 1) {
+//                                        fragment.presentFragment(new ChatActivity(args));
+//                                    }
+//                                }
                             }
                         }
                     });

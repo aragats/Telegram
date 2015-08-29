@@ -436,20 +436,6 @@ public class LoginActivity extends BaseFragment {
             layoutParams.height = AndroidUtilities.dp(36);
             layoutParams.bottomMargin = AndroidUtilities.dp(14);
             countryButton.setLayoutParams(layoutParams);
-            countryButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    CountrySelectActivity fragment = new CountrySelectActivity();
-                    fragment.setCountrySelectActivityDelegate(new CountrySelectActivity.CountrySelectActivityDelegate() {
-                        @Override
-                        public void didSelectCountry(String name) {
-                            selectCountry(name);
-                            phoneField.requestFocus();
-                        }
-                    });
-                    presentFragment(fragment);
-                }
-            });
 
             View view = new View(context);
             view.setPadding(AndroidUtilities.dp(12), 0, AndroidUtilities.dp(12), 0);

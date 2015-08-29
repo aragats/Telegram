@@ -664,234 +664,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                         }
                     });
                     presentFragment(fragment);
-                } else if (id == attach_document) {
-                    DocumentSelectActivity fragment = new DocumentSelectActivity();
-                    fragment.setDelegate(new DocumentSelectActivity.DocumentSelectActivityDelegate() {
-                        @Override
-                        public void didSelectFiles(DocumentSelectActivity activity, ArrayList<String> files) {
-                            activity.finishFragment();
-                            SendMessagesHelper.prepareSendingDocuments(files, files, null, null, dialog_id, replyingMessageObject);
-                            showReplyPanel(false, null, null, null, false, true);
-                        }
-
-                        @Override
-                        public void startDocumentSelectActivity() {
-                            try {
-                                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                                photoPickerIntent.setType("*/*");
-                                startActivityForResult(photoPickerIntent, 21);
-                            } catch (Exception e) {
-                                FileLog.e("tmessages", e);
-                            }
-                        }
-                    });
-                    presentFragment(fragment);
-                } else if (id == copy) {
-                    String str = "";
-                    ArrayList<Integer> ids = new ArrayList<>(selectedMessagesCanCopyIds.keySet());
-                    if (currentEncryptedChat == null) {
-                        Collections.sort(ids);
-                    } else {
-                        Collections.sort(ids, Collections.reverseOrder());
-                    }
-                    for (Integer messageId : ids) {
-                        MessageObject messageObject = selectedMessagesCanCopyIds.get(messageId);
-                        if (str.length() != 0) {
-                            str += "\n";
-                        }
-                        if (messageObject.messageOwner.message != null) {
-                            str += messageObject.messageOwner.message;
-                        } else {
-                            str += messageObject.messageText;
-                        }
-                    }
-                    if (str.length() != 0) {
-                        if (Build.VERSION.SDK_INT < 11) {
-                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) ApplicationLoader.applicationContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                            clipboard.setText(str);
-                        } else {
-                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ApplicationLoader.applicationContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                            android.content.ClipData clip = android.content.ClipData.newPlainText("label", str);
-                            clipboard.setPrimaryClip(clip);
-                        }
-                    }
-                    selectedMessagesIds.clear();
-                    selectedMessagesCanCopyIds.clear();
-                    actionBar.hideActionMode();
-                    updateVisibleRows();
-                } else if (id == delete) {
-                    if (getParentActivity() == null) {
-                        return;
-                    }
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                    builder.setMessage(LocaleController.formatString("AreYouSureDeleteMessages", R.string.AreYouSureDeleteMessages, LocaleController.formatPluralString("messages", selectedMessagesIds.size())));
-                    builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                    builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            ArrayList<Integer> ids = new ArrayList<>(selectedMessagesIds.keySet());
-                            ArrayList<Long> random_ids = null;
-                            if (currentEncryptedChat != null) {
-                                random_ids = new ArrayList<>();
-                                for (HashMap.Entry<Integer, MessageObject> entry : selectedMessagesIds.entrySet()) {
-                                    MessageObject msg = entry.getValue();
-                                    if (msg.messageOwner.random_id != 0 && msg.type != 10) {
-                                        random_ids.add(msg.messageOwner.random_id);
-                                    }
-                                }
-                            }
-                            MessagesController.getInstance().deleteMessages(ids, random_ids, currentEncryptedChat);
-                            actionBar.hideActionMode();
-                        }
-                    });
-                    builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                    showDialog(builder.create());
-                } else if (id == forward) {
-                    Bundle args = new Bundle();
-                    args.putBoolean("onlySelect", true);
-                    args.putBoolean("serverOnly", true);
-                    MessagesActivity fragment = new MessagesActivity(args);
-                    fragment.setDelegate(ChatActivity.this);
-                    presentFragment(fragment);
-                } else if (id == chat_enc_timer) {
-                    if (getParentActivity() == null) {
-                        return;
-                    }
-                    showDialog(AndroidUtilities.buildTTLAlert(getParentActivity(), currentEncryptedChat).create());
-                } else if (id == clear_history || id == delete_chat) {
-                    if (getParentActivity() == null) {
-                        return;
-                    }
-                    final boolean isChat = (int) dialog_id < 0 && (int) (dialog_id >> 32) != 1;
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                    builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                    if (id == clear_history) {
-                        builder.setMessage(LocaleController.getString("AreYouSureClearHistory", R.string.AreYouSureClearHistory));
-                    } else {
-                        if (isChat) {
-                            builder.setMessage(LocaleController.getString("AreYouSureDeleteAndExit", R.string.AreYouSureDeleteAndExit));
-                        } else {
-                            builder.setMessage(LocaleController.getString("AreYouSureDeleteThisChat", R.string.AreYouSureDeleteThisChat));
-                        }
-                    }
-                    builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            if (id != clear_history) {
-                                if (isChat) {
-                                    if (currentChat.left || currentChat instanceof TLRPC.TL_chatForbidden) {
-                                        MessagesController.getInstance().deleteDialog(dialog_id, 0, false);
-                                    } else {
-                                        MessagesController.getInstance().deleteUserFromChat((int) -dialog_id, MessagesController.getInstance().getUser(UserConfig.getClientUserId()), null);
-                                    }
-                                } else {
-                                    MessagesController.getInstance().deleteDialog(dialog_id, 0, false);
-                                }
-                                finishFragment();
-                            } else {
-                                MessagesController.getInstance().deleteDialog(dialog_id, 0, true);
-                            }
-                        }
-                    });
-                    builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                    showDialog(builder.create());
-                } else if (id == share_contact) {
-                    if (currentUser == null || getParentActivity() == null) {
-                        return;
-                    }
-                    if (currentUser.phone != null && currentUser.phone.length() != 0) {
-                        Bundle args = new Bundle();
-                        args.putInt("user_id", currentUser.id);
-                        args.putBoolean("addContact", true);
-                        presentFragment(new ContactAddActivity(args));
-                    } else {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                        builder.setMessage(LocaleController.getString("AreYouSureShareMyContactInfo", R.string.AreYouSureShareMyContactInfo));
-                        builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                        builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                SendMessagesHelper.getInstance().sendMessage(UserConfig.getCurrentUser(), dialog_id, replyingMessageObject);
-                                moveScrollToLastMessage();
-                                showReplyPanel(false, null, null, null, false, true);
-                            }
-                        });
-                        builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                        showDialog(builder.create());
-                    }
-                } else if (id == mute) {
-                    boolean muted = MessagesController.getInstance().isDialogMuted(dialog_id);
-                    if (!muted) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                        builder.setTitle(LocaleController.getString("Notifications", R.string.Notifications));
-                        CharSequence[] items = new CharSequence[]{
-                                LocaleController.formatString("MuteFor", R.string.MuteFor, LocaleController.formatPluralString("Hours", 1)),
-                                LocaleController.formatString("MuteFor", R.string.MuteFor, LocaleController.formatPluralString("Hours", 8)),
-                                LocaleController.formatString("MuteFor", R.string.MuteFor, LocaleController.formatPluralString("Days", 2)),
-                                LocaleController.getString("MuteDisable", R.string.MuteDisable)
-                        };
-                        builder.setItems(items, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        int untilTime = ConnectionsManager.getInstance().getCurrentTime();
-                                        if (i == 0) {
-                                            untilTime += 60 * 60;
-                                        } else if (i == 1) {
-                                            untilTime += 60 * 60 * 8;
-                                        } else if (i == 2) {
-                                            untilTime += 60 * 60 * 48;
-                                        } else if (i == 3) {
-                                            untilTime = Integer.MAX_VALUE;
-                                        }
-
-                                        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Activity.MODE_PRIVATE);
-                                        SharedPreferences.Editor editor = preferences.edit();
-                                        long flags;
-                                        if (i == 3) {
-                                            editor.putInt("notify2_" + dialog_id, 2);
-                                            flags = 1;
-                                        } else {
-                                            editor.putInt("notify2_" + dialog_id, 3);
-                                            editor.putInt("notifyuntil_" + dialog_id, untilTime);
-                                            flags = ((long) untilTime << 32) | 1;
-                                        }
-                                        MessagesStorage.getInstance().setDialogFlags(dialog_id, flags);
-                                        editor.commit();
-                                        TLRPC.TL_dialog dialog = MessagesController.getInstance().dialogs_dict.get(dialog_id);
-                                        if (dialog != null) {
-                                            dialog.notify_settings = new TLRPC.TL_peerNotifySettings();
-                                            dialog.notify_settings.mute_until = untilTime;
-                                        }
-                                        NotificationsController.updateServerNotificationsSettings(dialog_id);
-                                    }
-                                }
-                        );
-                        builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                        showDialog(builder.create());
-                    } else {
-                        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Activity.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = preferences.edit();
-                        editor.putInt("notify2_" + dialog_id, 0);
-                        MessagesStorage.getInstance().setDialogFlags(dialog_id, 0);
-                        editor.commit();
-                        TLRPC.TL_dialog dialog = MessagesController.getInstance().dialogs_dict.get(dialog_id);
-                        if (dialog != null) {
-                            dialog.notify_settings = new TLRPC.TL_peerNotifySettings();
-                        }
-                        NotificationsController.updateServerNotificationsSettings(dialog_id);
-                    }
-                } else if (id == reply) {
-                    if (selectedMessagesIds.size() == 1) {
-                        ArrayList<Integer> ids = new ArrayList<>(selectedMessagesIds.keySet());
-                        MessageObject messageObject = messagesDict.get(ids.get(0));
-                        if (messageObject != null && messageObject.messageOwner.id > 0) {
-                            showReplyPanel(true, messageObject, null, null, false, true);
-                        }
-                    }
-                    selectedMessagesIds.clear();
-                    selectedMessagesCanCopyIds.clear();
-                    actionBar.hideActionMode();
-                    updateVisibleRows();
                 }
             }
         });
@@ -900,25 +672,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         avatarContainer.setBackgroundResource(R.drawable.bar_selector);
         avatarContainer.setPadding(AndroidUtilities.dp(8), 0, AndroidUtilities.dp(8), 0);
         actionBar.addView(avatarContainer, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.LEFT, 56, 0, 40, 0));
-        avatarContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentUser != null) {
-                    Bundle args = new Bundle();
-                    args.putInt("user_id", currentUser.id);
-                    if (currentEncryptedChat != null) {
-                        args.putLong("dialog_id", dialog_id);
-                    }
-                    presentFragment(new ProfileActivity(args));
-                } else if (currentChat != null) {
-                    Bundle args = new Bundle();
-                    args.putInt("chat_id", currentChat.id);
-                    ProfileActivity fragment = new ProfileActivity(args);
-                    fragment.setChatInfo(info);
-                    presentFragment(fragment);
-                }
-            }
-        });
 
         if (currentChat != null) {
             int count = currentChat.participants_count;
@@ -1318,56 +1071,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 updateMessagesVisisblePart();
             }
         });
-        chatListView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (openSecretPhotoRunnable != null || SecretPhotoViewer.getInstance().isVisible()) {
-                    if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL || event.getAction() == MotionEvent.ACTION_POINTER_UP) {
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                chatListView.setOnItemClickListener(onItemClickListener);
-                            }
-                        }, 150);
-                        if (openSecretPhotoRunnable != null) {
-                            AndroidUtilities.cancelRunOnUIThread(openSecretPhotoRunnable);
-                            openSecretPhotoRunnable = null;
-                            try {
-                                Toast.makeText(v.getContext(), LocaleController.getString("PhotoTip", R.string.PhotoTip), Toast.LENGTH_SHORT).show();
-                            } catch (Exception e) {
-                                FileLog.e("tmessages", e);
-                            }
-                        } else {
-                            if (SecretPhotoViewer.getInstance().isVisible()) {
-                                AndroidUtilities.runOnUIThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        chatListView.setOnItemLongClickListener(onItemLongClickListener);
-                                        chatListView.setLongClickable(true);
-                                    }
-                                });
-                                SecretPhotoViewer.getInstance().closePhoto();
-                            }
-                        }
-                    } else if (event.getAction() != MotionEvent.ACTION_DOWN) {
-                        if (SecretPhotoViewer.getInstance().isVisible()) {
-                            return true;
-                        } else if (openSecretPhotoRunnable != null) {
-                            if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                                if (Math.hypot(startX - event.getX(), startY - event.getY()) > AndroidUtilities.dp(5)) {
-                                    AndroidUtilities.cancelRunOnUIThread(openSecretPhotoRunnable);
-                                    openSecretPhotoRunnable = null;
-                                }
-                            } else {
-                                AndroidUtilities.cancelRunOnUIThread(openSecretPhotoRunnable);
-                                openSecretPhotoRunnable = null;
-                            }
-                        }
-                    }
-                }
-                return false;
-            }
-        });
         chatListView.setOnInterceptTouchListener(new RecyclerListView.OnInterceptTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(MotionEvent event) {
@@ -1415,8 +1118,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                                 if (sendSecretMessageRead(messageObject)) {
                                     cell.invalidate();
                                 }
-                                SecretPhotoViewer.getInstance().setParentActivity(getParentActivity());
-                                SecretPhotoViewer.getInstance().openPhoto(messageObject);
                             }
                         };
                         AndroidUtilities.runOnUIThread(openSecretPhotoRunnable, 100);
@@ -2776,34 +2477,8 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     }
 
     public boolean openVideoEditor(String videoPath, boolean removeLast, boolean animated) {
-        Bundle args = new Bundle();
-        args.putString("videoPath", videoPath);
-        VideoEditorActivity fragment = new VideoEditorActivity(args);
-        fragment.setDelegate(new VideoEditorActivity.VideoEditorActivityDelegate() {
-            @Override
-            public void didFinishEditVideo(String videoPath, long startTime, long endTime, int resultWidth, int resultHeight, int rotationValue, int originalWidth, int originalHeight, int bitrate, long estimatedSize, long estimatedDuration) {
-                VideoEditedInfo videoEditedInfo = new VideoEditedInfo();
-                videoEditedInfo.startTime = startTime;
-                videoEditedInfo.endTime = endTime;
-                videoEditedInfo.rotationValue = rotationValue;
-                videoEditedInfo.originalWidth = originalWidth;
-                videoEditedInfo.originalHeight = originalHeight;
-                videoEditedInfo.bitrate = bitrate;
-                videoEditedInfo.resultWidth = resultWidth;
-                videoEditedInfo.resultHeight = resultHeight;
-                videoEditedInfo.originalPath = videoPath;
-                SendMessagesHelper.prepareSendingVideo(videoPath, estimatedSize, estimatedDuration, resultWidth, resultHeight, videoEditedInfo, dialog_id, replyingMessageObject);
-                showReplyPanel(false, null, null, null, false, true);
-            }
-        });
 
-        if (parentLayout == null || !fragment.onFragmentCreate()) {
-            SendMessagesHelper.prepareSendingVideo(videoPath, 0, 0, 0, 0, null, dialog_id, replyingMessageObject);
-            showReplyPanel(false, null, null, null, false, true);
-            return false;
-        }
-        parentLayout.presentFragment(fragment, removeLast, !animated, true);
-        return true;
+        return false;
     }
 
     private void showAttachmentError() {
@@ -4349,18 +4024,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 }
             }
             if (locFile != null) {
-                if (LocaleController.getInstance().applyLanguageFile(locFile)) {
-                    presentFragment(new LanguageSelectActivity());
-                } else {
-                    if (getParentActivity() == null) {
-                        return;
-                    }
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                    builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                    builder.setMessage(LocaleController.getString("IncorrectLocalization", R.string.IncorrectLocalization));
-                    builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), null);
-                    showDialog(builder.create());
-                }
+
             }
         } else if (option == 6 || option == 7) {
             String fileName = selectedObject.getFileName();
@@ -4716,11 +4380,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                             processRowSelect(cell);
                             return;
                         }
-                        if (user != null && user.id != UserConfig.getClientUserId()) {
-                            Bundle args = new Bundle();
-                            args.putInt("user_id", user.id);
-                            presentFragment(new ProfileActivity(args));
-                        }
                     }
 
                     @Override
@@ -4872,7 +4531,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                             args.putInt("user_id", messageObject.messageOwner.media.user_id);
                             args.putString("phone", messageObject.messageOwner.media.phone_number);
                             args.putBoolean("addContact", true);
-                            presentFragment(new ContactAddActivity(args));
                         }
 
                         @Override
@@ -4930,11 +4588,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
 
                     @Override
                     public void needOpenUserProfile(int uid) {
-                        if (uid != UserConfig.getClientUserId()) {
-                            Bundle args = new Bundle();
-                            args.putInt("user_id", uid);
-                            presentFragment(new ProfileActivity(args));
-                        }
+
                     }
                 });
             }

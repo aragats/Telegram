@@ -269,31 +269,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 2) {
-                    if (!MessagesController.isFeatureEnabled("chat_create", actionBarLayout.fragmentsStack.get(actionBarLayout.fragmentsStack.size() - 1))) {
-                        return;
-                    }
-                    presentFragment(new GroupCreateActivity());
-                    drawerLayoutContainer.closeDrawer(false);
-                } else if (position == 3) {
-                    Bundle args = new Bundle();
-                    args.putBoolean("onlyUsers", true);
-                    args.putBoolean("destroyAfterSelect", true);
-                    args.putBoolean("createSecretChat", true);
-                    presentFragment(new ContactsActivity(args));
-                    drawerLayoutContainer.closeDrawer(false);
-                } else if (position == 4) {
-                    if (!MessagesController.isFeatureEnabled("broadcast_create", actionBarLayout.fragmentsStack.get(actionBarLayout.fragmentsStack.size() - 1))) {
-                        return;
-                    }
-                    Bundle args = new Bundle();
-                    args.putBoolean("broadcast", true);
-                    presentFragment(new GroupCreateActivity(args));
-                    drawerLayoutContainer.closeDrawer(false);
-                } else if (position == 6) {
-                    presentFragment(new ContactsActivity(null));
-                    drawerLayoutContainer.closeDrawer(false);
-                } else if (position == 7) {
+                if (position == 7) {
                     try {
                         Intent intent = new Intent(Intent.ACTION_SEND);
                         intent.setType("text/plain");
@@ -302,9 +278,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     } catch (Exception e) {
                         FileLog.e("tmessages", e);
                     }
-                    drawerLayoutContainer.closeDrawer(false);
-                } else if (position == 8) {
-                    presentFragment(new SettingsActivity());
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (position == 9) {
                     try {
@@ -371,34 +344,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                     }
                                 }
                                 break;
-                            case "settings": {
-                                SettingsActivity settings = new SettingsActivity();
-                                actionBarLayout.addFragmentToStack(settings);
-                                settings.restoreSelfArgs(savedInstanceState);
-                                break;
-                            }
-                            case "group":
-                                if (args != null) {
-                                    GroupCreateFinalActivity group = new GroupCreateFinalActivity(args);
-                                    if (actionBarLayout.addFragmentToStack(group)) {
-                                        group.restoreSelfArgs(savedInstanceState);
-                                    }
-                                }
-                                break;
-                            case "chat_profile":
-                                if (args != null) {
-                                    ProfileActivity profile = new ProfileActivity(args);
-                                    if (actionBarLayout.addFragmentToStack(profile)) {
-                                        profile.restoreSelfArgs(savedInstanceState);
-                                    }
-                                }
-                                break;
-                            case "wallpapers": {
-                                WallpapersActivity settings = new WallpapersActivity();
-                                actionBarLayout.addFragmentToStack(settings);
-                                settings.restoreSelfArgs(savedInstanceState);
-                                break;
-                            }
                         }
                     }
                 }
@@ -821,16 +766,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                 } else {
                     drawerLayoutContainer.setAllowOpenDrawer(true, false);
                 }
-            } else if (open_settings != 0) {
-                actionBarLayout.presentFragment(new SettingsActivity(), false, true, true);
-                if (AndroidUtilities.isTablet()) {
-                    actionBarLayout.showLastFragment();
-                    rightActionBarLayout.showLastFragment();
-                    drawerLayoutContainer.setAllowOpenDrawer(false, false);
-                } else {
-                    drawerLayoutContainer.setAllowOpenDrawer(true, false);
-                }
-                pushOpened = true;
             }
 
             if (!pushOpened && !isNew) {
@@ -1297,7 +1232,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     protected void onDestroy() {
         PhotoViewer.getInstance().destroyPhotoViewer();
-        SecretPhotoViewer.getInstance().destroyPhotoViewer();
         try {
             if (visibleDialog != null) {
                 visibleDialog.dismiss();
@@ -1473,16 +1407,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                 if (lastFragment instanceof ChatActivity && args != null) {
                     outState.putBundle("args", args);
                     outState.putString("fragment", "chat");
-                } else if (lastFragment instanceof SettingsActivity) {
-                    outState.putString("fragment", "settings");
-                } else if (lastFragment instanceof GroupCreateFinalActivity && args != null) {
-                    outState.putBundle("args", args);
-                    outState.putString("fragment", "group");
-                } else if (lastFragment instanceof WallpapersActivity) {
-                    outState.putString("fragment", "wallpapers");
-                } else if (lastFragment instanceof ProfileActivity && ((ProfileActivity) lastFragment).isChat() && args != null) {
-                    outState.putBundle("args", args);
-                    outState.putString("fragment", "chat_profile");
                 }
                 lastFragment.saveSelfArgs(outState);
             }
@@ -1590,7 +1514,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     public boolean needPresentFragment(BaseFragment fragment, boolean removeLast, boolean forceWithoutAnimation, ActionBarLayout layout) {
         if (AndroidUtilities.isTablet()) {
-            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity || fragment instanceof CountrySelectActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
+            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
             if (fragment instanceof MessagesActivity) {
                 MessagesActivity messagesActivity = (MessagesActivity)fragment;
                 if (messagesActivity.isMainDialogList() && layout != actionBarLayout) {
@@ -1671,7 +1595,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             }
             return true;
         } else {
-            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity || fragment instanceof CountrySelectActivity), false);
+            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity), false);
             return true;
         }
     }
@@ -1679,7 +1603,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     public boolean needAddFragmentToStack(BaseFragment fragment, ActionBarLayout layout) {
         if (AndroidUtilities.isTablet()) {
-            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity || fragment instanceof CountrySelectActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
+            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
             if (fragment instanceof MessagesActivity) {
                 MessagesActivity messagesActivity = (MessagesActivity)fragment;
                 if (messagesActivity.isMainDialogList() && layout != actionBarLayout) {
@@ -1736,7 +1660,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             }
             return true;
         } else {
-            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity || fragment instanceof CountrySelectActivity), false);
+            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity), false);
             return true;
         }
     }
