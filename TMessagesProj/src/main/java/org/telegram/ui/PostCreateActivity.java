@@ -83,8 +83,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 //TODO-aragats new
-public class PostCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, MessagesActivity.MessagesActivityDelegate,
-        PostPhotoViewerProvider {
+public class PostCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate,  PostPhotoViewerProvider {
 
     private ArrayList<PostMediaCell> postMediaCellsCache = new ArrayList<>();
 
@@ -165,6 +164,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             createMenu(view, true);
         }
     };
+
+//    public interface PostCreateActivityDelegate {
+//        void didSelectDialog(PostsActivity fragment, long dialog_id, boolean param);
+//    }
+
 
     public PostCreateActivity(Bundle args) {
         super(args);
@@ -1278,10 +1282,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         selectedObject = null;
     }
 
-    @Override
-    public void didSelectDialog(MessagesActivity activity, long did, boolean param) {
-        return;
-    }
+//    @Override
+//    public void didSelectDialog(PostsActivity activity, long did, boolean param) {
+//        return;
+//    }
 
     @Override
     public boolean onBackPressed() {
@@ -1506,13 +1510,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     @Override
                     public void didPressUrl(String url) {
-                        if (url.startsWith("@")) {
-                            MessagesController.openByUserName(url.substring(1), PostCreateActivity.this, 0);
-                        } else if (url.startsWith("#")) {
-                            MessagesActivity fragment = new MessagesActivity(null);
-                            fragment.setSearchString(url);
-                            presentFragment(fragment);
-                        }
+//                        if (url.startsWith("@")) {
+//                            MessagesController.openByUserName(url.substring(1), PostCreateActivity.this, 0);
+//                        } else if (url.startsWith("#")) {
+//                            MessagesActivity fragment = new MessagesActivity(null);
+//                            fragment.setSearchString(url);
+//                            presentFragment(fragment);
+//                        }
                     }
 
                     @Override

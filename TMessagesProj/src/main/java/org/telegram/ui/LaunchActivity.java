@@ -69,7 +69,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class LaunchActivity extends Activity implements ActionBarLayout.ActionBarLayoutDelegate, NotificationCenter.NotificationCenterDelegate, MessagesActivity.MessagesActivityDelegate {
+public class LaunchActivity extends Activity implements ActionBarLayout.ActionBarLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
     private boolean finished;
     private String videoPath;
     private String sendingText;
@@ -323,10 +323,10 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
         if (actionBarLayout.fragmentsStack.isEmpty()) {
             if (!UserConfig.isClientActivated()) {
-                actionBarLayout.addFragmentToStack(new LoginActivity());
-                drawerLayoutContainer.setAllowOpenDrawer(false, false);
+//                actionBarLayout.addFragmentToStack(new LoginActivity());
+//                drawerLayoutContainer.setAllowOpenDrawer(false, false);
             } else {
-                actionBarLayout.addFragmentToStack(new MessagesActivity(null));
+                actionBarLayout.addFragmentToStack(new PostsActivity(null));
                 drawerLayoutContainer.setAllowOpenDrawer(true, false);
             }
 
@@ -352,15 +352,15 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             }
         } else {
             boolean allowOpen = true;
-            if (AndroidUtilities.isTablet()) {
-                allowOpen = actionBarLayout.fragmentsStack.size() <= 1 && layersActionBarLayout.fragmentsStack.isEmpty();
-                if (layersActionBarLayout.fragmentsStack.size() == 1 && layersActionBarLayout.fragmentsStack.get(0) instanceof LoginActivity) {
-                    allowOpen = false;
-                }
-            }
-            if (actionBarLayout.fragmentsStack.size() == 1 && actionBarLayout.fragmentsStack.get(0) instanceof LoginActivity) {
-                allowOpen = false;
-            }
+//            if (AndroidUtilities.isTablet()) {
+//                allowOpen = actionBarLayout.fragmentsStack.size() <= 1 && layersActionBarLayout.fragmentsStack.isEmpty();
+//                if (layersActionBarLayout.fragmentsStack.size() == 1 && layersActionBarLayout.fragmentsStack.get(0) instanceof LoginActivity) {
+//                    allowOpen = false;
+//                }
+//            }
+//            if (actionBarLayout.fragmentsStack.size() == 1 && actionBarLayout.fragmentsStack.get(0) instanceof LoginActivity) {
+//                allowOpen = false;
+//            }
             drawerLayoutContainer.setAllowOpenDrawer(allowOpen, false);
         }
 
@@ -716,57 +716,27 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                 }
                 pushOpened = false;
                 isNew = false;
-            } else if (videoPath != null || photoPathsArray != null || sendingText != null || documentsPathsArray != null || contactsToSend != null || documentsUrisArray != null) {
-                if (!AndroidUtilities.isTablet()) {
-                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                }
-                Bundle args = new Bundle();
-                args.putBoolean("onlySelect", true);
-                args.putString("selectAlertString", LocaleController.getString("SendMessagesTo", R.string.SendMessagesTo));
-                args.putString("selectAlertStringGroup", LocaleController.getString("SendMessagesToGroup", R.string.SendMessagesToGroup));
-                MessagesActivity fragment = new MessagesActivity(args);
-                fragment.setDelegate(this);
-                boolean removeLast;
-                if (AndroidUtilities.isTablet()) {
-                    removeLast = layersActionBarLayout.fragmentsStack.size() > 0 && layersActionBarLayout.fragmentsStack.get(layersActionBarLayout.fragmentsStack.size() - 1) instanceof MessagesActivity;
-                } else {
-                    removeLast = actionBarLayout.fragmentsStack.size() > 1 && actionBarLayout.fragmentsStack.get(actionBarLayout.fragmentsStack.size() - 1) instanceof MessagesActivity;
-                }
-                actionBarLayout.presentFragment(fragment, removeLast, true, true);
-                pushOpened = true;
-                if (PhotoViewer.getInstance().isVisible()) {
-                    PhotoViewer.getInstance().closePhoto(false, true);
-                }
-
-                drawerLayoutContainer.setAllowOpenDrawer(false, false);
-                if (AndroidUtilities.isTablet()) {
-                    actionBarLayout.showLastFragment();
-                    rightActionBarLayout.showLastFragment();
-                } else {
-                    drawerLayoutContainer.setAllowOpenDrawer(true, false);
-                }
             }
-
             if (!pushOpened && !isNew) {
                 if (AndroidUtilities.isTablet()) {
                     if (!UserConfig.isClientActivated()) {
                         if (layersActionBarLayout.fragmentsStack.isEmpty()) {
-                            layersActionBarLayout.addFragmentToStack(new LoginActivity());
-                            drawerLayoutContainer.setAllowOpenDrawer(false, false);
+//                            layersActionBarLayout.addFragmentToStack(new LoginActivity());
+//                            drawerLayoutContainer.setAllowOpenDrawer(false, false);
                         }
                     } else {
                         if (actionBarLayout.fragmentsStack.isEmpty()) {
-                            actionBarLayout.addFragmentToStack(new MessagesActivity(null));
+                            actionBarLayout.addFragmentToStack(new PostsActivity(null));
                             drawerLayoutContainer.setAllowOpenDrawer(true, false);
                         }
                     }
                 } else {
                     if (actionBarLayout.fragmentsStack.isEmpty()) {
                         if (!UserConfig.isClientActivated()) {
-                            actionBarLayout.addFragmentToStack(new LoginActivity());
-                            drawerLayoutContainer.setAllowOpenDrawer(false, false);
+//                            actionBarLayout.addFragmentToStack(new LoginActivity());
+//                            drawerLayoutContainer.setAllowOpenDrawer(false, false);
                         } else {
-                            actionBarLayout.addFragmentToStack(new MessagesActivity(null));
+                            actionBarLayout.addFragmentToStack(new PostsActivity(null));
                             drawerLayoutContainer.setAllowOpenDrawer(true, false);
                         }
                     }
@@ -971,41 +941,10 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         handleIntent(intent, true, false, false);
     }
 
-    @Override
-    public void didSelectDialog(MessagesActivity messageFragment, long dialog_id, boolean param) {
-        if (dialog_id != 0) {
-            int lower_part = (int)dialog_id;
-            int high_id = (int)(dialog_id >> 32);
-
-            Bundle args = new Bundle();
-            args.putBoolean("scrollToTopOnResume", true);
-            if (!AndroidUtilities.isTablet()) {
-                NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-            }
-            if (lower_part != 0) {
-                if (high_id == 1) {
-                    args.putInt("chat_id", lower_part);
-                } else {
-                    if (lower_part > 0) {
-                        args.putInt("user_id", lower_part);
-                    } else if (lower_part < 0) {
-                        args.putInt("chat_id", -lower_part);
-                    }
-                }
-            } else {
-                args.putInt("enc_id", high_id);
-            }
-
-
-
-            photoPathsArray = null;
-            videoPath = null;
-            sendingText = null;
-            documentsPathsArray = null;
-            documentsOriginalPathsArray = null;
-            contactsToSend = null;
-        }
-    }
+//    @Override
+//    public void didSelectDialog(MessagesActivity messageFragment, long dialog_id, boolean param) {
+//
+//    }
 
     private void onFinish() {
         if (finished) {
@@ -1446,10 +1385,12 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     public boolean needPresentFragment(BaseFragment fragment, boolean removeLast, boolean forceWithoutAnimation, ActionBarLayout layout) {
         if (AndroidUtilities.isTablet()) {
-            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
-            if (fragment instanceof MessagesActivity) {
-                MessagesActivity messagesActivity = (MessagesActivity)fragment;
-                if (messagesActivity.isMainDialogList() && layout != actionBarLayout) {
+//            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
+            drawerLayoutContainer.setAllowOpenDrawer(true, true);
+            if (fragment instanceof PostsActivity) {
+                PostsActivity postsActivity = (PostsActivity)fragment;
+//                if (postsActivity.isMainDialogList() && layout != actionBarLayout) {
+                if (layout != actionBarLayout) {
                     actionBarLayout.removeAllFragments();
                     actionBarLayout.presentFragment(fragment, removeLast, forceWithoutAnimation, false);
                     layersActionBarLayout.removeAllFragments();
@@ -1466,7 +1407,8 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             }
             return true;
         } else {
-            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity), false);
+//            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity), false);
+            drawerLayoutContainer.setAllowOpenDrawer(true, false);
             return true;
         }
     }
@@ -1474,10 +1416,12 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     public boolean needAddFragmentToStack(BaseFragment fragment, ActionBarLayout layout) {
         if (AndroidUtilities.isTablet()) {
-            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
-            if (fragment instanceof MessagesActivity) {
-                MessagesActivity messagesActivity = (MessagesActivity)fragment;
-                if (messagesActivity.isMainDialogList() && layout != actionBarLayout) {
+//            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
+            drawerLayoutContainer.setAllowOpenDrawer(true, true);
+            if (fragment instanceof PostsActivity) {
+                PostsActivity postsActivity = (PostsActivity)fragment;
+//                if (postsActivity.isMainDialogList() && layout != actionBarLayout) {
+                if (layout != actionBarLayout) {
                     actionBarLayout.removeAllFragments();
                     actionBarLayout.addFragmentToStack(fragment);
                     layersActionBarLayout.removeAllFragments();
@@ -1494,7 +1438,8 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             }
             return true;
         } else {
-            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity), false);
+//            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity), false);
+            drawerLayoutContainer.setAllowOpenDrawer(true, false);
             return true;
         }
     }
