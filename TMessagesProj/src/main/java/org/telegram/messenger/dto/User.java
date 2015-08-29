@@ -11,6 +11,7 @@ public class User {
     private String email;
     private Image previewImage;
     private Image image;
+    private String phone;
 
     public String getId() {
         return id;
@@ -66,5 +67,13 @@ public class User {
 
     public void setImage(Image image) {
         this.image = image;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

@@ -175,7 +175,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
             rightActionBarLayout = new ActionBarLayout(this);
             launchLayout.addView(rightActionBarLayout);
-            relativeLayoutParams = (RelativeLayout.LayoutParams)rightActionBarLayout.getLayoutParams();
+            relativeLayoutParams = (RelativeLayout.LayoutParams) rightActionBarLayout.getLayoutParams();
             relativeLayoutParams.width = AndroidUtilities.dp(320);
             relativeLayoutParams.height = LayoutHelper.MATCH_PARENT;
             rightActionBarLayout.setLayoutParams(relativeLayoutParams);
@@ -239,7 +239,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             layersActionBarLayout.setUseAlphaAnimations(true);
             layersActionBarLayout.setBackgroundResource(R.drawable.boxshadow);
             launchLayout.addView(layersActionBarLayout);
-            relativeLayoutParams = (RelativeLayout.LayoutParams)layersActionBarLayout.getLayoutParams();
+            relativeLayoutParams = (RelativeLayout.LayoutParams) layersActionBarLayout.getLayoutParams();
             relativeLayoutParams.width = AndroidUtilities.dp(530);
             relativeLayoutParams.height = AndroidUtilities.dp(528);
             layersActionBarLayout.setLayoutParams(relativeLayoutParams);
@@ -255,7 +255,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         listView.setAdapter(drawerLayoutAdapter = new DrawerLayoutAdapter(this));
         drawerLayoutContainer.setDrawerLayout(listView);
         listView.setBackgroundColor(0xffffffff);
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams)listView.getLayoutParams();
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) listView.getLayoutParams();
         Point screenSize = AndroidUtilities.getRealScreenSize();
         layoutParams.width = AndroidUtilities.isTablet() ? AndroidUtilities.dp(320) : Math.min(screenSize.x, screenSize.y) - AndroidUtilities.dp(56);
         layoutParams.height = LayoutHelper.MATCH_PARENT;
@@ -269,7 +269,14 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 7) {
+                if (position == 2) {
+                    //TODO-aragats
+                    //TODO Update opened PostsActivity and close drawer.
+//                    Bundle args = new Bundle();
+//                    presentFragment(new PostsActivity(args));
+                    drawerLayoutContainer.closeDrawer(false);
+                } else if (position == 3) {
+
                     try {
                         Intent intent = new Intent(Intent.ACTION_SEND);
                         intent.setType("text/plain");
@@ -279,18 +286,14 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                         FileLog.e("tmessages", e);
                     }
                     drawerLayoutContainer.closeDrawer(false);
-                } else if (position == 9) {
+
+                } else if (position == 5) {
                     try {
                         Intent pickIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(LocaleController.getString("TelegramFaqUrl", R.string.TelegramFaqUrl)));
                         startActivityForResult(pickIntent, 500);
                     } catch (Exception e) {
                         FileLog.e("tmessages", e);
                     }
-                    drawerLayoutContainer.closeDrawer(false);
-                } else if(position == 10) {
-                    //TODO-aragats
-                    Bundle args = new Bundle();
-                    presentFragment(new PostsActivity(args));
                     drawerLayoutContainer.closeDrawer(false);
                 }
             }
@@ -975,7 +978,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     public void needLayout() {
         if (AndroidUtilities.isTablet()) {
 
-            RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams)layersActionBarLayout.getLayoutParams();
+            RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) layersActionBarLayout.getLayoutParams();
             relativeLayoutParams.leftMargin = (AndroidUtilities.displaySize.x - relativeLayoutParams.width) / 2;
             int y = (Build.VERSION.SDK_INT >= 21 ? AndroidUtilities.statusBarHeight : 0);
             relativeLayoutParams.topMargin = y + (AndroidUtilities.displaySize.y - relativeLayoutParams.height - y) / 2;
@@ -1177,7 +1180,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                 finish();
             }
         } else if (id == NotificationCenter.didUpdatedConnectionState) {
-            int state = (Integer)args[0];
+            int state = (Integer) args[0];
             if (currentConnectionState != state) {
                 FileLog.e("tmessages", "switch to state " + state);
                 currentConnectionState = state;
@@ -1388,7 +1391,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 //            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
             drawerLayoutContainer.setAllowOpenDrawer(true, true);
             if (fragment instanceof PostsActivity) {
-                PostsActivity postsActivity = (PostsActivity)fragment;
+                PostsActivity postsActivity = (PostsActivity) fragment;
 //                if (postsActivity.isMainDialogList() && layout != actionBarLayout) {
                 if (layout != actionBarLayout) {
                     actionBarLayout.removeAllFragments();
@@ -1419,7 +1422,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 //            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
             drawerLayoutContainer.setAllowOpenDrawer(true, true);
             if (fragment instanceof PostsActivity) {
-                PostsActivity postsActivity = (PostsActivity)fragment;
+                PostsActivity postsActivity = (PostsActivity) fragment;
 //                if (postsActivity.isMainDialogList() && layout != actionBarLayout) {
                 if (layout != actionBarLayout) {
                     actionBarLayout.removeAllFragments();

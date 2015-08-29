@@ -30,10 +30,13 @@ import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
+import org.telegram.messenger.dto.User;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
+import org.telegram.utils.StringUtils;
 
+//TODO-aragats
 public class DrawerProfileCell extends FrameLayout {
 
     private BackupImageView avatarImageView;
@@ -120,17 +123,17 @@ public class DrawerProfileCell extends FrameLayout {
         }
     }
 
-    public void setUser(TLRPC.User user) {
+    public void setUser(User user) {
         if (user == null) {
             return;
         }
-        TLRPC.FileLocation photo = null;
-        if (user.photo != null) {
-            photo = user.photo.photo_small;
+        String photo = null;
+        if (user.getImage() != null) {
+            photo = user.getImage().getUrl();
         }
-        nameTextView.setText(ContactsController.formatName(user.first_name, user.last_name));
-        phoneTextView.setText(PhoneFormat.getInstance().format("+" + user.phone));
-        AvatarDrawable avatarDrawable = new AvatarDrawable(user);
+        nameTextView.setText(ContactsController.formatName(user.getFirstName(), user.getLastName()));
+        phoneTextView.setText(PhoneFormat.getInstance().format("+" + user.getPhone()));
+        AvatarDrawable avatarDrawable = new AvatarDrawable();
         avatarDrawable.setColor(0xff5c98cd);
         avatarImageView.setImage(photo, "50_50", avatarDrawable);
     }

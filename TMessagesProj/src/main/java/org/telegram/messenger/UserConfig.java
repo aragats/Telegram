@@ -99,7 +99,7 @@ public class UserConfig {
         }
     }
 
-    //TODO activeted user.
+    //TODO activated user.
     public static boolean isClientActivated() {
         synchronized (sync) {
             return currentUser != null;

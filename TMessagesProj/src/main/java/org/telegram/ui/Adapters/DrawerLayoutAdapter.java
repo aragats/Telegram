@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.telegram.android.LocaleController;
-import org.telegram.android.MessagesController;
+import org.telegram.android.PostsController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.UserConfig;
 import org.telegram.ui.Cells.DrawerActionCell;
@@ -37,13 +37,13 @@ public class DrawerLayoutAdapter extends BaseAdapter {
 
     @Override
     public boolean isEnabled(int i) {
-        return !(i == 0 || i == 1 || i == 5);
+        return !(i == 0 || i == 1 || i == 4);
     }
 
     //TODO-aragats
     @Override
     public int getCount() {
-        return UserConfig.isClientActivated() ? 11 : 0;
+        return UserConfig.isClientActivated() ? 6 : 0;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class DrawerLayoutAdapter extends BaseAdapter {
             if (view == null) {
                 view = new DrawerProfileCell(mContext);
             }
-            ((DrawerProfileCell) view).setUser(MessagesController.getInstance().getUser(UserConfig.getClientUserId()));
+            ((DrawerProfileCell) view).setUser(PostsController.getInstance().getUser(UserConfig.getClientUserId()));
         } else if (type == 1) {
             if (view == null) {
                 view = new EmptyCell(mContext, 8);
@@ -83,22 +83,13 @@ public class DrawerLayoutAdapter extends BaseAdapter {
             }
             DrawerActionCell actionCell = (DrawerActionCell) view;
             if (i == 2) {
-                actionCell.setTextAndIcon(LocaleController.getString("NewGroup", R.string.NewGroup), R.drawable.menu_newgroup);
-            } else if (i == 3) {
-                actionCell.setTextAndIcon(LocaleController.getString("NewSecretChat", R.string.NewSecretChat), R.drawable.menu_secret);
-            } else if (i == 4) {
-                actionCell.setTextAndIcon(LocaleController.getString("NewBroadcastList", R.string.NewBroadcastList), R.drawable.menu_broadcast);
-            } else if (i == 6) {
-                actionCell.setTextAndIcon(LocaleController.getString("Contacts", R.string.Contacts), R.drawable.menu_contacts);
-            } else if (i == 7) {
-                actionCell.setTextAndIcon(LocaleController.getString("InviteFriends", R.string.InviteFriends), R.drawable.menu_invite);
-            } else if (i == 8) {
-                actionCell.setTextAndIcon(LocaleController.getString("Settings", R.string.Settings), R.drawable.menu_settings);
-            } else if (i == 9) {
-                actionCell.setTextAndIcon(LocaleController.getString("TelegramFaq", R.string.TelegramFaq), R.drawable.menu_help);
-            } else if (i == 10) {
                 //TODO-aragats
                 actionCell.setTextAndIcon(LocaleController.getString("AragatsPosts", R.string.AragatsPosts), R.drawable.menu_broadcast);
+            } else if (i == 3) {
+                actionCell.setTextAndIcon(LocaleController.getString("InviteFriends", R.string.InviteFriends), R.drawable.menu_invite);
+            } else if (i == 5) {
+                actionCell.setTextAndIcon(LocaleController.getString("TelegramFaq", R.string.TelegramFaq), R.drawable.menu_help);
+
             }
         }
 
@@ -111,7 +102,7 @@ public class DrawerLayoutAdapter extends BaseAdapter {
             return 0;
         } else if (i == 1) {
             return 1;
-        } else if (i == 5) {
+        } else if (i == 4) {
             return 2;
         }
         return 3;

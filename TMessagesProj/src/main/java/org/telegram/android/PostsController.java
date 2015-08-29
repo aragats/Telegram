@@ -13,12 +13,15 @@ import android.content.SharedPreferences;
 import android.location.Location;
 
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;
+import org.telegram.messenger.dto.User;
 import org.telegram.messenger.dto.Venue;
 import org.telegram.messenger.service.mock.PostServiceMock;
+import org.telegram.messenger.service.mock.UserServiceMock;
 import org.telegram.messenger.service.mock.VenueServiceMock;
 import org.telegram.ui.LocationActivityAragats;
 import org.telegram.utils.StringUtils;
@@ -235,4 +238,19 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public void setLoadingPosts(boolean loadingPosts) {
         this.loadingPosts = loadingPosts;
     }
+
+    public User getUser(Integer id) {
+        return UserServiceMock.getRandomUser();
+    }
+
+//    public TLRPC.User getUser(Integer id) {
+//        return users.get(id);
+//    }
+//
+//    public TLRPC.User getUser(String username) {
+//        if (username == null || username.length() == 0) {
+//            return null;
+//        }
+//        return usersByUsernames.get(username.toLowerCase());
+//    }
 }
