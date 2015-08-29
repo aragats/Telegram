@@ -1007,7 +1007,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 postCreateAdapter.notifyDataSetChanged();
             }
         } else if (id == NotificationCenter.newPostSaved) {
-            progressDialog.hide();
+//            progressDialog.hide();
+            progressDialog.dismiss();
 
         }
     }

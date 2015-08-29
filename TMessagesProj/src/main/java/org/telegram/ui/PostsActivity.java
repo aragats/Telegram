@@ -489,7 +489,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
         TextView textView = new TextView(context);
 //        textView.setText(LocaleController.getString("NoChats", R.string.NoChats));
-        textView.setText("There are not recent posts around your.");
+        textView.setText("There are not recent posts around you.");
         textView.setTextColor(0xff959595);
         textView.setGravity(Gravity.CENTER);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
