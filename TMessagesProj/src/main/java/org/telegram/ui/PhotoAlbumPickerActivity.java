@@ -76,16 +76,14 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
     private boolean sendPressed = false;
     private boolean singlePhoto = false;
     private int selectedMode;
-    private ChatActivity chatActivity;
 
     private PhotoAlbumPickerActivityDelegate delegate;
 
     private final static int item_photos = 2;
     private final static int item_video = 3;
 
-    public PhotoAlbumPickerActivity(boolean singlePhoto, ChatActivity chatActivity) {
+    public PhotoAlbumPickerActivity(boolean singlePhoto) {
         super();
-        this.chatActivity = chatActivity;
         this.singlePhoto = singlePhoto;
     }
 
@@ -460,7 +458,7 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
                 recentImages = recentGifImages;
             }
         }
-        PhotoPickerActivity fragment = new PhotoPickerActivity(type, albumEntry, selectedPhotos, selectedWebPhotos, recentImages, singlePhoto, chatActivity);
+        PhotoPickerActivity fragment = new PhotoPickerActivity(type, albumEntry, selectedPhotos, selectedWebPhotos, recentImages, singlePhoto);
         fragment.setDelegate(new PhotoPickerActivity.PhotoPickerActivityDelegate() {
             @Override
             public void selectedPhotosChanged() {

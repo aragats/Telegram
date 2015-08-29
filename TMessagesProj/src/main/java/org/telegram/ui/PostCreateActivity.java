@@ -977,7 +977,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                             didSelectPhotos(photos);
                         }
                     }
-                }, null);
+                });
                 AndroidUtilities.addMediaToGallery(currentPicturePath);
                 currentPicturePath = null;
             }
@@ -1729,7 +1729,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
     private void attachGalleryHandle() {
         //                    //TODO-TEMP
-        PhotoAlbumPickerActivity fragment = new PhotoAlbumPickerActivity(true, null);
+        PhotoAlbumPickerActivity fragment = new PhotoAlbumPickerActivity(true);
         fragment.setDelegate(new PhotoAlbumPickerActivity.PhotoAlbumPickerActivityDelegate() {
             @Override
             public void didSelectPhotos(ArrayList<String> photos, ArrayList<String> captions, ArrayList<MediaController.SearchImage> webPhotos) {

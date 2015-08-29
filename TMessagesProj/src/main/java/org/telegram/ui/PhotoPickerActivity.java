@@ -105,11 +105,10 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     private int itemWidth = 100;
     private boolean sendPressed;
     private boolean singlePhoto;
-    private ChatActivity chatActivity;
 
     private PhotoPickerActivityDelegate delegate;
 
-    public PhotoPickerActivity(int type, MediaController.AlbumEntry selectedAlbum, HashMap<Integer, MediaController.PhotoEntry> selectedPhotos, HashMap<String, MediaController.SearchImage> selectedWebPhotos, ArrayList<MediaController.SearchImage> recentImages, boolean onlyOnePhoto, ChatActivity chatActivity) {
+    public PhotoPickerActivity(int type, MediaController.AlbumEntry selectedAlbum, HashMap<Integer, MediaController.PhotoEntry> selectedPhotos, HashMap<String, MediaController.SearchImage> selectedWebPhotos, ArrayList<MediaController.SearchImage> recentImages, boolean onlyOnePhoto) {
         super();
         this.selectedAlbum = selectedAlbum;
         this.selectedPhotos = selectedPhotos;
@@ -117,7 +116,6 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
         this.type = type;
         this.recentImages = recentImages;
         this.singlePhoto = onlyOnePhoto;
-        this.chatActivity = chatActivity;
         if (selectedAlbum != null && selectedAlbum.isVideo) {
             singlePhoto = true;
         }
@@ -295,7 +293,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
                         return;
                     }
                     PhotoViewer.getInstance().setParentActivity(getParentActivity());
-                    PhotoViewer.getInstance().openPhotoForSelect(arrayList, i, singlePhoto ? 1 : 0, PhotoPickerActivity.this, chatActivity);
+                    PhotoViewer.getInstance().openPhotoForSelect(arrayList, i, singlePhoto ? 1 : 0, PhotoPickerActivity.this);
                 }
             }
         });

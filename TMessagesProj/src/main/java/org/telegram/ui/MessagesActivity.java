@@ -380,12 +380,6 @@ public class MessagesActivity extends BaseFragment implements NotificationCenter
                             updateVisibleRows(MessagesController.UPDATE_MASK_SELECT_DIALOG);
                         }
                     }
-                    if (searchString != null) {
-                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                        presentFragment(new ChatActivity(args));
-                    } else {
-                        presentFragment(new ChatActivity(args));
-                    }
                 }
             }
         });

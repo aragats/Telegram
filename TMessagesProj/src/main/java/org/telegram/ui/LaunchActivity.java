@@ -336,14 +336,14 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     if (fragmentName != null) {
                         Bundle args = savedInstanceState.getBundle("args");
                         switch (fragmentName) {
-                            case "chat":
-                                if (args != null) {
-                                    ChatActivity chat = new ChatActivity(args);
-                                    if (actionBarLayout.addFragmentToStack(chat)) {
-                                        chat.restoreSelfArgs(savedInstanceState);
-                                    }
-                                }
-                                break;
+//                            case "chat":
+//                                if (args != null) {
+//                                    ChatActivity chat = new ChatActivity(args);
+//                                    if (actionBarLayout.addFragmentToStack(chat)) {
+//                                        chat.restoreSelfArgs(savedInstanceState);
+//                                    }
+//                                }
+//                                break;
                         }
                     }
                 }
@@ -702,28 +702,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                 }
             }
 
-            if (push_user_id != 0) {
-                Bundle args = new Bundle();
-                args.putInt("user_id", push_user_id);
-                ChatActivity fragment = new ChatActivity(args);
-                if (actionBarLayout.presentFragment(fragment, false, true, true)) {
-                    pushOpened = true;
-                }
-            } else if (push_chat_id != 0) {
-                Bundle args = new Bundle();
-                args.putInt("chat_id", push_chat_id);
-                ChatActivity fragment = new ChatActivity(args);
-                if (actionBarLayout.presentFragment(fragment, false, true, true)) {
-                    pushOpened = true;
-                }
-            } else if (push_enc_id != 0) {
-                Bundle args = new Bundle();
-                args.putInt("enc_id", push_enc_id);
-                ChatActivity fragment = new ChatActivity(args);
-                if (actionBarLayout.presentFragment(fragment, false, true, true)) {
-                    pushOpened = true;
-                }
-            } else if (showDialogsList) {
+            if (showDialogsList) {
                 if (!AndroidUtilities.isTablet()) {
                     actionBarLayout.removeAllFragments();
                 } else {
@@ -835,9 +814,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                     MessagesStorage.getInstance().putUsersAndChats(users, null, false, true);
                                     Bundle args = new Bundle();
                                     args.putInt("user_id", user.id);
-                                    ChatActivity fragment = new ChatActivity(args);
-                                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                                    actionBarLayout.presentFragment(fragment, false, true, true);
                                 }
                             }
                         }
@@ -869,9 +845,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                             MessagesStorage.getInstance().putUsersAndChats(null, chats, false, true);
                                             Bundle args = new Bundle();
                                             args.putInt("chat_id", invite.chat.id);
-                                            ChatActivity fragment = new ChatActivity(args);
-                                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                                            actionBarLayout.presentFragment(fragment, false, true, true);
                                         } else {
                                             AlertDialog.Builder builder = new AlertDialog.Builder(LaunchActivity.this);
                                             builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
@@ -924,9 +897,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                                 MessagesController.getInstance().putChats(updates.chats, false);
                                                 Bundle args = new Bundle();
                                                 args.putInt("chat_id", updates.chats.get(0).id);
-                                                ChatActivity fragment = new ChatActivity(args);
-                                                NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                                                actionBarLayout.presentFragment(fragment, false, true, true);
                                             }
                                         }
                                     } else {
@@ -1025,46 +995,8 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             } else {
                 args.putInt("enc_id", high_id);
             }
-            ChatActivity fragment = new ChatActivity(args);
 
-            if (videoPath != null) {
-                if(android.os.Build.VERSION.SDK_INT >= 16) {
-                    if (AndroidUtilities.isTablet()) {
-                        actionBarLayout.presentFragment(fragment, false, true, true);
-                    }
 
-                    if (!AndroidUtilities.isTablet()) {
-                        actionBarLayout.addFragmentToStack(fragment, actionBarLayout.fragmentsStack.size() - 1);
-                    }
-
-                    if (!fragment.openVideoEditor(videoPath, true, false)) {
-                        if (!AndroidUtilities.isTablet()) {
-                            messageFragment.finishFragment(true);
-                        }
-                    }
-                } else {
-                    actionBarLayout.presentFragment(fragment, true);
-                    SendMessagesHelper.prepareSendingVideo(videoPath, 0, 0, 0, 0, null, dialog_id, null);
-                }
-            } else {
-                if (sendingText != null) {
-                    SendMessagesHelper.prepareSendingText(sendingText, dialog_id);
-                }
-
-                actionBarLayout.presentFragment(fragment, true);
-
-                if (photoPathsArray != null) {
-                    SendMessagesHelper.prepareSendingPhotos(null, photoPathsArray, dialog_id, null, null);
-                }
-                if (documentsPathsArray != null || documentsUrisArray != null) {
-                    SendMessagesHelper.prepareSendingDocuments(documentsPathsArray, documentsOriginalPathsArray, documentsUrisArray, documentsMimeType, dialog_id, null);
-                }
-                if (contactsToSend != null && !contactsToSend.isEmpty()) {
-                    for (TLRPC.User user : contactsToSend) {
-                        SendMessagesHelper.getInstance().sendMessage(user, dialog_id, null);
-                    }
-                }
-            }
 
             photoPathsArray = null;
             videoPath = null;
@@ -1404,11 +1336,11 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
             if (lastFragment != null) {
                 Bundle args = lastFragment.getArguments();
-                if (lastFragment instanceof ChatActivity && args != null) {
-                    outState.putBundle("args", args);
-                    outState.putString("fragment", "chat");
-                }
-                lastFragment.saveSelfArgs(outState);
+//                if (lastFragment instanceof ChatActivity && args != null) {
+//                    outState.putBundle("args", args);
+//                    outState.putString("fragment", "chat");
+//                }
+//                lastFragment.saveSelfArgs(outState);
             }
         } catch (Exception e) {
             FileLog.e("tmessages", e);
@@ -1532,67 +1464,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     return false;
                 }
             }
-            if (fragment instanceof ChatActivity) {
-                if (!tabletFullSize && layout == rightActionBarLayout || tabletFullSize && layout == actionBarLayout) {
-                    boolean result = !(tabletFullSize && layout == actionBarLayout && actionBarLayout.fragmentsStack.size() == 1);
-                    if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
-                        for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
-                            layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
-                            a--;
-                        }
-                        layersActionBarLayout.closeLastFragment(!forceWithoutAnimation);
-                    }
-                    if (!result) {
-                        actionBarLayout.presentFragment(fragment, false, forceWithoutAnimation, false);
-                    }
-                    return result;
-                } else if (!tabletFullSize && layout != rightActionBarLayout) {
-                    rightActionBarLayout.setVisibility(View.VISIBLE);
-                    backgroundTablet.setVisibility(View.GONE);
-                    rightActionBarLayout.removeAllFragments();
-                    rightActionBarLayout.presentFragment(fragment, removeLast, true, false);
-                    if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
-                        for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
-                            layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
-                            a--;
-                        }
-                        layersActionBarLayout.closeLastFragment(!forceWithoutAnimation);
-                    }
-                    return false;
-                } else if (tabletFullSize && layout != actionBarLayout) {
-                    actionBarLayout.presentFragment(fragment, actionBarLayout.fragmentsStack.size() > 1, forceWithoutAnimation, false);
-                    if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
-                        for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
-                            layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
-                            a--;
-                        }
-                        layersActionBarLayout.closeLastFragment(!forceWithoutAnimation);
-                    }
-                    return false;
-                } else {
-                    if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
-                        for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
-                            layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
-                            a--;
-                        }
-                        layersActionBarLayout.closeLastFragment(!forceWithoutAnimation);
-                    }
-                    actionBarLayout.presentFragment(fragment, actionBarLayout.fragmentsStack.size() > 1, forceWithoutAnimation, false);
-                    return false;
-                }
-            } else if (layout != layersActionBarLayout) {
-                layersActionBarLayout.setVisibility(View.VISIBLE);
-                drawerLayoutContainer.setAllowOpenDrawer(false, true);
-                if (fragment instanceof LoginActivity) {
-                    backgroundTablet.setVisibility(View.VISIBLE);
-                    shadowTabletSide.setVisibility(View.GONE);
-                    shadowTablet.setBackgroundColor(0x00000000);
-                } else {
-                    shadowTablet.setBackgroundColor(0x7F000000);
-                }
-                layersActionBarLayout.presentFragment(fragment, removeLast, forceWithoutAnimation, false);
-                return false;
-            }
             return true;
         } else {
             drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity), false);
@@ -1620,43 +1491,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     }
                     return false;
                 }
-            } else if (fragment instanceof ChatActivity) {
-                if (!tabletFullSize && layout != rightActionBarLayout) {
-                    rightActionBarLayout.setVisibility(View.VISIBLE);
-                    backgroundTablet.setVisibility(View.GONE);
-                    rightActionBarLayout.removeAllFragments();
-                    rightActionBarLayout.addFragmentToStack(fragment);
-                    if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
-                        for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
-                            layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
-                            a--;
-                        }
-                        layersActionBarLayout.closeLastFragment(true);
-                    }
-                    return false;
-                } else if (tabletFullSize && layout != actionBarLayout) {
-                    actionBarLayout.addFragmentToStack(fragment);
-                    if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
-                        for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
-                            layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
-                            a--;
-                        }
-                        layersActionBarLayout.closeLastFragment(true);
-                    }
-                    return false;
-                }
-            } else if (layout != layersActionBarLayout) {
-                layersActionBarLayout.setVisibility(View.VISIBLE);
-                drawerLayoutContainer.setAllowOpenDrawer(false, true);
-                if (fragment instanceof LoginActivity) {
-                    backgroundTablet.setVisibility(View.VISIBLE);
-                    shadowTabletSide.setVisibility(View.GONE);
-                    shadowTablet.setBackgroundColor(0x00000000);
-                } else {
-                    shadowTablet.setBackgroundColor(0x7F000000);
-                }
-                layersActionBarLayout.addFragmentToStack(fragment);
-                return false;
             }
             return true;
         } else {

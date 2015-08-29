@@ -73,7 +73,7 @@ public class AvatarUpdater implements NotificationCenter.NotificationCenterDeleg
     }
 
     public void openGallery() {
-        PhotoAlbumPickerActivity fragment = new PhotoAlbumPickerActivity(true, null);
+        PhotoAlbumPickerActivity fragment = new PhotoAlbumPickerActivity(true);
         fragment.setDelegate(new PhotoAlbumPickerActivity.PhotoAlbumPickerActivityDelegate() {
             @Override
             public void didSelectPhotos(ArrayList<String> photos, ArrayList<String> captions, ArrayList<MediaController.SearchImage> webPhotos) {
@@ -161,7 +161,7 @@ public class AvatarUpdater implements NotificationCenter.NotificationCenterDeleg
                         Bitmap bitmap = ImageLoader.loadBitmap(path, null, 800, 800, true);
                         processBitmap(bitmap);
                     }
-                }, null);
+                });
                 AndroidUtilities.addMediaToGallery(currentPicturePath);
                 currentPicturePath = null;
             } else if (requestCode == 14) {
