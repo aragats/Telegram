@@ -1600,7 +1600,6 @@ public class MessagesStorage {
                     users.clear();
                     FileLog.e("tmessages", e);
                 }
-                ContactsController.getInstance().processLoadedContacts(contacts, users, 1);
             }
         });
     }
@@ -1717,7 +1716,6 @@ public class MessagesStorage {
                         getChatsInternal(stringToLoad.toString(), chats);
                     }
 
-                    SendMessagesHelper.getInstance().processUnsentMessages(messages, users, chats, encryptedChats);
                 } catch (Exception e) {
                     FileLog.e("tmessages", e);
                 }
@@ -3737,7 +3735,6 @@ public class MessagesStorage {
                 ArrayList<TLRPC.EncryptedChat> encryptedChats = new ArrayList<>();
                 try {
                     ArrayList<Integer> usersToLoad = new ArrayList<>();
-                    usersToLoad.add(UserConfig.getClientUserId());
                     ArrayList<Integer> chatsToLoad = new ArrayList<>();
                     ArrayList<Integer> encryptedToLoad = new ArrayList<>();
                     SQLiteCursor cursor = database.queryFinalized(String.format(Locale.US, "SELECT d.did, d.last_mid, d.unread_count, d.date, m.data, m.read_state, m.mid, m.send_state, s.flags, m.date FROM dialogs as d LEFT JOIN messages as m ON d.last_mid = m.mid LEFT JOIN dialog_settings as s ON d.did = s.did ORDER BY d.date DESC LIMIT %d,%d", offset, count));

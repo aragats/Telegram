@@ -185,7 +185,6 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                             generatePing();
                         }
                         if (!updatingDcSettings && lastDcUpdateTime < (int) (System.currentTimeMillis() / 1000) - DC_UPDATE_TIME) {
-                            updateDcSettings(0);
                         }
                         processRequestQueue(0, 0);
                     } else {
@@ -771,23 +770,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         });
     }
 
-    public void applyDcPushUpdate(final int dc, final String ip_address, final int port) {
-        Utilities.stageQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                Datacenter exist = datacenterWithId(dc);
-                if (exist != null) {
-                    ArrayList<String> addresses = new ArrayList<>();
-                    HashMap<String, Integer> ports = new HashMap<>();
-                    addresses.add(ip_address);
-                    ports.put(ip_address, port);
-                    exist.replaceAddressesAndPorts(addresses, ports, 0);
-                    exist.suspendConnections();
-                    updateDcSettings(dc);
-                }
-            }
-        });
-    }
+
 
     public void initPushConnection() {
         Utilities.stageQueue.postRunnable(new Runnable() {
@@ -812,89 +795,9 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         });
     }
 
-    public void applyCountryPortNumber(final String phone) {
-        if (phone == null || phone.length() == 0) {
-            return;
-        }
-        Utilities.stageQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                if (phone.startsWith("968")) {
-                    for (HashMap.Entry<Integer, Datacenter> entry : datacenters.entrySet()) {
-                        Datacenter datacenter = entry.getValue();
-                        datacenter.overridePort = 8888;
-                        datacenter.suspendConnections();
-                    }
-                } else {
-                    for (HashMap.Entry<Integer, Datacenter> entry : datacenters.entrySet()) {
-                        Datacenter datacenter = entry.getValue();
-                        datacenter.overridePort = -1;
-                    }
-                }
-            }
-        });
-    }
 
-    public void updateDcSettings(int dcNum) {
-        if (updatingDcSettings) {
-            return;
-        }
-        updatingDcStartTime = (int) (System.currentTimeMillis() / 1000);
-        updatingDcSettings = true;
-        TLRPC.TL_help_getConfig getConfig = new TLRPC.TL_help_getConfig();
 
-        ConnectionsManager.getInstance().performRpc(getConfig, new RPCRequest.RPCRequestDelegate() {
-            @Override
-            public void run(TLObject response, TLRPC.TL_error error) {
-                if (!updatingDcSettings) {
-                    return;
-                }
-                if (error == null) {
-                    TLRPC.TL_config config = (TLRPC.TL_config) response;
-                    int updateIn = config.expires - getCurrentTime();
-                    if (updateIn <= 0) {
-                        updateIn = 120;
-                    }
-                    lastDcUpdateTime = (int) (System.currentTimeMillis() / 1000) - DC_UPDATE_TIME + updateIn;
-                    ArrayList<Datacenter> datacentersArr = new ArrayList<>();
-                    HashMap<Integer, Datacenter> datacenterMap = new HashMap<>();
-                    for (TLRPC.TL_dcOption datacenterDesc : config.dc_options) {
-                        Datacenter existing = datacenterMap.get(datacenterDesc.id);
-                        if (existing == null) {
-                            existing = new Datacenter();
-                            existing.datacenterId = datacenterDesc.id;
-                            datacentersArr.add(existing);
-                            datacenterMap.put(existing.datacenterId, existing);
-                        }
-                        existing.addAddressAndPort(datacenterDesc.ip_address, datacenterDesc.port, datacenterDesc.flags);
-                    }
 
-                    if (!datacentersArr.isEmpty()) {
-                        for (Datacenter datacenter : datacentersArr) {
-                            Datacenter exist = datacenterWithId(datacenter.datacenterId);
-                            if (exist == null) {
-                                datacenters.put(datacenter.datacenterId, datacenter);
-                            } else {
-                                exist.replaceAddressesAndPorts(datacenter.addressesIpv4, datacenter.ports, 0);
-                                exist.replaceAddressesAndPorts(datacenter.addressesIpv6, datacenter.ports, 1);
-                                exist.replaceAddressesAndPorts(datacenter.addressesIpv4Download, datacenter.ports, 2);
-                                exist.replaceAddressesAndPorts(datacenter.addressesIpv6Download, datacenter.ports, 3);
-                            }
-                            if (datacenter.datacenterId == movingToDatacenterId) {
-                                movingToDatacenterId = DEFAULT_DATACENTER_ID;
-                                moveToDatacenter(datacenter.datacenterId);
-                            }
-                        }
-                        saveSession();
-
-                        processRequestQueue(RPCRequest.RPCRequestClassTransportMask, 0);
-                    }
-                    MessagesController.getInstance().updateConfig(config);
-                }
-                updatingDcSettings = false;
-            }
-        }, null, true, RPCRequest.RPCRequestClassEnableUnauthorized | RPCRequest.RPCRequestClassGeneric | RPCRequest.RPCRequestClassWithoutLogin | RPCRequest.RPCRequestClassTryDifferentDc, dcNum == 0 ? currentDatacenterId : dcNum);
-    }
 
     private TLObject wrapInLayer(TLObject object, int datacenterId, RPCRequest request) {
         if (object.layer() > 0) {
@@ -1561,7 +1464,6 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         }
 
         if (!unknownDatacenterIds.isEmpty() && !updatingDcSettings) {
-            updateDcSettings(0);
         }
 
         for (int num : neededDatacenterIds) {
@@ -2142,7 +2044,6 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
 
                 if (migrateToDatacenterId != DEFAULT_DATACENTER_ID) {
                     ignoreResult = true;
-                    moveToDatacenter(migrateToDatacenterId);
                 }
             }
 
@@ -2264,7 +2165,8 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                                         AndroidUtilities.runOnUIThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                MessagesController.getInstance().performLogout(false);
+//                                                MessagesController.getInstance().performLogout(false);
+//                                                MessagesController.getInstance().performLogout(false);
                                             }
                                         });
                                     }
@@ -2788,83 +2690,9 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
     // Move to datacenter manage
     //================================================================================
 
-    void moveToDatacenter(final int datacenterId) {
-        if (movingToDatacenterId == datacenterId) {
-            return;
-        }
-        movingToDatacenterId = datacenterId;
 
-        Datacenter currentDatacenter = datacenterWithId(currentDatacenterId);
-        clearRequestsForRequestClass(RPCRequest.RPCRequestClassGeneric, currentDatacenter);
-        clearRequestsForRequestClass(RPCRequest.RPCRequestClassDownloadMedia, currentDatacenter);
-        clearRequestsForRequestClass(RPCRequest.RPCRequestClassUploadMedia, currentDatacenter);
 
-        if (UserConfig.isClientActivated()) {
-            TLRPC.TL_auth_exportAuthorization exportAuthorization = new TLRPC.TL_auth_exportAuthorization();
-            exportAuthorization.dc_id = datacenterId;
 
-            performRpc(exportAuthorization, new RPCRequest.RPCRequestDelegate() {
-                @Override
-                public void run(TLObject response, TLRPC.TL_error error) {
-                    if (error == null) {
-                        movingAuthorization = (TLRPC.TL_auth_exportedAuthorization) response;
-                        authorizeOnMovingDatacenter();
-                    } else {
-                        Utilities.stageQueue.postRunnable(new Runnable() {
-                            @Override
-                            public void run() {
-                                moveToDatacenter(datacenterId);
-                            }
-                        }, 1000);
-                    }
-                }
-            }, null, true, RPCRequest.RPCRequestClassGeneric | RPCRequest.RPCRequestClassWithoutLogin, currentDatacenterId);
-        } else {
-            authorizeOnMovingDatacenter();
-        }
-    }
-
-    void authorizeOnMovingDatacenter() {
-        Datacenter datacenter = datacenterWithId(movingToDatacenterId);
-        if (datacenter == null) {
-            if (!updatingDcSettings) {
-                updateDcSettings(0);
-            }
-            return;
-        }
-
-        datacenter.recreateSessions();
-
-        clearRequestsForRequestClass(RPCRequest.RPCRequestClassGeneric, datacenter);
-        clearRequestsForRequestClass(RPCRequest.RPCRequestClassDownloadMedia, datacenter);
-        clearRequestsForRequestClass(RPCRequest.RPCRequestClassUploadMedia, datacenter);
-
-        if (datacenter.authKey == null) {
-            datacenter.clearServerSalts();
-            HandshakeAction actor = new HandshakeAction(datacenter);
-            actor.delegate = this;
-            dequeueActor(actor, true);
-        }
-
-        if (movingAuthorization != null) {
-            TLRPC.TL_auth_importAuthorization importAuthorization = new TLRPC.TL_auth_importAuthorization();
-            importAuthorization.id = UserConfig.getClientUserId();
-            importAuthorization.bytes = movingAuthorization.bytes;
-            performRpc(importAuthorization, new RPCRequest.RPCRequestDelegate() {
-                @Override
-                public void run(TLObject response, TLRPC.TL_error error) {
-                    movingAuthorization = null;
-                    if (error == null) {
-                        authorizedOnMovingDatacenter();
-                    } else {
-                        moveToDatacenter(movingToDatacenterId);
-                    }
-                }
-            }, null, true, RPCRequest.RPCRequestClassGeneric | RPCRequest.RPCRequestClassWithoutLogin, datacenter.datacenterId);
-        } else {
-            authorizedOnMovingDatacenter();
-        }
-    }
 
     void authorizedOnMovingDatacenter() {
         Datacenter datacenter = datacenterWithId(currentDatacenterId);

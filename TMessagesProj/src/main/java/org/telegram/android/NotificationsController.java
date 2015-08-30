@@ -140,8 +140,6 @@ public class NotificationsController {
         int user_id = messageObject.messageOwner.to_id.user_id;
         if (user_id == 0) {
             user_id = messageObject.messageOwner.from_id;
-        } else if (user_id == UserConfig.getClientUserId()) {
-            user_id = messageObject.messageOwner.from_id;
         }
 
         if (dialog_id == 0) {
@@ -178,7 +176,7 @@ public class NotificationsController {
                             msg = LocaleController.formatString("NotificationContactNewPhoto", R.string.NotificationContactNewPhoto, ContactsController.formatName(user.first_name, user.last_name));
                         } else if (messageObject.messageOwner.action instanceof TLRPC.TL_messageActionLoginUnknownLocation) {
                             String date = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, LocaleController.formatterYear.format(((long) messageObject.messageOwner.date) * 1000), LocaleController.formatterDay.format(((long) messageObject.messageOwner.date) * 1000));
-                            msg = LocaleController.formatString("NotificationUnrecognizedDevice", R.string.NotificationUnrecognizedDevice, UserConfig.getCurrentUser().first_name, date, messageObject.messageOwner.action.title, messageObject.messageOwner.action.address);
+                            msg = LocaleController.formatString("NotificationUnrecognizedDevice", R.string.NotificationUnrecognizedDevice, UserConfig.getCurrentUser().getFirstName(), date, messageObject.messageOwner.action.title, messageObject.messageOwner.action.address);
                         }
                     } else {
                         if (messageObject.isMediaEmpty()) {
@@ -211,73 +209,6 @@ public class NotificationsController {
                     }
                 } else {
                     msg = LocaleController.formatString("NotificationMessageNoText", R.string.NotificationMessageNoText, ContactsController.formatName(user.first_name, user.last_name));
-                }
-            } else if (chat_id != 0) {
-                SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Context.MODE_PRIVATE);
-                if (preferences.getBoolean("EnablePreviewGroup", true)) {
-                    if (messageObject.messageOwner instanceof TLRPC.TL_messageService) {
-                        if (messageObject.messageOwner.action instanceof TLRPC.TL_messageActionChatAddUser) {
-                            if (messageObject.messageOwner.action.user_id == UserConfig.getClientUserId()) {
-                                msg = LocaleController.formatString("NotificationInvitedToGroup", R.string.NotificationInvitedToGroup, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                            } else {
-                                TLRPC.User u2 = MessagesController.getInstance().getUser(messageObject.messageOwner.action.user_id);
-                                if (u2 == null) {
-                                    return null;
-                                }
-                                if (user.id == u2.id) {
-                                    msg = LocaleController.formatString("NotificationGroupAddSelf", R.string.NotificationGroupAddSelf, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                                } else {
-                                    msg = LocaleController.formatString("NotificationGroupAddMember", R.string.NotificationGroupAddMember, ContactsController.formatName(user.first_name, user.last_name), chat.title, ContactsController.formatName(u2.first_name, u2.last_name));
-                                }
-                            }
-                        } else if (messageObject.messageOwner.action instanceof TLRPC.TL_messageActionChatJoinedByLink) {
-                            msg = LocaleController.formatString("NotificationInvitedToGroupByLink", R.string.NotificationInvitedToGroupByLink, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                        } else if (messageObject.messageOwner.action instanceof TLRPC.TL_messageActionChatEditTitle) {
-                            msg = LocaleController.formatString("NotificationEditedGroupName", R.string.NotificationEditedGroupName, ContactsController.formatName(user.first_name, user.last_name), messageObject.messageOwner.action.title);
-                        } else if (messageObject.messageOwner.action instanceof TLRPC.TL_messageActionChatEditPhoto || messageObject.messageOwner.action instanceof TLRPC.TL_messageActionChatDeletePhoto) {
-                            msg = LocaleController.formatString("NotificationEditedGroupPhoto", R.string.NotificationEditedGroupPhoto, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                        } else if (messageObject.messageOwner.action instanceof TLRPC.TL_messageActionChatDeleteUser) {
-                            if (messageObject.messageOwner.action.user_id == UserConfig.getClientUserId()) {
-                                msg = LocaleController.formatString("NotificationGroupKickYou", R.string.NotificationGroupKickYou, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                            } else if (messageObject.messageOwner.action.user_id == user.id) {
-                                msg = LocaleController.formatString("NotificationGroupLeftMember", R.string.NotificationGroupLeftMember, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                            } else {
-                                TLRPC.User u2 = MessagesController.getInstance().getUser(messageObject.messageOwner.action.user_id);
-                                if (u2 == null) {
-                                    return null;
-                                }
-                                msg = LocaleController.formatString("NotificationGroupKickMember", R.string.NotificationGroupKickMember, ContactsController.formatName(user.first_name, user.last_name), chat.title, ContactsController.formatName(u2.first_name, u2.last_name));
-                            }
-                        } else if (messageObject.messageOwner.action instanceof TLRPC.TL_messageActionChatCreate) {
-                            msg = messageObject.messageText.toString();
-                        }
-                    } else {
-                        if (messageObject.isMediaEmpty()) {
-                            if (!shortMessage && messageObject.messageOwner.message != null && messageObject.messageOwner.message.length() != 0) {
-                                msg = LocaleController.formatString("NotificationMessageGroupText", R.string.NotificationMessageGroupText, ContactsController.formatName(user.first_name, user.last_name), chat.title, messageObject.messageOwner.message);
-                            } else {
-                                msg = LocaleController.formatString("NotificationMessageGroupNoText", R.string.NotificationMessageGroupNoText, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                            }
-                        } else if (messageObject.messageOwner.media instanceof TLRPC.TL_messageMediaPhoto) {
-                            msg = LocaleController.formatString("NotificationMessageGroupPhoto", R.string.NotificationMessageGroupPhoto, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                        } else if (messageObject.messageOwner.media instanceof TLRPC.TL_messageMediaVideo) {
-                            msg = LocaleController.formatString("NotificationMessageGroupVideo", R.string.NotificationMessageGroupVideo, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                        } else if (messageObject.messageOwner.media instanceof TLRPC.TL_messageMediaContact) {
-                            msg = LocaleController.formatString("NotificationMessageGroupContact", R.string.NotificationMessageGroupContact, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                        } else if (messageObject.messageOwner.media instanceof TLRPC.TL_messageMediaGeo || messageObject.messageOwner.media instanceof TLRPC.TL_messageMediaVenue) {
-                            msg = LocaleController.formatString("NotificationMessageGroupMap", R.string.NotificationMessageGroupMap, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                        } else if (messageObject.messageOwner.media instanceof TLRPC.TL_messageMediaDocument) {
-                            if (messageObject.isSticker()) {
-                                msg = LocaleController.formatString("NotificationMessageGroupSticker", R.string.NotificationMessageGroupSticker, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                            } else {
-                                msg = LocaleController.formatString("NotificationMessageGroupDocument", R.string.NotificationMessageGroupDocument, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                            }
-                        } else if (messageObject.messageOwner.media instanceof TLRPC.TL_messageMediaAudio) {
-                            msg = LocaleController.formatString("NotificationMessageGroupAudio", R.string.NotificationMessageGroupAudio, ContactsController.formatName(user.first_name, user.last_name), chat.title);
-                        }
-                    }
-                } else {
-                    msg = LocaleController.formatString("NotificationMessageGroupNoText", R.string.NotificationMessageGroupNoText, ContactsController.formatName(user.first_name, user.last_name), chat.title);
                 }
             }
         }
@@ -363,8 +294,6 @@ public class NotificationsController {
             int chat_id = lastMessageObject.messageOwner.to_id.chat_id;
             int user_id = lastMessageObject.messageOwner.to_id.user_id;
             if (user_id == 0) {
-                user_id = lastMessageObject.messageOwner.from_id;
-            } else if (user_id == UserConfig.getClientUserId()) {
                 user_id = lastMessageObject.messageOwner.from_id;
             }
 
@@ -656,7 +585,6 @@ public class NotificationsController {
                 mBuilder.setVibrate(new long[]{0, 0});
             }
 
-            showExtraNotifications(mBuilder, notifyAboutLast);
             notificationManager.notify(1, mBuilder.build());
             if (preferences.getBoolean("EnablePebbleNotifications", false)) {
                 sendAlertToPebble(lastMessageFull);
@@ -668,199 +596,6 @@ public class NotificationsController {
         }
     }
 
-    @SuppressLint("InlinedApi")
-    public void showExtraNotifications(NotificationCompat.Builder notificationBuilder, boolean notifyAboutLast) {
-        if (Build.VERSION.SDK_INT < 19) {
-            return;
-        }
-        ArrayList<Long> sortedDialogs = new ArrayList<>();
-        HashMap<Long, ArrayList<MessageObject>> messagesByDialogs = new HashMap<>();
-        for (MessageObject messageObject : pushMessages) {
-            long dialog_id = messageObject.getDialogId();
-            if ((int)dialog_id == 0) {
-                continue;
-            }
-
-            ArrayList<MessageObject> arrayList = messagesByDialogs.get(dialog_id);
-            if (arrayList == null) {
-                arrayList = new ArrayList<>();
-                messagesByDialogs.put(dialog_id, arrayList);
-                sortedDialogs.add(0, dialog_id);
-            }
-            arrayList.add(messageObject);
-        }
-
-        HashMap<Long, Integer> oldIdsWear = new HashMap<>();
-        oldIdsWear.putAll(wearNotificationsIds);
-        wearNotificationsIds.clear();
-
-        HashMap<Long, Integer> oldIdsAuto = new HashMap<>();
-        oldIdsAuto.putAll(autoNotificationsIds);
-        autoNotificationsIds.clear();
-
-        for (long dialog_id : sortedDialogs) {
-            ArrayList<MessageObject> messageObjects = messagesByDialogs.get(dialog_id);
-            int max_id = messageObjects.get(0).getId();
-            int max_date = messageObjects.get(0).messageOwner.date;
-            TLRPC.Chat chat = null;
-            TLRPC.User user = null;
-            String name;
-            if (dialog_id > 0) {
-                user = MessagesController.getInstance().getUser((int)dialog_id);
-                if (user == null) {
-                    continue;
-                }
-            } else {
-                chat = MessagesController.getInstance().getChat(-(int)dialog_id);
-                if (chat == null) {
-                    continue;
-                }
-            }
-            if (chat != null) {
-                name = chat.title;
-            } else {
-                name = ContactsController.formatName(user.first_name, user.last_name);
-            }
-
-            Integer notificationIdWear = oldIdsWear.get(dialog_id);
-            if (notificationIdWear == null) {
-                notificationIdWear = wearNotificationId++;
-            } else {
-                oldIdsWear.remove(dialog_id);
-            }
-
-            Integer notificationIdAuto = oldIdsAuto.get(dialog_id);
-            if (notificationIdAuto == null) {
-                notificationIdAuto = autoNotificationId++;
-            } else {
-                oldIdsAuto.remove(dialog_id);
-            }
-
-            Intent replyIntent = new Intent(ApplicationLoader.applicationContext, WearReplyReceiver.class);
-            replyIntent.putExtra("dialog_id", dialog_id);
-            replyIntent.putExtra("max_id", max_id);
-            PendingIntent replyPendingIntent = PendingIntent.getBroadcast(ApplicationLoader.applicationContext, notificationIdWear, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            RemoteInput remoteInputWear = new RemoteInput.Builder(EXTRA_VOICE_REPLY).setLabel(LocaleController.getString("Reply", R.string.Reply)).build();
-            String replyToString;
-            if (chat != null) {
-                replyToString = LocaleController.formatString("ReplyToGroup", R.string.ReplyToGroup, name);
-            } else {
-                replyToString = LocaleController.formatString("ReplyToUser", R.string.ReplyToUser, name);
-            }
-            NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_reply_icon, replyToString, replyPendingIntent).addRemoteInput(remoteInputWear).build();
-
-            Intent msgHeardIntent = new Intent();
-            msgHeardIntent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            msgHeardIntent.setAction("org.telegram.messenger.ACTION_MESSAGE_HEARD");
-            msgHeardIntent.putExtra("dialog_id", dialog_id);
-            msgHeardIntent.putExtra("max_id", max_id);
-            PendingIntent msgHeardPendingIntent = PendingIntent.getBroadcast(ApplicationLoader.applicationContext, notificationIdAuto, msgHeardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Intent msgReplyIntent = new Intent();
-            msgReplyIntent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            msgReplyIntent.setAction("org.telegram.messenger.ACTION_MESSAGE_REPLY");
-            msgReplyIntent.putExtra("dialog_id", dialog_id);
-            msgReplyIntent.putExtra("max_id", max_id);
-            PendingIntent msgReplyPendingIntent = PendingIntent.getBroadcast(ApplicationLoader.applicationContext, notificationIdAuto, msgReplyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            RemoteInput remoteInputAuto = new RemoteInput.Builder(NotificationsController.EXTRA_VOICE_REPLY).setLabel(LocaleController.getString("Reply", R.string.Reply)).build();
-
-            NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder = new NotificationCompat.CarExtender.UnreadConversation.Builder(name)
-            .setReadPendingIntent(msgHeardPendingIntent)
-            .setReplyAction(msgReplyPendingIntent, remoteInputAuto)
-            .setLatestTimestamp((long) max_date * 1000);
-
-            String text = "";
-            for (int a = messageObjects.size() - 1; a >= 0; a--) {
-                MessageObject messageObject = messageObjects.get(a);
-                String message = getStringForMessage(messageObject, false);
-                if (message == null) {
-                    continue;
-                }
-                if (chat != null) {
-                    message = message.replace(" @ " + name, "");
-                } else {
-                    message = message.replace(name + ": ", "").replace(name + " ", "");
-                }
-                if (text.length() > 0) {
-                    text += "\n\n";
-                }
-                text += message;
-
-                unreadConvBuilder.addMessage(message);
-            }
-
-
-
-            TLRPC.FileLocation photoPath = null;
-            if (chat != null) {
-                if (chat.photo != null && chat.photo.photo_small != null && chat.photo.photo_small.volume_id != 0 && chat.photo.photo_small.local_id != 0) {
-                    photoPath = chat.photo.photo_small;
-                }
-            } else {
-                if (user.photo != null && user.photo.photo_small != null && user.photo.photo_small.volume_id != 0 && user.photo.photo_small.local_id != 0) {
-                    photoPath = user.photo.photo_small;
-                }
-            }
-            //notificationBuilder.extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));
-            NotificationCompat.Builder builderAuto = new NotificationCompat.Builder(ApplicationLoader.applicationContext)
-                    .setSmallIcon(R.drawable.notification)
-                    .setColor(0xff2ca5e0)
-                    .setGroup("messages")
-                    .setLocalOnly(true)
-                    //.setGroupSummary(false)
-                    //.setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                    .extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));
-            if (photoPath != null) {
-                BitmapDrawable img = ImageLoader.getInstance().getImageFromMemory(photoPath, null, "50_50");
-                if (img != null) {
-                    builderAuto.setLargeIcon(img.getBitmap());
-                }
-            }
-            notificationManager.notify("android_auto", notificationIdAuto, builderAuto.build());
-            autoNotificationsIds.put(dialog_id, notificationIdAuto);
-
-            Intent intent = new Intent(ApplicationLoader.applicationContext, LaunchActivity.class);
-            intent.setAction("com.tmessages.openchat" + Math.random() + Integer.MAX_VALUE);
-            intent.setFlags(32768);
-            if (chat != null) {
-                intent.putExtra("chatId", chat.id);
-            } else if (user != null) {
-                intent.putExtra("userId", user.id);
-            }
-            PendingIntent contentIntent = PendingIntent.getActivity(ApplicationLoader.applicationContext, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(ApplicationLoader.applicationContext)
-                    .setContentTitle(name)
-                    .setSmallIcon(R.drawable.notification)
-                    .setGroup("messages")
-                    .setContentText(text)
-                    .setColor(0xff2ca5e0)
-                    .setGroupSummary(false)
-                    .setContentIntent(contentIntent)
-                    .extend(new NotificationCompat.WearableExtender().addAction(action))
-                    .setCategory(NotificationCompat.CATEGORY_MESSAGE);
-            if (photoPath != null) {
-                BitmapDrawable img = ImageLoader.getInstance().getImageFromMemory(photoPath, null, "50_50");
-                if (img != null) {
-                    builder.setLargeIcon(img.getBitmap());
-                }
-            }
-
-            if (chat == null && user != null && user.phone != null && user.phone.length() > 0) {
-                builder.addPerson("tel:+" + user.phone);
-            }
-
-            notificationManager.notify(notificationIdWear, builder.build());
-            wearNotificationsIds.put(dialog_id, notificationIdWear);
-        }
-
-        for (HashMap.Entry<Long, Integer> entry : oldIdsAuto.entrySet()) {
-            notificationManager.cancel(entry.getValue());
-        }
-        for (HashMap.Entry<Long, Integer> entry : oldIdsWear.entrySet()) {
-            notificationManager.cancel(entry.getValue());
-        }
-    }
 
     private void dismissNotification() {
         try {

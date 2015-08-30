@@ -41,7 +41,6 @@ import org.telegram.android.LocaleController;
 import org.telegram.android.MessageObject;
 import org.telegram.android.MessagesController;
 import org.telegram.android.NotificationCenter;
-import org.telegram.android.SendMessagesHelper;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
@@ -286,13 +285,8 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
 
                 if (message.length() != 0 && lastTypingTimeSend < System.currentTimeMillis() - 5000 && !ignoreTextChange) {
                     int currentTime = ConnectionsManager.getInstance().getCurrentTime();
-                    TLRPC.User currentUser = null;
-                    if ((int) dialog_id > 0) {
-                        currentUser = MessagesController.getInstance().getUser((int) dialog_id);
-                    }
-                    if (currentUser != null && (currentUser.id == UserConfig.getClientUserId() || currentUser.status != null && currentUser.status.expires < currentTime)) {
-                        return;
-                    }
+
+
                     lastTypingTimeSend = System.currentTimeMillis();
                     if (delegate != null) {
                         delegate.needSendTyping();
@@ -642,7 +636,7 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
             int count = (int) Math.ceil(text.length() / 4096.0f);
             for (int a = 0; a < count; a++) {
                 String mess = text.substring(a * 4096, Math.min((a + 1) * 4096, text.length()));
-                SendMessagesHelper.getInstance().sendMessage(mess, dialog_id, replyingMessageObject, messageWebPage, messageWebPageSearch);
+//                SendMessagesHelper.getInstance().sendMessage(mess, dialog_id, replyingMessageObject, messageWebPage, messageWebPageSearch);
             }
             return true;
         }
@@ -878,7 +872,7 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
                     }
 
                     public void onStickerSelected(TLRPC.Document sticker) {
-                        SendMessagesHelper.getInstance().sendSticker(sticker, dialog_id, replyingMessageObject);
+//                        SendMessagesHelper.getInstance().sendSticker(sticker, dialog_id, replyingMessageObject);
                         if (delegate != null) {
                             delegate.onMessageSend(null);
                         }

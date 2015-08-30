@@ -56,10 +56,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.UserConfig;
-import org.telegram.messenger.Utilities;
 import org.telegram.messenger.ApplicationLoader;
-import org.telegram.ui.Cells.ChatMediaCell;
-import org.telegram.ui.Components.GifDrawable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -227,10 +224,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     private ArrayList<FileDownloadProgressListener> deleteLaterArray = new ArrayList<>();
     private int lastTag = 0;
 
-    private GifDrawable currentGifDrawable;
-    private MessageObject currentGifMessageObject;
-    private ChatMediaCell currentMediaCell;
-
     private boolean isPaused = false;
     private MediaPlayer audioPlayer = null;
     private AudioTrack audioTrackPlayer = null;
@@ -325,7 +318,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                     });
                 } else {
                     recordBuffers.add(buffer);
-                    stopRecordingInternal(sendAfterDone);
                 }
             }
         }
@@ -556,12 +548,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
     public void cleanup() {
         clenupPlayer(false);
-        if (currentGifDrawable != null) {
-            currentGifDrawable.recycle();
-            currentGifDrawable = null;
-        }
-        currentMediaCell = null;
-        currentGifMessageObject = null;
         photoDownloadQueue.clear();
         audioDownloadQueue.clear();
         documentDownloadQueue.clear();
@@ -862,9 +848,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                 }
             }
         }
-        if (send) {
-            SecretChatHelper.getInstance().sendScreenshotMessage(lastSecretChat, lastSecretChatVisibleMessages, null);
-        }
     }
 
     public void setLastEncryptedChatParams(long enterTime, long leaveTime, TLRPC.EncryptedChat encryptedChat, ArrayList<Long> visibleMessages) {
@@ -995,25 +978,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             listenerInProgress = false;
             processLaterArrays();
             try {
-                ArrayList<SendMessagesHelper.DelayedMessage> delayedMessages = SendMessagesHelper.getInstance().getDelayedMessages(fileName);
-                if (delayedMessages != null) {
-                    for (SendMessagesHelper.DelayedMessage delayedMessage : delayedMessages) {
-                        if (delayedMessage.encryptedChat == null) {
-                            long dialog_id = delayedMessage.obj.getDialogId();
-                            Long lastTime = typingTimes.get(dialog_id);
-                            if (lastTime == null || lastTime + 4000 < System.currentTimeMillis()) {
-                                if (delayedMessage.videoLocation != null) {
-                                    MessagesController.getInstance().sendTyping(dialog_id, 5, 0);
-                                } else if (delayedMessage.documentLocation != null) {
-                                    MessagesController.getInstance().sendTyping(dialog_id, 3, 0);
-                                } else if (delayedMessage.location != null) {
-                                    MessagesController.getInstance().sendTyping(dialog_id, 4, 0);
-                                }
-                                typingTimes.put(dialog_id, System.currentTimeMillis());
-                            }
-                        }
-                    }
-                }
             } catch (Exception e) {
                 FileLog.e("tmessages", e);
             }
@@ -1522,127 +1486,8 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         return isPaused;
     }
 
-    public void startRecording(final long dialog_id, final MessageObject reply_to_msg) {
-        clenupPlayer(true);
 
-        try {
-            Vibrator v = (Vibrator) ApplicationLoader.applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(20);
-        } catch (Exception e) {
-            FileLog.e("tmessages", e);
-        }
 
-        recordQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                if (audioRecorder != null) {
-                    AndroidUtilities.runOnUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.recordStartError);
-                        }
-                    });
-                    return;
-                }
-
-                recordingAudio = new TLRPC.TL_audio();
-                recordingAudio.dc_id = Integer.MIN_VALUE;
-                recordingAudio.id = UserConfig.lastLocalId;
-                recordingAudio.user_id = UserConfig.getClientUserId();
-                recordingAudio.mime_type = "audio/ogg";
-                UserConfig.lastLocalId--;
-                UserConfig.saveConfig(false);
-
-                recordingAudioFile = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), FileLoader.getAttachFileName(recordingAudio));
-
-                try {
-                    if (startRecord(recordingAudioFile.getAbsolutePath()) == 0) {
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                NotificationCenter.getInstance().postNotificationName(NotificationCenter.recordStartError);
-                            }
-                        });
-                        return;
-                    }
-                    audioRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, recordBufferSize * 10);
-                    recordStartTime = System.currentTimeMillis();
-                    recordTimeCount = 0;
-                    recordDialogId = dialog_id;
-                    recordReplyingMessageObject = reply_to_msg;
-                    fileBuffer.rewind();
-
-                    audioRecorder.startRecording();
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                    recordingAudio = null;
-                    stopRecord();
-                    recordingAudioFile.delete();
-                    recordingAudioFile = null;
-                    try {
-                        audioRecorder.release();
-                        audioRecorder = null;
-                    } catch (Exception e2) {
-                        FileLog.e("tmessages", e2);
-                    }
-
-                    AndroidUtilities.runOnUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.recordStartError);
-                        }
-                    });
-                    return;
-                }
-
-                recordQueue.postRunnable(recordRunnable);
-                AndroidUtilities.runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.recordStarted);
-                    }
-                });
-            }
-        });
-    }
-
-    private void stopRecordingInternal(final boolean send) {
-        if (send) {
-            final TLRPC.TL_audio audioToSend = recordingAudio;
-            final File recordingAudioFileToSend = recordingAudioFile;
-            fileEncodingQueue.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    stopRecord();
-                    AndroidUtilities.runOnUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            audioToSend.date = ConnectionsManager.getInstance().getCurrentTime();
-                            audioToSend.size = (int) recordingAudioFileToSend.length();
-                            long duration = recordTimeCount;
-                            audioToSend.duration = (int) (duration / 1000);
-                            if (duration > 700) {
-                                SendMessagesHelper.getInstance().sendMessage(audioToSend, recordingAudioFileToSend.getAbsolutePath(), recordDialogId, recordReplyingMessageObject);
-                                NotificationCenter.getInstance().postNotificationName(NotificationCenter.audioDidSent);
-                            } else {
-                                recordingAudioFileToSend.delete();
-                            }
-                        }
-                    });
-                }
-            });
-        }
-        try {
-            if (audioRecorder != null) {
-                audioRecorder.release();
-                audioRecorder = null;
-            }
-        } catch (Exception e) {
-            FileLog.e("tmessages", e);
-        }
-        recordingAudio = null;
-        recordingAudioFile = null;
-    }
 
     public void stopRecording(final boolean send) {
         recordQueue.postRunnable(new Runnable() {
@@ -1661,7 +1506,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                     }
                 }
                 if (!send) {
-                    stopRecordingInternal(false);
                 }
                 try {
                     Vibrator v = (Vibrator) ApplicationLoader.applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
@@ -1794,75 +1638,9 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }
     }
 
-    public GifDrawable getGifDrawable(ChatMediaCell cell, boolean create) {
-        if (cell == null) {
-            return null;
-        }
 
-        MessageObject messageObject = cell.getMessageObject();
-        if (messageObject == null) {
-            return null;
-        }
 
-        if (currentGifDrawable != null && currentGifMessageObject != null && messageObject.getId() == currentGifMessageObject.getId()) {
-            currentMediaCell = cell;
-            currentGifDrawable.parentView = new WeakReference<View>(cell);
-            return currentGifDrawable;
-        }
 
-        if (create) {
-            if (currentMediaCell != null) {
-                if (currentGifDrawable != null) {
-                    currentGifDrawable.stop();
-                    currentGifDrawable.recycle();
-                }
-                currentMediaCell.clearGifImage();
-            }
-            currentGifMessageObject = cell.getMessageObject();
-            currentMediaCell = cell;
-
-            File cacheFile = null;
-            if (currentGifMessageObject.messageOwner.attachPath != null && currentGifMessageObject.messageOwner.attachPath.length() != 0) {
-                File f = new File(currentGifMessageObject.messageOwner.attachPath);
-                if (f.length() > 0) {
-                    cacheFile = f;
-                }
-            }
-            if (cacheFile == null) {
-                cacheFile = FileLoader.getPathToMessage(messageObject.messageOwner);
-            }
-            try {
-                currentGifDrawable = new GifDrawable(cacheFile);
-                currentGifDrawable.parentView = new WeakReference<View>(cell);
-                return currentGifDrawable;
-            } catch (Exception e) {
-                FileLog.e("tmessages", e);
-            }
-        }
-
-        return null;
-    }
-
-    public void clearGifDrawable(ChatMediaCell cell) {
-        if (cell == null) {
-            return;
-        }
-
-        MessageObject messageObject = cell.getMessageObject();
-        if (messageObject == null) {
-            return;
-        }
-
-        if (currentGifMessageObject != null && messageObject.getId() == currentGifMessageObject.getId()) {
-            if (currentGifDrawable != null) {
-                currentGifDrawable.stop();
-                currentGifDrawable.recycle();
-                currentGifDrawable = null;
-            }
-            currentMediaCell = null;
-            currentGifMessageObject = null;
-        }
-    }
 
     public static boolean isWebp(Uri uri) {
         ParcelFileDescriptor parcelFD = null;
@@ -2163,12 +1941,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }).start();
     }
 
-    public void scheduleVideoConvert(MessageObject messageObject) {
-        videoConvertQueue.add(messageObject);
-        if (videoConvertQueue.size() == 1) {
-            startVideoConvertFromQueue();
-        }
-    }
 
     public void cancelVideoConvert(MessageObject messageObject) {
         if (messageObject == null) {
@@ -2187,18 +1959,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }
     }
 
-    private void startVideoConvertFromQueue() {
-        if (!videoConvertQueue.isEmpty()) {
-            synchronized (videoConvertSync) {
-                cancelCurrentVideoConversion = false;
-            }
-            MessageObject messageObject = videoConvertQueue.get(0);
-            Intent intent = new Intent(ApplicationLoader.applicationContext, VideoEncodingService.class);
-            intent.putExtra("path", messageObject.messageOwner.attachPath);
-            ApplicationLoader.applicationContext.startService(intent);
-            VideoConvertRunnable.runConversion(messageObject);
-        }
-    }
 
     @SuppressLint("NewApi")
     public static MediaCodecInfo selectCodec(String mimeType) {
@@ -2293,7 +2053,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                         cancelCurrentVideoConversion = false;
                     }
                     videoConvertQueue.remove(messageObject);
-                    startVideoConvertFromQueue();
                 }
             }
         });
@@ -2369,7 +2128,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
         @Override
         public void run() {
-            MediaController.getInstance().convertVideo(messageObject);
         }
 
         public static void runConversion(final MessageObject obj) {
@@ -2399,446 +2157,5 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }
     }
 
-    @TargetApi(16)
-    private boolean convertVideo(final MessageObject messageObject) {
-        String videoPath = messageObject.videoEditedInfo.originalPath;
-        long startTime = messageObject.videoEditedInfo.startTime;
-        long endTime = messageObject.videoEditedInfo.endTime;
-        int resultWidth = messageObject.videoEditedInfo.resultWidth;
-        int resultHeight = messageObject.videoEditedInfo.resultHeight;
-        int rotationValue = messageObject.videoEditedInfo.rotationValue;
-        int originalWidth = messageObject.videoEditedInfo.originalWidth;
-        int originalHeight = messageObject.videoEditedInfo.originalHeight;
-        int bitrate = messageObject.videoEditedInfo.bitrate;
-        int rotateRender = 0;
-        File cacheFile = new File(messageObject.messageOwner.attachPath);
 
-        if (Build.VERSION.SDK_INT < 18 && resultHeight > resultWidth && resultWidth != originalWidth && resultHeight != originalHeight) {
-            int temp = resultHeight;
-            resultHeight = resultWidth;
-            resultWidth = temp;
-            rotationValue = 90;
-            rotateRender = 270;
-        } else if (Build.VERSION.SDK_INT > 20) {
-            if (rotationValue == 90) {
-                int temp = resultHeight;
-                resultHeight = resultWidth;
-                resultWidth = temp;
-                rotationValue = 0;
-                rotateRender = 270;
-            } else if (rotationValue == 180) {
-                rotateRender = 180;
-                rotationValue = 0;
-            } else if (rotationValue == 270) {
-                int temp = resultHeight;
-                resultHeight = resultWidth;
-                resultWidth = temp;
-                rotationValue = 0;
-                rotateRender = 90;
-            }
-        }
-
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("videoconvert", Activity.MODE_PRIVATE);
-        boolean isPreviousOk = preferences.getBoolean("isPreviousOk", true);
-        preferences.edit().putBoolean("isPreviousOk", false).commit();
-
-        File inputFile = new File(videoPath);
-        if (!inputFile.canRead() || !isPreviousOk) {
-            didWriteData(messageObject, cacheFile, true, true);
-            preferences.edit().putBoolean("isPreviousOk", true).commit();
-            return false;
-        }
-
-        videoConvertFirstWrite = true;
-        boolean error = false;
-        long videoStartTime = startTime;
-
-        long time = System.currentTimeMillis();
-
-        if (resultWidth != 0 && resultHeight != 0) {
-            MP4Builder mediaMuxer = null;
-            MediaExtractor extractor = null;
-
-            try {
-                MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
-                Mp4Movie movie = new Mp4Movie();
-                movie.setCacheFile(cacheFile);
-                movie.setRotation(rotationValue);
-                movie.setSize(resultWidth, resultHeight);
-                mediaMuxer = new MP4Builder().createMovie(movie);
-                extractor = new MediaExtractor();
-                extractor.setDataSource(inputFile.toString());
-
-                checkConversionCanceled();
-
-                if (resultWidth != originalWidth || resultHeight != originalHeight) {
-                    int videoIndex;
-                    videoIndex = selectTrack(extractor, false);
-                    if (videoIndex >= 0) {
-                        MediaCodec decoder = null;
-                        MediaCodec encoder = null;
-                        InputSurface inputSurface = null;
-                        OutputSurface outputSurface = null;
-
-                        try {
-                            long videoTime = -1;
-                            boolean outputDone = false;
-                            boolean inputDone = false;
-                            boolean decoderDone = false;
-                            int swapUV = 0;
-                            int videoTrackIndex = -5;
-
-                            int colorFormat;
-                            int processorType = PROCESSOR_TYPE_OTHER;
-                            String manufacturer = Build.MANUFACTURER.toLowerCase();
-                            if (Build.VERSION.SDK_INT < 18) {
-                                MediaCodecInfo codecInfo = selectCodec(MIME_TYPE);
-                                colorFormat = selectColorFormat(codecInfo, MIME_TYPE);
-                                if (colorFormat == 0) {
-                                    throw new RuntimeException("no supported color format");
-                                }
-                                String codecName = codecInfo.getName();
-                                if (codecName.contains("OMX.qcom.")) {
-                                    processorType = PROCESSOR_TYPE_QCOM;
-                                    if (Build.VERSION.SDK_INT == 16) {
-                                        if (manufacturer.equals("lge") || manufacturer.equals("nokia")) {
-                                            swapUV = 1;
-                                        }
-                                    }
-                                } else if (codecName.contains("OMX.Intel.")) {
-                                    processorType = PROCESSOR_TYPE_INTEL;
-                                } else if (codecName.equals("OMX.MTK.VIDEO.ENCODER.AVC")) {
-                                    processorType = PROCESSOR_TYPE_MTK;
-                                } else if (codecName.equals("OMX.SEC.AVC.Encoder")) {
-                                    processorType = PROCESSOR_TYPE_SEC;
-                                    swapUV = 1;
-                                } else if (codecName.equals("OMX.TI.DUCATI1.VIDEO.H264E")) {
-                                    processorType = PROCESSOR_TYPE_TI;
-                                }
-                                FileLog.e("tmessages", "codec = " + codecInfo.getName() + " manufacturer = " + manufacturer + "device = " + Build.MODEL);
-                            } else {
-                                colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
-                            }
-                            FileLog.e("tmessages", "colorFormat = " + colorFormat);
-
-                            int resultHeightAligned = resultHeight;
-                            int padding = 0;
-                            int bufferSize = resultWidth * resultHeight * 3 / 2;
-                            if (processorType == PROCESSOR_TYPE_OTHER) {
-                                if (resultHeight % 16 != 0) {
-                                    resultHeightAligned += (16 - (resultHeight % 16));
-                                    padding = resultWidth * (resultHeightAligned - resultHeight);
-                                    bufferSize += padding * 5 / 4;
-                                }
-                            } else if (processorType == PROCESSOR_TYPE_QCOM) {
-                                if (!manufacturer.toLowerCase().equals("lge")) {
-                                    int uvoffset = (resultWidth * resultHeight + 2047) & ~2047;
-                                    padding = uvoffset - (resultWidth * resultHeight);
-                                    bufferSize += padding;
-                                }
-                            } else if (processorType == PROCESSOR_TYPE_TI) {
-                                //resultHeightAligned = 368;
-                                //bufferSize = resultWidth * resultHeightAligned * 3 / 2;
-                                //resultHeightAligned += (16 - (resultHeight % 16));
-                                //padding = resultWidth * (resultHeightAligned - resultHeight);
-                                //bufferSize += padding * 5 / 4;
-                            } else if (processorType == PROCESSOR_TYPE_MTK) {
-                                if (manufacturer.equals("baidu")) {
-                                    resultHeightAligned += (16 - (resultHeight % 16));
-                                    padding = resultWidth * (resultHeightAligned - resultHeight);
-                                    bufferSize += padding * 5 / 4;
-                                }
-                            }
-
-                            extractor.selectTrack(videoIndex);
-                            if (startTime > 0) {
-                                extractor.seekTo(startTime, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
-                            } else {
-                                extractor.seekTo(0, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
-                            }
-                            MediaFormat inputFormat = extractor.getTrackFormat(videoIndex);
-
-                            MediaFormat outputFormat = MediaFormat.createVideoFormat(MIME_TYPE, resultWidth, resultHeight);
-                            outputFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
-                            outputFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate != 0 ? bitrate : 921600);
-                            outputFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 25);
-                            outputFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 10);
-                            if (Build.VERSION.SDK_INT < 18) {
-                                outputFormat.setInteger("stride", resultWidth + 32);
-                                outputFormat.setInteger("slice-height", resultHeight);
-                            }
-
-                            encoder = MediaCodec.createEncoderByType(MIME_TYPE);
-                            encoder.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-                            if (Build.VERSION.SDK_INT >= 18) {
-                                inputSurface = new InputSurface(encoder.createInputSurface());
-                                inputSurface.makeCurrent();
-                            }
-                            encoder.start();
-
-                            decoder = MediaCodec.createDecoderByType(inputFormat.getString(MediaFormat.KEY_MIME));
-                            if (Build.VERSION.SDK_INT >= 18) {
-                                outputSurface = new OutputSurface();
-                            } else {
-                                outputSurface = new OutputSurface(resultWidth, resultHeight, rotateRender);
-                            }
-                            decoder.configure(inputFormat, outputSurface.getSurface(), null, 0);
-                            decoder.start();
-
-                            final int TIMEOUT_USEC = 2500;
-                            ByteBuffer[] decoderInputBuffers = null;
-                            ByteBuffer[] encoderOutputBuffers = null;
-                            ByteBuffer[] encoderInputBuffers = null;
-                            if (Build.VERSION.SDK_INT < 21) {
-                                decoderInputBuffers = decoder.getInputBuffers();
-                                encoderOutputBuffers = encoder.getOutputBuffers();
-                                if (Build.VERSION.SDK_INT < 18) {
-                                    encoderInputBuffers = encoder.getInputBuffers();
-                                }
-                            }
-
-                            checkConversionCanceled();
-
-                            while (!outputDone) {
-                                checkConversionCanceled();
-                                if (!inputDone) {
-                                    boolean eof = false;
-                                    int index = extractor.getSampleTrackIndex();
-                                    if (index == videoIndex) {
-                                        int inputBufIndex = decoder.dequeueInputBuffer(TIMEOUT_USEC);
-                                        if (inputBufIndex >= 0) {
-                                            ByteBuffer inputBuf;
-                                            if (Build.VERSION.SDK_INT < 21) {
-                                                inputBuf = decoderInputBuffers[inputBufIndex];
-                                            } else {
-                                                inputBuf = decoder.getInputBuffer(inputBufIndex);
-                                            }
-                                            int chunkSize = extractor.readSampleData(inputBuf, 0);
-                                            if (chunkSize < 0) {
-                                                decoder.queueInputBuffer(inputBufIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                                                inputDone = true;
-                                            } else {
-                                                decoder.queueInputBuffer(inputBufIndex, 0, chunkSize, extractor.getSampleTime(), 0);
-                                                extractor.advance();
-                                            }
-                                        }
-                                    } else if (index == -1) {
-                                        eof = true;
-                                    }
-                                    if (eof) {
-                                        int inputBufIndex = decoder.dequeueInputBuffer(TIMEOUT_USEC);
-                                        if (inputBufIndex >= 0) {
-                                            decoder.queueInputBuffer(inputBufIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                                            inputDone = true;
-                                        }
-                                    }
-                                }
-
-                                boolean decoderOutputAvailable = !decoderDone;
-                                boolean encoderOutputAvailable = true;
-                                while (decoderOutputAvailable || encoderOutputAvailable) {
-                                    checkConversionCanceled();
-                                    int encoderStatus = encoder.dequeueOutputBuffer(info, TIMEOUT_USEC);
-                                    if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                                        encoderOutputAvailable = false;
-                                    } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-                                        if (Build.VERSION.SDK_INT < 21) {
-                                            encoderOutputBuffers = encoder.getOutputBuffers();
-                                        }
-                                    } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                                        MediaFormat newFormat = encoder.getOutputFormat();
-                                        if (videoTrackIndex == -5) {
-                                            videoTrackIndex = mediaMuxer.addTrack(newFormat, false);
-                                        }
-                                    } else if (encoderStatus < 0) {
-                                        throw new RuntimeException("unexpected result from encoder.dequeueOutputBuffer: " + encoderStatus);
-                                    } else {
-                                        ByteBuffer encodedData;
-                                        if (Build.VERSION.SDK_INT < 21) {
-                                            encodedData = encoderOutputBuffers[encoderStatus];
-                                        } else {
-                                            encodedData = encoder.getOutputBuffer(encoderStatus);
-                                        }
-                                        if (encodedData == null) {
-                                            throw new RuntimeException("encoderOutputBuffer " + encoderStatus + " was null");
-                                        }
-                                        if (info.size > 1) {
-                                            if ((info.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) == 0) {
-                                                if (mediaMuxer.writeSampleData(videoTrackIndex, encodedData, info, false)) {
-                                                    didWriteData(messageObject, cacheFile, false, false);
-                                                }
-                                            } else if (videoTrackIndex == -5) {
-                                                byte[] csd = new byte[info.size];
-                                                encodedData.limit(info.offset + info.size);
-                                                encodedData.position(info.offset);
-                                                encodedData.get(csd);
-                                                ByteBuffer sps = null;
-                                                ByteBuffer pps = null;
-                                                for (int a = info.size - 1; a >= 0; a--) {
-                                                    if (a > 3) {
-                                                        if (csd[a] == 1 && csd[a - 1] == 0 && csd[a - 2] == 0 && csd[a - 3] == 0) {
-                                                            sps = ByteBuffer.allocate(a - 3);
-                                                            pps = ByteBuffer.allocate(info.size - (a - 3));
-                                                            sps.put(csd, 0, a - 3).position(0);
-                                                            pps.put(csd, a - 3, info.size - (a - 3)).position(0);
-                                                            break;
-                                                        }
-                                                    } else {
-                                                        break;
-                                                    }
-                                                }
-
-                                                MediaFormat newFormat = MediaFormat.createVideoFormat(MIME_TYPE, resultWidth, resultHeight);
-                                                if (sps != null && pps != null) {
-                                                    newFormat.setByteBuffer("csd-0", sps);
-                                                    newFormat.setByteBuffer("csd-1", pps);
-                                                }
-                                                videoTrackIndex = mediaMuxer.addTrack(newFormat, false);
-                                            }
-                                        }
-                                        outputDone = (info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
-                                        encoder.releaseOutputBuffer(encoderStatus, false);
-                                    }
-                                    if (encoderStatus != MediaCodec.INFO_TRY_AGAIN_LATER) {
-                                        continue;
-                                    }
-
-                                    if (!decoderDone) {
-                                        int decoderStatus = decoder.dequeueOutputBuffer(info, TIMEOUT_USEC);
-                                        if (decoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                                            decoderOutputAvailable = false;
-                                        } else if (decoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-
-                                        } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                                            MediaFormat newFormat = decoder.getOutputFormat();
-                                            FileLog.e("tmessages", "newFormat = " + newFormat);
-                                        } else if (decoderStatus < 0) {
-                                            throw new RuntimeException("unexpected result from decoder.dequeueOutputBuffer: " + decoderStatus);
-                                        } else {
-                                            boolean doRender;
-                                            if (Build.VERSION.SDK_INT >= 18) {
-                                                doRender = info.size != 0;
-                                            } else {
-                                                doRender = info.size != 0 || info.presentationTimeUs != 0;
-                                            }
-                                            if (endTime > 0 && info.presentationTimeUs >= endTime) {
-                                                inputDone = true;
-                                                decoderDone = true;
-                                                doRender = false;
-                                                info.flags |= MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-                                            }
-                                            if (startTime > 0 && videoTime == -1) {
-                                                if (info.presentationTimeUs < startTime) {
-                                                    doRender = false;
-                                                    FileLog.e("tmessages", "drop frame startTime = " + startTime + " present time = " + info.presentationTimeUs);
-                                                } else {
-                                                    videoTime = info.presentationTimeUs;
-                                                }
-                                            }
-                                            decoder.releaseOutputBuffer(decoderStatus, doRender);
-                                            if (doRender) {
-                                                boolean errorWait = false;
-                                                try {
-                                                    outputSurface.awaitNewImage();
-                                                } catch (Exception e) {
-                                                    errorWait = true;
-                                                    FileLog.e("tmessages", e);
-                                                }
-                                                if (!errorWait) {
-                                                    if (Build.VERSION.SDK_INT >= 18) {
-                                                        outputSurface.drawImage(false);
-                                                        inputSurface.setPresentationTime(info.presentationTimeUs * 1000);
-                                                        inputSurface.swapBuffers();
-                                                    } else {
-                                                        int inputBufIndex = encoder.dequeueInputBuffer(TIMEOUT_USEC);
-                                                        if (inputBufIndex >= 0) {
-                                                            outputSurface.drawImage(true);
-                                                            ByteBuffer rgbBuf = outputSurface.getFrame();
-                                                            ByteBuffer yuvBuf = encoderInputBuffers[inputBufIndex];
-                                                            yuvBuf.clear();
-                                                            Utilities.convertVideoFrame(rgbBuf, yuvBuf, colorFormat, resultWidth, resultHeight, padding, swapUV);
-                                                            encoder.queueInputBuffer(inputBufIndex, 0, bufferSize, info.presentationTimeUs, 0);
-                                                        } else {
-                                                            FileLog.e("tmessages", "input buffer not available");
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                                                decoderOutputAvailable = false;
-                                                FileLog.e("tmessages", "decoder stream end");
-                                                if (Build.VERSION.SDK_INT >= 18) {
-                                                    encoder.signalEndOfInputStream();
-                                                } else {
-                                                    int inputBufIndex = encoder.dequeueInputBuffer(TIMEOUT_USEC);
-                                                    if (inputBufIndex >= 0) {
-                                                        encoder.queueInputBuffer(inputBufIndex, 0, 1, info.presentationTimeUs, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (videoTime != -1) {
-                                videoStartTime = videoTime;
-                            }
-                        } catch (Exception e) {
-                            FileLog.e("tmessages", e);
-                            error = true;
-                        }
-
-                        extractor.unselectTrack(videoIndex);
-
-                        if (outputSurface != null) {
-                            outputSurface.release();
-                        }
-                        if (inputSurface != null) {
-                            inputSurface.release();
-                        }
-                        if (decoder != null) {
-                            decoder.stop();
-                            decoder.release();
-                        }
-                        if (encoder != null) {
-                            encoder.stop();
-                            encoder.release();
-                        }
-
-                        checkConversionCanceled();
-                    }
-                } else {
-                    long videoTime = readAndWriteTrack(messageObject, extractor, mediaMuxer, info, startTime, endTime, cacheFile, false);
-                    if (videoTime != -1) {
-                        videoStartTime = videoTime;
-                    }
-                }
-                if (!error) {
-                    readAndWriteTrack(messageObject, extractor, mediaMuxer, info, videoStartTime, endTime, cacheFile, true);
-                }
-            } catch (Exception e) {
-                error = true;
-                FileLog.e("tmessages", e);
-            } finally {
-                if (extractor != null) {
-                    extractor.release();
-                }
-                if (mediaMuxer != null) {
-                    try {
-                        mediaMuxer.finishMovie(false);
-                    } catch (Exception e) {
-                        FileLog.e("tmessages", e);
-                    }
-                }
-                FileLog.e("tmessages", "time = " + (System.currentTimeMillis() - time));
-            }
-        } else {
-            preferences.edit().putBoolean("isPreviousOk", true).commit();
-            didWriteData(messageObject, cacheFile, true, true);
-            return false;
-        }
-        preferences.edit().putBoolean("isPreviousOk", true).commit();
-        didWriteData(messageObject, cacheFile, true, error);
-        return true;
-    }
 }

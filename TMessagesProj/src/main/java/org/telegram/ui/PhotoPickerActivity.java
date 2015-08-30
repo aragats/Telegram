@@ -488,7 +488,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     }
 
     @Override
-    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(MessageObject messageObject, TLRPC.FileLocation fileLocation, int index) {
+    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(int index) {
         PhotoPickerPhotoCell cell = getCellForIndex(index);
         if (cell != null) {
             int coords[] = new int[2];
@@ -544,7 +544,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     }
 
     @Override
-    public Bitmap getThumbForPhoto(MessageObject messageObject, TLRPC.FileLocation fileLocation, int index) {
+    public Bitmap getThumbForPhoto(int index) {
         PhotoPickerPhotoCell cell = getCellForIndex(index);
         if (cell != null) {
             return cell.photoImage.getImageReceiver().getBitmap();
@@ -553,7 +553,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     }
 
     @Override
-    public void willSwitchFromPhoto(MessageObject messageObject, TLRPC.FileLocation fileLocation, int index) {
+    public void willSwitchFromPhoto(int index) {
         int count = listView.getChildCount();
         for (int a = 0; a < count; a++) {
             View view = listView.getChildAt(a);
@@ -797,7 +797,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
                 url = nextSearchBingString;
             } else {
                 boolean adult;
-                String phone = UserConfig.getCurrentUser().phone;
+                String phone = UserConfig.getCurrentUser().getPhone();
                 adult = phone.startsWith("44") || phone.startsWith("49") || phone.startsWith("43") || phone.startsWith("31") || phone.startsWith("1");
                 url = String.format(Locale.US, "https://api.datamarket.azure.com/Bing/Search/v1/Image?Query='%s'&$skip=%d&$top=%d&$format=json%s", URLEncoder.encode(query, "UTF-8"), offset, count, adult ? "" : "&Adult='Off'");
             }

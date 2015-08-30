@@ -239,8 +239,12 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         this.loadingPosts = loadingPosts;
     }
 
-    public User getUser(Integer id) {
+    public User getUser(String id) {
         return UserServiceMock.getRandomUser();
+    }
+
+    public void setUser(User user) {
+//        return UserServiceMock.getRandomUser();
     }
 
 //    public TLRPC.User getUser(Integer id) {

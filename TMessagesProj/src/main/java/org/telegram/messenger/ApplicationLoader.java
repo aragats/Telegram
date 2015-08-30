@@ -33,10 +33,10 @@ import org.telegram.android.AndroidUtilities;
 import org.telegram.android.ContactsController;
 import org.telegram.android.MediaController;
 import org.telegram.android.NotificationsService;
-import org.telegram.android.SendMessagesHelper;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MessagesController;
 import org.telegram.android.NativeLoader;
+import org.telegram.android.PostsController;
 import org.telegram.android.ScreenReceiver;
 import org.telegram.ui.Components.ForegroundDetector;
 
@@ -159,11 +159,10 @@ public class ApplicationLoader extends Application {
         UserConfig.loadConfig();
         MessagesController.getInstance();
         if (UserConfig.getCurrentUser() != null) {
-            MessagesController.getInstance().putUser(UserConfig.getCurrentUser(), true);
-            ConnectionsManager.getInstance().applyCountryPortNumber(UserConfig.getCurrentUser().phone);
+            PostsController.getInstance().setUser(UserConfig.getCurrentUser());
+//            ConnectionsManager.getInstance().applyCountryPortNumber(UserConfig.getCurrentUser().phone);
             ConnectionsManager.getInstance().initPushConnection();
             MessagesController.getInstance().getBlockedUsers(true);
-            SendMessagesHelper.getInstance().checkUnsentMessages();
         }
 
         ApplicationLoader app = (ApplicationLoader)ApplicationLoader.applicationContext;
@@ -329,7 +328,7 @@ public class ApplicationLoader extends Application {
                 UserConfig.pushString = regid;
                 UserConfig.registeredForPush = !isNew;
                 UserConfig.saveConfig(false);
-                if (UserConfig.getClientUserId() != 0) {
+                if (UserConfig.getClientUserId() != null) {
                     AndroidUtilities.runOnUIThread(new Runnable() {
                         @Override
                         public void run() {

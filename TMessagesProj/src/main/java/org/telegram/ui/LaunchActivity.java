@@ -44,8 +44,6 @@ import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.android.ContactsController;
 import org.telegram.android.MessagesController;
 import org.telegram.android.MessagesStorage;
-import org.telegram.android.SendMessagesHelper;
-import org.telegram.android.query.StickersQuery;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
@@ -889,13 +887,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     }
                 });
             }
-        } else if (sticker != null) {
-            if (!mainFragmentsStack.isEmpty()) {
-                TLRPC.TL_inputStickerSetShortName stickerset = new TLRPC.TL_inputStickerSetShortName();
-                stickerset.short_name = sticker;
-                StickersQuery.loadStickers(mainFragmentsStack.get(0), stickerset);
-            }
-            return;
         }
 
         final long reqId = requestId;

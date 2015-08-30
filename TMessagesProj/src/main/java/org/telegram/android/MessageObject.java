@@ -53,7 +53,6 @@ public class MessageObject {
     public float audioProgress;
     public int audioProgressSec;
     public ArrayList<TLRPC.PhotoSize> photoThumbs;
-    public VideoEditedInfo videoEditedInfo;
 
     public static TextPaint textPaint;
     public int lastLineWidth;
@@ -128,8 +127,6 @@ public class MessageObject {
                         if (whoUser != null && fromUser != null) {
                             if (isOut()) {
                                 messageText = replaceWithLink(LocaleController.getString("ActionYouKickUser", R.string.ActionYouKickUser), "un2", whoUser);
-                            } else if (message.action.user_id == UserConfig.getClientUserId()) {
-                                messageText = replaceWithLink(LocaleController.getString("ActionKickUserYou", R.string.ActionKickUserYou), "un1", fromUser);
                             } else {
                                 messageText = replaceWithLink(LocaleController.getString("ActionKickUser", R.string.ActionKickUser), "un2", whoUser);
                                 messageText = replaceWithLink(messageText, "un1", fromUser);
@@ -156,9 +153,7 @@ public class MessageObject {
                         } else {
                             if (isOut()) {
                                 messageText = replaceWithLink(LocaleController.getString("ActionYouAddUser", R.string.ActionYouAddUser), "un2", whoUser);
-                            } else if (message.action.user_id == UserConfig.getClientUserId()) {
-                                messageText = replaceWithLink(LocaleController.getString("ActionAddUserYou", R.string.ActionAddUserYou), "un1", fromUser);
-                            } else {
+                            }else {
                                 messageText = replaceWithLink(LocaleController.getString("ActionAddUser", R.string.ActionAddUser), "un2", whoUser);
                                 messageText = replaceWithLink(messageText, "un1", fromUser);
                             }
@@ -230,7 +225,7 @@ public class MessageObject {
                     }
                 } else if (message.action instanceof TLRPC.TL_messageActionLoginUnknownLocation) {
                     String date = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, LocaleController.formatterYear.format(((long) message.date) * 1000), LocaleController.formatterDay.format(((long) message.date) * 1000));
-                    TLRPC.User to_user = UserConfig.getCurrentUser();
+                    TLRPC.User to_user = null;
                     if (to_user == null) {
                         if (users != null) {
                             to_user = users.get(messageOwner.to_id.user_id);
@@ -396,8 +391,7 @@ public class MessageObject {
         }
 
         if (messageOwner.message != null && messageOwner.id < 0 && messageOwner.message.length() > 6 && messageOwner.media instanceof TLRPC.TL_messageMediaVideo) {
-            videoEditedInfo = new VideoEditedInfo();
-            videoEditedInfo.parseString(messageOwner.message);
+
         }
 
         generateCaption();

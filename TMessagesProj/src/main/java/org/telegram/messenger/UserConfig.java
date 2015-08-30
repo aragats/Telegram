@@ -13,12 +13,14 @@ import android.content.SharedPreferences;
 import android.util.Base64;
 
 import org.telegram.android.MessagesStorage;
+import org.telegram.messenger.dto.User;
+import org.telegram.messenger.service.mock.UserServiceMock;
 
 import java.io.File;
 
 public class UserConfig {
 
-    private static TLRPC.User currentUser;
+    private static User currentUser;
     public static boolean registeredForPush = false;
     public static boolean registeredForInternalPush = false;
     public static String pushString = "";
@@ -80,7 +82,7 @@ public class UserConfig {
                 if (currentUser != null) {
                     if (withFile) {
                         SerializedData data = new SerializedData();
-                        currentUser.serializeToStream(data);
+//                        currentUser.serializeToStream(data);
                         String userString = Base64.encodeToString(data.toByteArray(), Base64.DEFAULT);
                         editor.putString("user", userString);
                         data.cleanup();
@@ -101,24 +103,27 @@ public class UserConfig {
 
     //TODO activated user.
     public static boolean isClientActivated() {
+        if(true){
+            return true;
+        }
         synchronized (sync) {
             return currentUser != null;
         }
     }
 
-    public static int getClientUserId() {
+    public static String getClientUserId() {
         synchronized (sync) {
-            return currentUser != null ? currentUser.id : 0;
+            return currentUser != null ? currentUser.getId() : null;
         }
     }
 
-    public static TLRPC.User getCurrentUser() {
+    public static User getCurrentUser() {
         synchronized (sync) {
             return currentUser;
         }
     }
 
-    public static void setCurrentUser(TLRPC.User user) {
+    public static void setCurrentUser(User user) {
         synchronized (sync) {
             currentUser = user;
         }
@@ -133,7 +138,8 @@ public class UserConfig {
                     int ver = data.readInt32(false);
                     if (ver == 1) {
                         int constructor = data.readInt32(false);
-                        currentUser = TLRPC.TL_userSelf.TLdeserialize(data, constructor, false);
+//                        currentUser = TLRPC.TL_userSelf.TLdeserialize(data, constructor, false);
+                        currentUser = UserServiceMock.getRandomUser();
                         MessagesStorage.lastDateValue = data.readInt32(false);
                         MessagesStorage.lastPtsValue = data.readInt32(false);
                         MessagesStorage.lastSeqValue = data.readInt32(false);
@@ -160,7 +166,8 @@ public class UserConfig {
                         });
                     } else if (ver == 2) {
                         int constructor = data.readInt32(false);
-                        currentUser = TLRPC.TL_userSelf.TLdeserialize(data, constructor, false);
+//                        currentUser = TLRPC.TL_userSelf.TLdeserialize(data, constructor, false);
+                        currentUser = UserServiceMock.getRandomUser();
 
                         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("userconfing", Context.MODE_PRIVATE);
                         registeredForPush = preferences.getBoolean("registeredForPush", false);
@@ -212,7 +219,8 @@ public class UserConfig {
                     byte[] userBytes = Base64.decode(user, Base64.DEFAULT);
                     if (userBytes != null) {
                         SerializedData data = new SerializedData(userBytes);
-                        currentUser = TLRPC.TL_userSelf.TLdeserialize(data, data.readInt32(false), false);
+//                        currentUser = TLRPC.TL_userSelf.TLdeserialize(data, data.readInt32(false), false);
+                        currentUser = UserServiceMock.getRandomUser();
                         data.cleanup();
                     }
                 }
