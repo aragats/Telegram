@@ -128,7 +128,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
         if (selectedAlbum == null) {
             requestQueue = Volley.newRequestQueue(ApplicationLoader.applicationContext);
             if (recentImages.isEmpty()) {
-                MessagesStorage.getInstance().loadWebRecent(type);
+//                MessagesStorage.getInstance().loadWebRecent(type);
                 loadingRecent = true;
             }
         }
@@ -313,7 +313,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
                                 if (listAdapter != null) {
                                     listAdapter.notifyDataSetChanged();
                                 }
-                                MessagesStorage.getInstance().clearWebRecent(type);
+//                                MessagesStorage.getInstance().clearWebRecent(type);
                             }
                         });
                         builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);

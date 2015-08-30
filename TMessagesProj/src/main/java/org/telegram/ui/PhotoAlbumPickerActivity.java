@@ -395,12 +395,12 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
                 }
             }
         }
-        if (webChange) {
-            MessagesStorage.getInstance().putWebRecent(recentWebImages);
-        }
-        if (gifChanged) {
-            MessagesStorage.getInstance().putWebRecent(recentGifImages);
-        }
+//        if (webChange) {
+//            MessagesStorage.getInstance().putWebRecent(recentWebImages);
+//        }
+//        if (gifChanged) {
+//            MessagesStorage.getInstance().putWebRecent(recentGifImages);
+//        }
 
         delegate.didSelectPhotos(photos, captions, webPhotos);
     }

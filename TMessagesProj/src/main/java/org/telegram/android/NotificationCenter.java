@@ -37,14 +37,11 @@ public class NotificationCenter {
     public static final int messageReceivedByServer = totalEvents++;
     public static final int messageSendError = totalEvents++;
     public static final int contactsDidLoaded = totalEvents++;
-    public static final int chatDidCreated = totalEvents++;
-    public static final int chatDidFailCreate = totalEvents++;
     public static final int chatInfoDidLoaded = totalEvents++;
     public static final int mediaDidLoaded = totalEvents++;
     public static final int mediaCountDidLoaded = totalEvents++;
     public static final int encryptedChatUpdated = totalEvents++;
     public static final int messagesReadEncrypted = totalEvents++;
-    public static final int encryptedChatCreated = totalEvents++;
     public static final int userPhotosLoaded = totalEvents++;
     public static final int removeAllMessagesFromDialog = totalEvents++;
     public static final int notificationsSettingsUpdated = totalEvents++;
@@ -52,7 +49,6 @@ public class NotificationCenter {
     public static final int blockedUsersDidLoaded = totalEvents++;
     public static final int openedChatChanged = totalEvents++;
     public static final int hideEmojiKeyboard = totalEvents++;
-    public static final int stopEncodingService = totalEvents++;
     public static final int didCreatedNewDeleteTask = totalEvents++;
     public static final int mainUserInfoChanged = totalEvents++;
     public static final int privacyRulesUpdated = totalEvents++;
@@ -60,7 +56,6 @@ public class NotificationCenter {
     public static final int recentImagesDidLoaded = totalEvents++;
     public static final int replaceMessagesObjects = totalEvents++;
     public static final int didSetPasscode = totalEvents++;
-    public static final int didSetTwoStepPassword = totalEvents++;
     public static final int screenStateChanged = totalEvents++;
     public static final int didLoadedReplyMessages = totalEvents++;
     public static final int newSessionReceived = totalEvents++;

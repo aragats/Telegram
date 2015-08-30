@@ -54,17 +54,13 @@ import org.telegram.android.ImageLoader;
 import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
-import org.telegram.android.MessagesController;
-import org.telegram.android.MessagesStorage;
 import org.telegram.android.NotificationCenter;
-import org.telegram.android.query.SharedMediaQuery;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
-import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.dto.Post;
 import org.telegram.ui.ActionBar.ActionBar;
@@ -82,9 +78,7 @@ import org.telegram.ui.Components.SizeNotifierRelativeLayoutPhoto;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 
 public class PhotoViewer implements NotificationCenter.NotificationCenterDelegate, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
@@ -165,8 +159,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     private String currentPathObject;
     private Bitmap currentThumb = null;
 
-    private int avatarsUserId;
-    private long currentDialogId;
     private int totalImagesCount;
     private boolean isFirstLoading;
     private boolean needSearchImageInArr;
@@ -589,56 +581,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     radialProgressViews[a].setProgress(progress, true);
                 }
             }
-        } else if (id == NotificationCenter.userPhotosLoaded) {
-            int guid = (Integer) args[4];
-            int uid = (Integer) args[0];
-            if (avatarsUserId == uid && classGuid == guid) {
-                boolean fromCache = (Boolean) args[3];
-
-                int setToImage = -1;
-                ArrayList<TLRPC.Photo> photos = (ArrayList<TLRPC.Photo>) args[5];
-                if (photos.isEmpty()) {
-                    return;
-                }
-                imagesArrLocationsSizes.clear();
-                for (TLRPC.Photo photo : photos) {
-                    if (photo == null || photo instanceof TLRPC.TL_photoEmpty || photo.sizes == null) {
-                        continue;
-                    }
-                    TLRPC.PhotoSize sizeFull = FileLoader.getClosestPhotoSizeWithSize(photo.sizes, 640);
-                    if (sizeFull != null) {
-                        imagesArrLocationsSizes.add(sizeFull.size);
-                    }
-                }
-
-                menuItem.hideSubItem(gallery_menu_delete);
-                needSearchImageInArr = false;
-                currentIndex = -1;
-                if (setToImage != -1) {
-                    setImageIndex(setToImage, true);
-                } else {
-                    imagesArrLocationsSizes.add(0, 0);
-                    setImageIndex(0, true);
-                }
-                if (fromCache) {
-                    MessagesController.getInstance().loadUserPhotos(avatarsUserId, 0, 80, 0, false, classGuid);
-                }
-            }
-        } else if (id == NotificationCenter.mediaCountDidLoaded) {
-            long uid = (Long) args[0];
-            if (uid == currentDialogId) {
-                if ((int) currentDialogId != 0 && (Boolean) args[2]) {
-                    SharedMediaQuery.getMediaCount(currentDialogId, SharedMediaQuery.MEDIA_PHOTOVIDEO, classGuid, false);
-                }
-                totalImagesCount = (Integer) args[1];
-                if (needSearchImageInArr && isFirstLoading) {
-                    isFirstLoading = false;
-                    loadingMoreImages = true;
-                    SharedMediaQuery.loadMedia(currentDialogId, 0, 100, 0, SharedMediaQuery.MEDIA_PHOTOVIDEO, true, classGuid);
-                }
-            }
-        } else if (id == NotificationCenter.mediaDidLoaded) {
-
         } else if (id == NotificationCenter.emojiDidLoaded) {
             if (captionTextView != null) {
                 captionTextView.invalidate();
@@ -1619,8 +1561,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentFileNames[0] = null;
         currentFileNames[1] = null;
         currentFileNames[2] = null;
-        avatarsUserId = 0;
-        currentDialogId = 0;
         totalImagesCount = 0;
         currentEditMode = 0;
         isFirstLoading = true;
@@ -1696,8 +1636,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentFileNames[0] = null;
         currentFileNames[1] = null;
         currentFileNames[2] = null;
-        avatarsUserId = 0;
-        currentDialogId = 0;
         totalImagesCount = 0;
         currentEditMode = 0;
         isFirstLoading = true;
@@ -1785,11 +1723,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             updateSelectedCount();
         }
 
-        if (currentDialogId != 0 && totalImagesCount == 0) {
-            SharedMediaQuery.getMediaCount(currentDialogId, SharedMediaQuery.MEDIA_PHOTOVIDEO, classGuid, true);
-        } else if (avatarsUserId != 0) {
-            MessagesController.getInstance().loadUserPhotos(avatarsUserId, 0, 80, 0, true, classGuid);
-        }
     }
 
     //TODO-aragats new
@@ -2720,8 +2653,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentFileNames[0] = null;
         currentFileNames[1] = null;
         currentFileNames[2] = null;
-        avatarsUserId = 0;
-        currentDialogId = 0;
         totalImagesCount = 0;
         isFirstLoading = true;
         needSearchImageInArr = false;

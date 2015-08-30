@@ -782,7 +782,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                     MessagesController.getInstance().putUser(user, false);
                                     ArrayList<TLRPC.User> users = new ArrayList<>();
                                     users.add(user);
-                                    MessagesStorage.getInstance().putUsersAndChats(users, null, false, true);
+//                                    MessagesStorage.getInstance().putUsersAndChats(users, null, false, true);
                                     Bundle args = new Bundle();
                                     args.putInt("user_id", user.id);
                                 }
@@ -813,7 +813,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                             MessagesController.getInstance().putChat(invite.chat, false);
                                             ArrayList<TLRPC.Chat> chats = new ArrayList<>();
                                             chats.add(invite.chat);
-                                            MessagesStorage.getInstance().putUsersAndChats(null, chats, false, true);
+//                                            MessagesStorage.getInstance().putUsersAndChats(null, chats, false, true);
                                             Bundle args = new Bundle();
                                             args.putInt("chat_id", invite.chat.id);
                                         } else {
