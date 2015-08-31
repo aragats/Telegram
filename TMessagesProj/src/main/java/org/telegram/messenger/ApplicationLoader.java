@@ -162,7 +162,7 @@ public class ApplicationLoader extends Application {
             PostsController.getInstance().setUser(UserConfig.getCurrentUser());
 //            ConnectionsManager.getInstance().applyCountryPortNumber(UserConfig.getCurrentUser().phone);
             ConnectionsManager.getInstance().initPushConnection();
-            MessagesController.getInstance().getBlockedUsers(true);
+//            MessagesController.getInstance().getBlockedUsers(true);
         }
 
         ApplicationLoader app = (ApplicationLoader)ApplicationLoader.applicationContext;

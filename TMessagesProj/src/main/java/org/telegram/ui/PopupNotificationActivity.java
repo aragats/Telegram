@@ -778,14 +778,11 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         if ((int)dialog_id != 0) {
             int lower_id = (int)dialog_id;
             if (lower_id > 0) {
-                currentUser = MessagesController.getInstance().getUser(lower_id);
+//                currentUser = MessagesController.getInstance().getUser(lower_id);
             } else {
-                currentChat = MessagesController.getInstance().getChat(-lower_id);
-                currentUser = MessagesController.getInstance().getUser(currentMessageObject.messageOwner.from_id);
+//                currentChat = MessagesController.getInstance().getChat(-lower_id);
+//                currentUser = MessagesController.getInstance().getUser(currentMessageObject.messageOwner.from_id);
             }
-        } else {
-            TLRPC.EncryptedChat encryptedChat = MessagesController.getInstance().getEncryptedChat((int)(dialog_id >> 32));
-            currentUser = MessagesController.getInstance().getUser(encryptedChat.user_id);
         }
 
         if (currentChat != null && currentUser != null) {
@@ -826,15 +823,16 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         } else {
             nameTextView.setText(ContactsController.formatName(currentUser.first_name, currentUser.last_name));
         }
-        CharSequence printString = MessagesController.getInstance().printingStrings.get(currentMessageObject.getDialogId());
+        CharSequence printString = "";
         if (printString == null || printString.length() == 0) {
             lastPrintString = null;
             setTypingAnimation(false);
-            TLRPC.User user = MessagesController.getInstance().getUser(currentUser.id);
+//            TLRPC.User user = MessagesController.getInstance().getUser(currentUser.id);
+            TLRPC.User user = null;
             if (user != null) {
                 currentUser = user;
             }
-            onlineTextView.setText(LocaleController.formatUserStatus(currentUser));
+//            onlineTextView.setText(LocaleController.formatUserStatus(currentUser));
         } else {
             lastPrintString = printString;
             onlineTextView.setText(printString);
@@ -846,7 +844,8 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         TLRPC.FileLocation newPhoto = null;
         AvatarDrawable avatarDrawable = null;
         if (currentChat != null) {
-            TLRPC.Chat chat = MessagesController.getInstance().getChat(currentChat.id);
+//            TLRPC.Chat chat = MessagesController.getInstance().getChat(currentChat.id);
+            TLRPC.Chat chat = null;
             if (chat == null) {
                 return;
             }
@@ -856,7 +855,8 @@ public class PopupNotificationActivity extends Activity implements NotificationC
             }
             avatarDrawable = new AvatarDrawable(currentChat);
         } else if (currentUser != null) {
-            TLRPC.User user = MessagesController.getInstance().getUser(currentUser.id);
+//            TLRPC.User user = MessagesController.getInstance().getUser(currentUser.id);
+            TLRPC.User user = null;
             if (user == null) {
                 return;
             }
@@ -877,7 +877,8 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         }
         if (start) {
             try {
-                Integer type = MessagesController.getInstance().printingStringsTypes.get(currentMessageObject.getDialogId());
+//                Integer type = MessagesController.getInstance().printingStringsTypes.get(currentMessageObject.getDialogId());
+                Integer type = 0;
                 if (type == 0) {
                     onlineTextView.setCompoundDrawablesWithIntrinsicBounds(typingDotsDrawable, null, null, null);
                     onlineTextView.setCompoundDrawablePadding(AndroidUtilities.dp(4));
@@ -936,7 +937,8 @@ public class PopupNotificationActivity extends Activity implements NotificationC
                 checkAndUpdateAvatar();
             }
             if ((updateMask & MessagesController.UPDATE_MASK_USER_PRINT) != 0) {
-                CharSequence printString = MessagesController.getInstance().printingStrings.get(currentMessageObject.getDialogId());
+//                CharSequence printString = MessagesController.getInstance().printingStrings.get(currentMessageObject.getDialogId());
+                CharSequence printString = "";
                 if (lastPrintString != null && printString == null || lastPrintString == null && printString != null || lastPrintString != null && printString != null && !lastPrintString.equals(printString)) {
                     updateSubtitle();
                 }

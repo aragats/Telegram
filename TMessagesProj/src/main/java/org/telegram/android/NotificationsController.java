@@ -150,13 +150,14 @@ public class NotificationsController {
             }
         }
 
-        TLRPC.User user = MessagesController.getInstance().getUser(user_id);
+//        TLRPC.User user = MessagesController.getInstance().getUser(user_id);
+        TLRPC.User user = null;
         if (user == null) {
             return null;
         }
         TLRPC.Chat chat = null;
         if (chat_id != 0) {
-            chat = MessagesController.getInstance().getChat(chat_id);
+//            chat = MessagesController.getInstance().getChat(chat_id);
             if (chat == null) {
                 return null;
             }
@@ -297,10 +298,11 @@ public class NotificationsController {
                 user_id = lastMessageObject.messageOwner.from_id;
             }
 
-            TLRPC.User user = MessagesController.getInstance().getUser(user_id);
+//            TLRPC.User user = MessagesController.getInstance().getUser(user_id);
+            TLRPC.User user = null;
             TLRPC.Chat chat = null;
             if (chat_id != 0) {
-                chat = MessagesController.getInstance().getChat(chat_id);
+//                chat = MessagesController.getInstance().getChat(chat_id);
             }
             TLRPC.FileLocation photoPath = null;
 
@@ -929,79 +931,7 @@ public class NotificationsController {
         }
     }
 
-    public void processLoadedUnreadMessages(HashMap<Long, Integer> dialogs, ArrayList<TLRPC.Message> messages, ArrayList<TLRPC.User> users, ArrayList<TLRPC.Chat> chats, ArrayList<TLRPC.EncryptedChat> encryptedChats) {
-        MessagesController.getInstance().putUsers(users, true);
-        MessagesController.getInstance().putChats(chats, true);
-        MessagesController.getInstance().putEncryptedChats(encryptedChats, true);
 
-        pushDialogs.clear();
-        pushMessages.clear();
-        pushMessagesDict.clear();
-        total_unread_count = 0;
-        personal_count = 0;
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Context.MODE_PRIVATE);
-        HashMap<Long, Boolean> settingsCache = new HashMap<>();
-
-        if (messages != null) {
-            for (TLRPC.Message message : messages) {
-                if (pushMessagesDict.containsKey(message.id)) {
-                    continue;
-                }
-                MessageObject messageObject = new MessageObject(message, null, false);
-                if (isPersonalMessage(messageObject)) {
-                    personal_count++;
-                }
-                long dialog_id = messageObject.getDialogId();
-                long original_dialog_id = dialog_id;
-                if ((messageObject.messageOwner.flags & TLRPC.MESSAGE_FLAG_MENTION) != 0) {
-                    dialog_id = messageObject.messageOwner.from_id;
-                }
-                Boolean value = settingsCache.get(dialog_id);
-                if (value == null) {
-                    int notifyOverride = getNotifyOverride(preferences, dialog_id);
-                    value = !(notifyOverride == 2 || (!preferences.getBoolean("EnableAll", true) || ((int) dialog_id < 0) && !preferences.getBoolean("EnableGroup", true)) && notifyOverride == 0);
-                    settingsCache.put(dialog_id, value);
-                }
-                if (!value || dialog_id == openned_dialog_id && ApplicationLoader.isScreenOn) {
-                    continue;
-                }
-                pushMessagesDict.put(messageObject.getId(), messageObject);
-                pushMessages.add(0, messageObject);
-                if (original_dialog_id != dialog_id) {
-                    pushDialogsOverrideMention.put(original_dialog_id, 1);
-                }
-            }
-        }
-        for (HashMap.Entry<Long, Integer> entry : dialogs.entrySet()) {
-            long dialog_id = entry.getKey();
-            Boolean value = settingsCache.get(dialog_id);
-            if (value == null) {
-                int notifyOverride = getNotifyOverride(preferences, dialog_id);
-                Integer override = pushDialogsOverrideMention.get(dialog_id);
-                if (override != null && override == 1) {
-                    pushDialogsOverrideMention.put(dialog_id, 0);
-                    notifyOverride = 1;
-                }
-                value = !(notifyOverride == 2 || (!preferences.getBoolean("EnableAll", true) || ((int) dialog_id < 0) && !preferences.getBoolean("EnableGroup", true)) && notifyOverride == 0);
-                settingsCache.put(dialog_id, value);
-            }
-            if (!value) {
-                continue;
-            }
-            int count = entry.getValue();
-            pushDialogs.put(dialog_id, count);
-            total_unread_count += count;
-        }
-        if (total_unread_count == 0) {
-            popupMessages.clear();
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.pushMessagesUpdated);
-        }
-        showOrUpdateNotification(SystemClock.uptimeMillis() / 1000 < 60);
-
-        if (preferences.getBoolean("badgeNumber", true)) {
-            setBadge(ApplicationLoader.applicationContext, total_unread_count);
-        }
-    }
 
     public void setBadgeEnabled(boolean enabled) {
         setBadge(ApplicationLoader.applicationContext, enabled ? total_unread_count : 0);
@@ -1098,7 +1028,8 @@ public class NotificationsController {
             ((TLRPC.TL_inputNotifyPeer)req.peer).peer = new TLRPC.TL_inputPeerChat();
             ((TLRPC.TL_inputNotifyPeer)req.peer).peer.chat_id = -(int)dialog_id;
         } else {
-            TLRPC.User user = MessagesController.getInstance().getUser((int)dialog_id);
+//            TLRPC.User user = MessagesController.getInstance().getUser((int)dialog_id);
+            TLRPC.User user = null;
             if (user == null) {
                 return;
             }

@@ -602,7 +602,8 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
             String action;
             TLRPC.Chat currentChat;
             if ((int) dialog_id < 0) {
-                currentChat = MessagesController.getInstance().getChat(-(int) dialog_id);
+//                currentChat = MessagesController.getInstance().getChat(-(int) dialog_id);
+                currentChat = null;
                 if (currentChat != null && currentChat.participants_count > MessagesController.getInstance().groupBigSize) {
                     action = "bigchat_message";
                 } else {

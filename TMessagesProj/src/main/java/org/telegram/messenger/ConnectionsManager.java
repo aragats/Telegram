@@ -176,7 +176,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
             }
 
             if (datacenters != null) {
-                MessagesController.getInstance().updateTimerProc();
+//                MessagesController.getInstance().updateTimerProc();
                 Datacenter datacenter = datacenterWithId(currentDatacenterId);
                 if (datacenter != null) {
                     if (datacenter.authKey != null) {
@@ -294,7 +294,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                     }
                     FileLog.e("tmessages", "reset app pause time");
                     if (lastPauseTime != 0 && System.currentTimeMillis() - lastPauseTime > 5000) {
-                        ContactsController.getInstance().checkContacts();
+//                        ContactsController.getInstance().checkContacts();
                     }
                     lastPauseTime = 0;
                     ConnectionsManager.getInstance().applicationMovedToForeground();
@@ -1910,7 +1910,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                     if ((connection.transportRequestClass & RPCRequest.RPCRequestClassPush) != 0) {
                         registerForPush();
                     } else if ((connection.transportRequestClass & RPCRequest.RPCRequestClassGeneric) != 0) {
-                        MessagesController.getInstance().getDifference();
+//                        MessagesController.getInstance().getDifference();
                     }
                 }
                 connection.addProcessedSession(newSession.unique_id);
@@ -2346,7 +2346,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                 resumeNetworkInternal();
             } else {
                 pushMessagesReceived = true;
-                MessagesController.getInstance().processUpdates((TLRPC.Updates) message, false);
+//                MessagesController.getInstance().processUpdates((TLRPC.Updates) message, false);
                 AndroidUtilities.runOnUIThread(new Runnable() {
                     @Override
                     public void run() {

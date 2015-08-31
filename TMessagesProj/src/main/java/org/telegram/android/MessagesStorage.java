@@ -414,14 +414,6 @@ public class MessagesStorage {
                     cacheFile = null;
                 }
                 openDatabase();
-                if (isLogin) {
-                    Utilities.stageQueue.postRunnable(new Runnable() {
-                        @Override
-                        public void run() {
-                            MessagesController.getInstance().getDifference();
-                        }
-                    });
-                }
             }
         });
     }

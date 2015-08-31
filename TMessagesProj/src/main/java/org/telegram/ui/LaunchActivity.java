@@ -779,7 +779,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                 }
                                 if (error == null && actionBarLayout != null) {
                                     TLRPC.User user = (TLRPC.User) response;
-                                    MessagesController.getInstance().putUser(user, false);
+//                                    MessagesController.getInstance().putUser(user, false);
                                     ArrayList<TLRPC.User> users = new ArrayList<>();
                                     users.add(user);
 //                                    MessagesStorage.getInstance().putUsersAndChats(users, null, false, true);
@@ -810,7 +810,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                     if (error == null && actionBarLayout != null) {
                                         TLRPC.ChatInvite invite = (TLRPC.ChatInvite) response;
                                         if (invite.chat != null && !invite.chat.left) {
-                                            MessagesController.getInstance().putChat(invite.chat, false);
+//                                            MessagesController.getInstance().putChat(invite.chat, false);
                                             ArrayList<TLRPC.Chat> chats = new ArrayList<>();
                                             chats.add(invite.chat);
 //                                            MessagesStorage.getInstance().putUsersAndChats(null, chats, false, true);
@@ -849,7 +849,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     public void run(final TLObject response, final TLRPC.TL_error error) {
                         if (error == null) {
                             TLRPC.Updates updates = (TLRPC.Updates) response;
-                            MessagesController.getInstance().processUpdates(updates, false);
+//                            MessagesController.getInstance().processUpdates(updates, false);
                         }
                         AndroidUtilities.runOnUIThread(new Runnable() {
                             @Override
@@ -864,8 +864,8 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                         if (actionBarLayout != null) {
                                             TLRPC.Updates updates = (TLRPC.Updates) response;
                                             if (!updates.chats.isEmpty()) {
-                                                MessagesController.getInstance().putUsers(updates.users, false);
-                                                MessagesController.getInstance().putChats(updates.chats, false);
+//                                                MessagesController.getInstance().putUsers(updates.users, false);
+//                                                MessagesController.getInstance().putChats(updates.chats, false);
                                                 Bundle args = new Bundle();
                                                 args.putInt("chat_id", updates.chats.get(0).id);
                                             }
