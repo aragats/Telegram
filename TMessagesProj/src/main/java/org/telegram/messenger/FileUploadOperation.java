@@ -13,10 +13,8 @@ import android.content.SharedPreferences;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Locale;
 
 public class FileUploadOperation {
     private int uploadChunkSize = 1024 * 32;

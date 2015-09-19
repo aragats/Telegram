@@ -46,7 +46,6 @@ public class ConnectionsManager implements Action.ActionDelegate{
     private ArrayList<Action> actionQueue = new ArrayList<>();
 
     private ArrayList<Integer> unknownDatacenterIds = new ArrayList<>();
-    private ArrayList<Integer> neededDatacenterIds = new ArrayList<>();
     private ArrayList<Integer> unauthorizedDatacenterIds = new ArrayList<>();
     private final HashMap<Integer, ArrayList<NetworkMessage>> genericMessagesToDatacenters = new HashMap<>();
 
@@ -498,36 +497,6 @@ public class ConnectionsManager implements Action.ActionDelegate{
         }
     }
 
-    public void bindRequestToGuid(final Long request, final int guid) {
-        AndroidUtilities.runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<Long> requests = requestsByGuids.get(guid);
-                if (requests != null) {
-                    requests.add(request);
-                    requestsByClass.put(request, guid);
-                }
-            }
-        });
-    }
-
-    public void removeRequestInClass(final Long request) {
-        AndroidUtilities.runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                Integer guid = requestsByClass.get(request);
-                if (guid != null) {
-                    ArrayList<Long> requests = requestsByGuids.get(guid);
-                    if (requests != null) {
-                        requests.remove(request);
-                    }
-                }
-            }
-        });
-    }
-
-
-
 
     public void cancelRpc(final long token, final boolean notifyServer) {
         cancelRpc(token, notifyServer, false);
@@ -583,6 +552,7 @@ public class ConnectionsManager implements Action.ActionDelegate{
         });
     }
 
+    //TODO NEED
     public static boolean isNetworkOnline() {
         try {
             ConnectivityManager cm = (ConnectivityManager) ApplicationLoader.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);

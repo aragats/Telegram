@@ -153,8 +153,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     public int wifiDownloadMask = 0;
     public int roamingDownloadMask = 0;
     private int lastCheckMask = 0;
-    private ArrayList<DownloadObject> photoDownloadQueue = new ArrayList<>();
-    private HashMap<String, DownloadObject> downloadQueueKeys = new HashMap<>();
 
     private boolean saveToGallery = true;
 
@@ -292,8 +290,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
 
     public void cleanup() {
-        photoDownloadQueue.clear();
-        downloadQueueKeys.clear();
         typingTimes.clear();
     }
 
@@ -311,16 +307,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             return;
         }
         lastCheckMask = currentMask;
-        if ((currentMask & AUTODOWNLOAD_MASK_PHOTO) != 0) {
-            if (photoDownloadQueue.isEmpty()) {
-                newDownloadObjectsAvailable(AUTODOWNLOAD_MASK_PHOTO);
-            }
-        } else {
-            for (DownloadObject downloadObject : photoDownloadQueue) {
-                FileLoader.getInstance().cancelLoadFile((TLRPC.PhotoSize)downloadObject.object);
-            }
-            photoDownloadQueue.clear();
-        }
 
         int mask = getAutodownloadMask();
         if (mask == 0) {
@@ -336,6 +322,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         return (getCurrentDownloadMask() & type) != 0;
     }
 
+    //TODO NEED
     private int getCurrentDownloadMask() {
         if (ConnectionsManager.isConnectedToWiFi()) {
             return wifiDownloadMask;
@@ -350,56 +337,43 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         if (objects.isEmpty()) {
             return;
         }
-        ArrayList<DownloadObject> queue = null;
-        if (type == AUTODOWNLOAD_MASK_PHOTO) {
-            queue = photoDownloadQueue;
-        }
-        for (DownloadObject downloadObject : objects) {
-            String path = FileLoader.getAttachFileName(downloadObject.object);
-            if (downloadQueueKeys.containsKey(path)) {
-                continue;
-            }
-
-            boolean added = true;
-            if (downloadObject.object instanceof TLRPC.Audio) {
-                FileLoader.getInstance().loadFile((TLRPC.Audio)downloadObject.object, false);
-            } else if (downloadObject.object instanceof TLRPC.PhotoSize) {
-                FileLoader.getInstance().loadFile((TLRPC.PhotoSize)downloadObject.object, null, false);
-            } else if (downloadObject.object instanceof TLRPC.Video) {
-                FileLoader.getInstance().loadFile((TLRPC.Video)downloadObject.object, false);
-            } else if (downloadObject.object instanceof TLRPC.Document) {
-                FileLoader.getInstance().loadFile((TLRPC.Document)downloadObject.object, false, false);
-            } else {
-                added = false;
-            }
-            if (added) {
-                queue.add(downloadObject);
-                downloadQueueKeys.put(path, downloadObject);
-            }
-        }
-    }
-
-    protected void newDownloadObjectsAvailable(int downloadMask) {
-        int mask = getCurrentDownloadMask();
-        if ((mask & AUTODOWNLOAD_MASK_PHOTO) != 0 && (downloadMask & AUTODOWNLOAD_MASK_PHOTO) != 0 && photoDownloadQueue.isEmpty()) {
-            MessagesStorage.getInstance().getDownloadQueue(AUTODOWNLOAD_MASK_PHOTO);
-        }
+//        ArrayList<DownloadObject> queue = null;
+//        if (type == AUTODOWNLOAD_MASK_PHOTO) {
+//            queue = photoDownloadQueue;
+//        }
+//        for (DownloadObject downloadObject : objects) {
+//            String path = FileLoader.getAttachFileName(downloadObject.object);
+//            if (downloadQueueKeys.containsKey(path)) {
+//                continue;
+//            }
+//
+////            boolean added = true;
+////            if (downloadObject.object instanceof TLRPC.PhotoSize) {
+////                FileLoader.getInstance().loadFile((TLRPC.PhotoSize)downloadObject.object, null, false);
+////            } else {
+////                added = false;
+////            }
+////            if (added) {
+////                queue.add(downloadObject);
+////                downloadQueueKeys.put(path, downloadObject);
+////            }
+//        }
     }
 
     private void checkDownloadFinished(String fileName, int state) {
-        DownloadObject downloadObject = downloadQueueKeys.get(fileName);
-        if (downloadObject != null) {
-            downloadQueueKeys.remove(fileName);
-            if (state == 0 || state == 2) {
-                MessagesStorage.getInstance().removeFromDownloadQueue(downloadObject.id, downloadObject.type, false /*state != 0*/);
-            }
-            if (downloadObject.type == AUTODOWNLOAD_MASK_PHOTO) {
-                photoDownloadQueue.remove(downloadObject);
-                if (photoDownloadQueue.isEmpty()) {
-                    newDownloadObjectsAvailable(AUTODOWNLOAD_MASK_PHOTO);
-                }
-            }
-        }
+//        DownloadObject downloadObject = downloadQueueKeys.get(fileName);
+//        if (downloadObject != null) {
+//            downloadQueueKeys.remove(fileName);
+//            if (state == 0 || state == 2) {
+//                MessagesStorage.getInstance().removeFromDownloadQueue(downloadObject.id, downloadObject.type, false /*state != 0*/);
+//            }
+//            if (downloadObject.type == AUTODOWNLOAD_MASK_PHOTO) {
+//                photoDownloadQueue.remove(downloadObject);
+//                if (photoDownloadQueue.isEmpty()) {
+//                    newDownloadObjectsAvailable(AUTODOWNLOAD_MASK_PHOTO);
+//                }
+//            }
+//        }
     }
 
     public void startMediaObserver() {
@@ -771,47 +745,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
 
 
-    public static String copyDocumentToCache(Uri uri, String ext) {
-        ParcelFileDescriptor parcelFD = null;
-        FileInputStream input = null;
-        FileOutputStream output = null;
-        try {
-            int id = UserConfig.lastLocalId;
-            UserConfig.lastLocalId--;
-            parcelFD = ApplicationLoader.applicationContext.getContentResolver().openFileDescriptor(uri, "r");
-            input = new FileInputStream(parcelFD.getFileDescriptor());
-            File f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), String.format(Locale.US, "%d.%s", id, ext));
-            output = new FileOutputStream(f);
-            input.getChannel().transferTo(0, input.getChannel().size(), output.getChannel());
-            UserConfig.saveConfig(false);
-            return f.getAbsolutePath();
-        } catch (Exception e) {
-            FileLog.e("tmessages", e);
-        } finally {
-            try {
-                if (parcelFD != null) {
-                    parcelFD.close();
-                }
-            } catch (Exception e2) {
-                FileLog.e("tmessages", e2);
-            }
-            try {
-                if (input != null) {
-                    input.close();
-                }
-            } catch (Exception e2) {
-                FileLog.e("tmessages", e2);
-            }
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            } catch (Exception e2) {
-                FileLog.e("tmessages", e2);
-            }
-        }
-        return null;
-    }
 
     public void toggleSaveToGallery() {
         saveToGallery = !saveToGallery;
