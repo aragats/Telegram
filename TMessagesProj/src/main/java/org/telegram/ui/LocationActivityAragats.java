@@ -15,9 +15,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Outline;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -49,6 +51,7 @@ import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MessagesController;
 import org.telegram.android.NotificationCenter;
+import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
@@ -621,7 +624,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     positionMarker(location);
                 }
             });
-            positionMarker(myLocation = getLastLocation());
+            positionMarker(myLocation = LocationManagerHelper.getInstance().getLastLocation());
         }
 
         return fragmentView;
@@ -742,21 +745,6 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 updateClipView(listView.getFirstVisiblePosition());
             }
         }
-    }
-
-    // cache
-    //TODO-aragats method to get location
-    public static Location getLastLocation() {
-        LocationManager lm = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
-        List<String> providers = lm.getProviders(true);
-        Location l = null;
-        for (int i = providers.size() - 1; i >= 0; i--) {
-            l = lm.getLastKnownLocation(providers.get(i));
-            if (l != null) {
-                break;
-            }
-        }
-        return l;
     }
 
     private void updateUserData() {

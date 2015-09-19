@@ -12,18 +12,15 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.location.Location;
 
+import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.dto.Coordinates;
-import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;
 import org.telegram.messenger.dto.User;
 import org.telegram.messenger.dto.Venue;
 import org.telegram.messenger.service.mock.PostServiceMock;
 import org.telegram.messenger.service.mock.UserServiceMock;
-import org.telegram.messenger.service.mock.VenueServiceMock;
-import org.telegram.ui.LocationActivityAragats;
 import org.telegram.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -154,7 +151,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             return;
         }
         loadingPosts = true;
-        Location location = LocationActivityAragats.getLastLocation();
+        Location location = LocationManagerHelper.getInstance().getLastLocation();
         if (location == null) {
             loadingPosts = false;
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
@@ -197,7 +194,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     public void loadCurrentVenue(String loc) {
-        Location location = LocationActivityAragats.getLastLocation();
+        Location location = LocationManagerHelper.getInstance().getLastLocation();
         if(location == null) {
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             return;

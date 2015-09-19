@@ -19,6 +19,9 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -48,6 +51,7 @@ import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.PostsController;
+import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.ApplicationLoader;
@@ -101,6 +105,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     // Swipe Refresh Layout
     private SwipeRefreshLayout swipeRefreshLayout;
+
+    private LocationManager locationManager;
 
 
     //TODO-legacy. update according to new version.
@@ -221,6 +227,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.didSetPasscode);
         }
 
+        LocationManagerHelper.getInstance().runLocationListener();
 
         if (!postsLoaded) {
             PostsController.getInstance().loadPosts(0, Constants.POST_COUNT, true, true);
@@ -250,6 +257,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.messageSendError);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.didSetPasscode);
         }
+        LocationManagerHelper.getInstance().stopLocationListener();
+
     }
 
     @Override
