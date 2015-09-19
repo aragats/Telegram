@@ -8,14 +8,9 @@
 
 package org.telegram.messenger;
 
-import org.telegram.android.AndroidUtilities;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 
 public class FileLoader {
 
@@ -42,23 +37,8 @@ public class FileLoader {
     private HashMap<Integer, File> mediaDirs = null;
     private volatile DispatchQueue fileLoaderQueue = new DispatchQueue("fileUploadQueue");
 
-    private LinkedList<FileUploadOperation> uploadOperationQueue = new LinkedList<>();
-    private LinkedList<FileUploadOperation> uploadSmallOperationQueue = new LinkedList<>();
-    private LinkedList<FileLoadOperation> loadOperationQueue = new LinkedList<>();
-    private LinkedList<FileLoadOperation> audioLoadOperationQueue = new LinkedList<>();
-    private LinkedList<FileLoadOperation> photoLoadOperationQueue = new LinkedList<>();
-    private ConcurrentHashMap<String, FileUploadOperation> uploadOperationPaths = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, FileUploadOperation> uploadOperationPathsEnc = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, FileLoadOperation> loadOperationPaths = new ConcurrentHashMap<>();
-    private HashMap<String, Long> uploadSizes = new HashMap<>();
-
     private FileLoaderDelegate delegate = null;
 
-    private int currentLoadOperationsCount = 0;
-    private int currentAudioLoadOperationsCount = 0;
-    private int currentPhotoLoadOperationsCount = 0;
-    private int currentUploadOperationsCount = 0;
-    private int currentUploadSmallOperationsCount = 0;
 
     private static volatile FileLoader Instance = null;
 
@@ -95,170 +75,10 @@ public class FileLoader {
     }
 
 
-
-    public void cancelLoadFile(TLRPC.PhotoSize photo) {
-        cancelLoadFile(null, null, null, photo.location, null);
-    }
-
-    public void cancelLoadFile(TLRPC.FileLocation location, String ext) {
-        cancelLoadFile(null, null, null, location, ext);
-    }
-
-    private void cancelLoadFile(final TLRPC.Video video, final TLRPC.Document document, final TLRPC.Audio audio, final TLRPC.FileLocation location, final String locationExt) {
-        if (video == null && location == null && document == null && audio == null) {
-            return;
-        }
-        fileLoaderQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                String fileName = null;
-                if (video != null) {
-                    fileName = getAttachFileName(video);
-                } else if (location != null) {
-                    fileName = getAttachFileName(location, locationExt);
-                } else if (document != null) {
-                    fileName = getAttachFileName(document);
-                } else if (audio != null) {
-                    fileName = getAttachFileName(audio);
-                }
-                if (fileName == null) {
-                    return;
-                }
-                FileLoadOperation operation = loadOperationPaths.get(fileName);
-                if (operation != null) {
-                    loadOperationPaths.remove(fileName);
-                    if (audio != null) {
-                        audioLoadOperationQueue.remove(operation);
-                    } else if (location != null) {
-                        photoLoadOperationQueue.remove(operation);
-                    } else {
-                        loadOperationQueue.remove(operation);
-                    }
-                    operation.cancel();
-                }
-            }
-        });
-    }
-
-    public boolean isLoadingFile(final String fileName) {
-        final Semaphore semaphore = new Semaphore(0);
-        final Boolean[] result = new Boolean[1];
-        fileLoaderQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                result[0] = loadOperationPaths.containsKey(fileName);
-                semaphore.release();
-            }
-        });
-        try {
-            semaphore.acquire();
-        } catch (Exception e) {
-            FileLog.e("tmessages", e);
-        }
-        return result[0];
-    }
-
-    private void checkDownloadQueue(final TLRPC.Audio audio, final TLRPC.FileLocation location, final String arg1) {
-        fileLoaderQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                loadOperationPaths.remove(arg1);
-                FileLoadOperation operation;
-                if (audio != null) {
-                    currentAudioLoadOperationsCount--;
-                    if (!audioLoadOperationQueue.isEmpty()) {
-                        operation = audioLoadOperationQueue.get(0);
-                        int maxCount = operation.isForceRequest() ? 3 : 1;
-                        if (currentAudioLoadOperationsCount < maxCount) {
-                            operation = audioLoadOperationQueue.poll();
-                            if (operation != null) {
-                                currentAudioLoadOperationsCount++;
-                                operation.start();
-                            }
-                        }
-                    }
-                } else if (location != null) {
-                    currentPhotoLoadOperationsCount--;
-                    if (!photoLoadOperationQueue.isEmpty()) {
-                        operation = photoLoadOperationQueue.get(0);
-                        int maxCount = operation.isForceRequest() ? 3 : 1;
-                        if (currentPhotoLoadOperationsCount < maxCount) {
-                            operation = photoLoadOperationQueue.poll();
-                            if (operation != null) {
-                                currentPhotoLoadOperationsCount++;
-                                operation.start();
-                            }
-                        }
-                    }
-                } else {
-                    currentLoadOperationsCount--;
-                    if (!loadOperationQueue.isEmpty()) {
-                        operation = loadOperationQueue.get(0);
-                        int maxCount = operation.isForceRequest() ? 3 : 1;
-                        if (currentLoadOperationsCount < maxCount) {
-                            operation = loadOperationQueue.poll();
-                            if (operation != null) {
-                                currentLoadOperationsCount++;
-                                operation.start();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
     public void setDelegate(FileLoaderDelegate delegate) {
         this.delegate = delegate;
     }
 
-    public static File getPathToMessage(TLRPC.Message message) {
-        if (message == null) {
-            return new File("");
-        }
-        if (message instanceof TLRPC.TL_messageService) {
-            if (message.action.photo != null) {
-                ArrayList<TLRPC.PhotoSize> sizes = message.action.photo.sizes;
-                if (sizes.size() > 0) {
-                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize());
-                    if (sizeFull != null) {
-                        return getPathToAttach(sizeFull);
-                    }
-                }
-            }
-        } else {
-            if (message.media instanceof TLRPC.TL_messageMediaVideo) {
-                return getPathToAttach(message.media.video);
-            } else if (message.media instanceof TLRPC.TL_messageMediaDocument) {
-                return getPathToAttach(message.media.document);
-            } else if (message.media instanceof TLRPC.TL_messageMediaAudio) {
-                return getPathToAttach(message.media.audio);
-            } else if (message.media instanceof TLRPC.TL_messageMediaPhoto) {
-                ArrayList<TLRPC.PhotoSize> sizes = message.media.photo.sizes;
-                if (sizes.size() > 0) {
-                    TLRPC.PhotoSize sizeFull = getClosestPhotoSizeWithSize(sizes, AndroidUtilities.getPhotoSize());
-                    if (sizeFull != null) {
-                        return getPathToAttach(sizeFull);
-                    }
-                }
-            }
-        }
-        return new File("");
-    }
-
-    public static File getExistPathToAttach(TLObject attach) {
-        File path = getInstance().getDirectory(MEDIA_DIR_CACHE);
-        String fileName = getAttachFileName(attach);
-        File attachPath = new File(path, fileName);
-        if (attachPath.exists()) {
-            return attachPath;
-        }
-        return getPathToAttach(attach);
-    }
-
-    public static File getPathToAttach(TLObject attach) {
-        return getPathToAttach(attach, null, false);
-    }
 
     public static File getPathToAttach(TLObject attach, boolean forceCache) {
         return getPathToAttach(attach, null, forceCache);
@@ -312,83 +132,18 @@ public class FileLoader {
         return new File(dir, getAttachFileName(attach, ext));
     }
 
-    public static TLRPC.PhotoSize getClosestPhotoSizeWithSize(ArrayList<TLRPC.PhotoSize> sizes, int side) {
-        return getClosestPhotoSizeWithSize(sizes, side, false);
-    }
-
-    public static TLRPC.PhotoSize getClosestPhotoSizeWithSize(ArrayList<TLRPC.PhotoSize> sizes, int side, boolean byMinSide) {
-        if (sizes == null || sizes.isEmpty()) {
-            return null;
-        }
-        int lastSide = 0;
-        TLRPC.PhotoSize closestObject = null;
-        for (TLRPC.PhotoSize obj : sizes) {
-            if (obj == null) {
-                continue;
-            }
-            if (byMinSide) {
-                int currentSide = obj.h >= obj.w ? obj.w : obj.h;
-                if (closestObject == null || side > 100 && closestObject.location != null && closestObject.location.dc_id == Integer.MIN_VALUE || obj instanceof TLRPC.TL_photoCachedSize || side > lastSide && lastSide < currentSide) {
-                    closestObject = obj;
-                    lastSide = currentSide;
-                }
-            } else {
-                int currentSide = obj.w >= obj.h ? obj.w : obj.h;
-                if (closestObject == null || side > 100 && closestObject.location != null && closestObject.location.dc_id == Integer.MIN_VALUE || obj instanceof TLRPC.TL_photoCachedSize || currentSide <= side && lastSide < currentSide) {
-                    closestObject = obj;
-                    lastSide = currentSide;
-                }
-            }
-        }
-        return closestObject;
-    }
-
-    public static String getDocumentFileName(TLRPC.Document document) {
-        if (document != null) {
-            if (document.file_name != null) {
-                return document.file_name;
-            }
-            for (TLRPC.DocumentAttribute documentAttribute : document.attributes) {
-                if (documentAttribute instanceof TLRPC.TL_documentAttributeFilename) {
-                    return documentAttribute.file_name;
-                }
-            }
-        }
-        return "";
-    }
-
     public static String getAttachFileName(TLObject attach) {
         return getAttachFileName(attach, null);
     }
 
     public static String getAttachFileName(TLObject attach, String ext) {
-        if (attach instanceof TLRPC.Video) {
-            TLRPC.Video video = (TLRPC.Video) attach;
-            return video.dc_id + "_" + video.id + "." + (ext != null ? ext : "mp4");
-        } else if (attach instanceof TLRPC.Document) {
-            TLRPC.Document document = (TLRPC.Document) attach;
-            String docExt = getDocumentFileName(document);
-            int idx;
-            if (docExt == null || (idx = docExt.lastIndexOf(".")) == -1) {
-                docExt = "";
-            } else {
-                docExt = docExt.substring(idx);
-            }
-            if (docExt.length() > 1) {
-                return document.dc_id + "_" + document.id + docExt;
-            } else {
-                return document.dc_id + "_" + document.id;
-            }
-        } else if (attach instanceof TLRPC.PhotoSize) {
+        if (attach instanceof TLRPC.PhotoSize) {
             TLRPC.PhotoSize photo = (TLRPC.PhotoSize) attach;
             if (photo.location == null) {
                 return "";
             }
             return photo.location.volume_id + "_" + photo.location.local_id + "." + (ext != null ? ext : "jpg");
-        } else if (attach instanceof TLRPC.Audio) {
-            TLRPC.Audio audio = (TLRPC.Audio) attach;
-            return audio.dc_id + "_" + audio.id + "." + (ext != null ? ext : "ogg");
-        } else if (attach instanceof TLRPC.FileLocation) {
+        }  else if (attach instanceof TLRPC.FileLocation) {
             TLRPC.FileLocation location = (TLRPC.FileLocation) attach;
             return location.volume_id + "_" + location.local_id + "." + (ext != null ? ext : "jpg");
         }

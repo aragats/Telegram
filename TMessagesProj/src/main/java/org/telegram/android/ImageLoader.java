@@ -60,12 +60,10 @@ public class ImageLoader {
     private HashMap<String, CacheImage> imageLoadingByUrl = new HashMap<>();
     private HashMap<String, CacheImage> imageLoadingByKeys = new HashMap<>();
     private HashMap<Integer, CacheImage> imageLoadingByTag = new HashMap<>();
-    private HashMap<String, ThumbGenerateInfo> waitingForQualityThumb = new HashMap<>();
     private HashMap<Integer, String> waitingForQualityThumbByTag = new HashMap<>();
     private LinkedList<HttpImageTask> httpTasks = new LinkedList<>();
     private DispatchQueue cacheOutQueue = new DispatchQueue("cacheOutQueue");
     private DispatchQueue cacheThumbOutQueue = new DispatchQueue("cacheThumbOutQueue");
-    private DispatchQueue thumbGeneratingQueue = new DispatchQueue("thumbGeneratingQueue");
     private DispatchQueue imageLoadQueue = new DispatchQueue("imageLoadQueue");
     private ConcurrentHashMap<String, Float> fileProgresses = new ConcurrentHashMap<>();
     private HashMap<String, ThumbGenerateTask> thumbGenerateTasks = new HashMap<>();
@@ -89,11 +87,6 @@ public class ImageLoader {
 
     private File telegramPath = null;
 
-    private class ThumbGenerateInfo {
-        private int count;
-        private TLRPC.FileLocation fileLocation;
-        private String filter;
-    }
 
     private class HttpFileTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -1329,14 +1322,14 @@ public class ImageLoader {
     private void removeFromWaitingForThumb(Integer TAG) {
         String location = waitingForQualityThumbByTag.get(TAG);
         if (location != null) {
-            ThumbGenerateInfo info = waitingForQualityThumb.get(location);
-            if (info != null) {
-                info.count--;
-                if (info.count == 0) {
-                    waitingForQualityThumb.remove(location);
-                }
-            }
-            waitingForQualityThumbByTag.remove(TAG);
+//            ThumbGenerateInfo info = waitingForQualityThumb.get(location);
+//            if (info != null) {
+//                info.count--;
+//                if (info.count == 0) {
+//                    waitingForQualityThumb.remove(location);
+//                }
+//            }
+//            waitingForQualityThumbByTag.remove(TAG);
         }
     }
 
@@ -1420,17 +1413,6 @@ public class ImageLoader {
         memCache.put(key, bitmap);
     }
 
-    private void generateThumb(int mediaType, File originalPath, TLRPC.FileLocation thumbLocation, String filter) {
-        if (mediaType != FileLoader.MEDIA_DIR_IMAGE && mediaType != FileLoader.MEDIA_DIR_VIDEO && mediaType != FileLoader.MEDIA_DIR_DOCUMENT || originalPath == null || thumbLocation == null) {
-            return;
-        }
-        String name = FileLoader.getAttachFileName(thumbLocation);
-        ThumbGenerateTask task = thumbGenerateTasks.get(name);
-        if (task == null) {
-            task = new ThumbGenerateTask(mediaType, originalPath, thumbLocation, filter);
-            thumbGeneratingQueue.postRunnable(task);
-        }
-    }
 
     private void createLoadOperationForImageReceiver(final ImageReceiver imageReceiver, final String key, final String url, final String ext, final String httpLocation, final String filter, final int size, final boolean cacheOnly, final int thumb) {
         if (imageReceiver == null || url == null || key == null) {
@@ -1638,11 +1620,6 @@ public class ImageLoader {
         imageLoadQueue.postRunnable(new Runnable() {
             @Override
             public void run() {
-                ThumbGenerateInfo info = waitingForQualityThumb.get(location);
-                if (info != null) {
-                    generateThumb(type, finalFile, info.fileLocation, info.filter);
-                    waitingForQualityThumb.remove(location);
-                }
                 CacheImage img = imageLoadingByUrl.get(location);
                 if (img == null) {
                     return;
@@ -2104,12 +2081,4 @@ public class ImageLoader {
         }
     }
 
-    public static void saveMessagesThumbs(ArrayList<TLRPC.Message> messages) {
-        if (messages == null || messages.isEmpty()) {
-            return;
-        }
-        for (TLRPC.Message message : messages) {
-            saveMessageThumbs(message);
-        }
-    }
 }
