@@ -662,7 +662,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                 }
                             }
                             if (username != null || group != null || sticker != null) {
-                                runLinkRequest(username, group, sticker, 0);
+//                                runLinkRequest(username, group, sticker, 0);
                             } else {
                                 try {
                                     Cursor cursor = getContentResolver().query(intent.getData(), null, null, null, null);
@@ -753,43 +753,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         return false;
     }
 
-    private void runLinkRequest(final String username, final String group, final String sticker, final int state) {
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(LocaleController.getString("Loading", R.string.Loading));
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setCancelable(false);
-        long requestId = 0;
 
-        if (username != null) {
-            TLRPC.TL_contacts_resolveUsername req = new TLRPC.TL_contacts_resolveUsername();
-            req.username = username;
-//            requestId = ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() { });
-        } else if (group != null) {
-            if (state == 0) {
-                final TLRPC.TL_messages_checkChatInvite req = new TLRPC.TL_messages_checkChatInvite();
-                req.hash = group;
-//                requestId = ConnectionsManager.getInstance().performRpc(req, );
-            } else if (state == 1) {
-                TLRPC.TL_messages_importChatInvite req = new TLRPC.TL_messages_importChatInvite();
-                req.hash = group;
-//                ConnectionsManager.getInstance().performRpc(req, );
-            }
-        }
-
-        final long reqId = requestId;
-        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, LocaleController.getString("Cancel", R.string.Cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ConnectionsManager.getInstance().cancelRpc(reqId, true);
-                try {
-                    dialog.dismiss();
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                }
-            }
-        });
-        progressDialog.show();
-    }
 
     public AlertDialog showAlertDialog(AlertDialog.Builder builder) {
         try {

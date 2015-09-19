@@ -33,48 +33,30 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionsManager implements Action.ActionDelegate{
 
     private ArrayList<Long> sessionsToDestroy = new ArrayList<>();
-    private ArrayList<Long> destroyingSessions = new ArrayList<>();
     private HashMap<Integer, ArrayList<Long>> quickAckIdToRequestIds = new HashMap<>();
 
     private HashMap<Long, Integer> pingIdToDate = new HashMap<>();
     private ConcurrentHashMap<Integer, ArrayList<Long>> requestsByGuids = new ConcurrentHashMap<>(100, 1.0f, 2);
-    private ConcurrentHashMap<Long, Integer> requestsByClass = new ConcurrentHashMap<>(100, 1.0f, 2);
     private volatile int connectionState = 2;
 
     private ArrayList<RPCRequest> requestQueue = new ArrayList<>();
     private ArrayList<RPCRequest> runningRequests = new ArrayList<>();
     private ArrayList<Action> actionQueue = new ArrayList<>();
 
-    private ArrayList<Integer> unknownDatacenterIds = new ArrayList<>();
-    private ArrayList<Integer> unauthorizedDatacenterIds = new ArrayList<>();
-    private final HashMap<Integer, ArrayList<NetworkMessage>> genericMessagesToDatacenters = new HashMap<>();
 
-    private TLRPC.TL_auth_exportedAuthorization movingAuthorization;
-    public static final int DEFAULT_DATACENTER_ID = Integer.MAX_VALUE;
-    private static final int DC_UPDATE_TIME = 60 * 60;
-    private long lastOutgoingMessageId = 0;
+
     private int isTestBackend = 0;
     private int timeDifference = 0;
-    private int currentPingTime;
-    private int lastDestroySessionRequestTime;
-    private boolean updatingDcSettings = false;
-    private int updatingDcStartTime = 0;
-    private int lastDcUpdateTime = 0;
-    private long pushSessionId;
-    private boolean registeringForPush = false;
+
 
     private boolean paused = false;
-    private long lastPingTime = System.currentTimeMillis();
-    private long lastPushPingTime = 0;
+
     private boolean pushMessagesReceived = true;
-    private boolean sendingPushPing = false;
     private int nextSleepTimeout = 30000;
-    private long nextPingId = 0;
 
     private long lastPauseTime = System.currentTimeMillis();
     private boolean appPaused = true;
 
-    private volatile long nextCallToken = 1;
 
     private PowerManager.WakeLock wakeLock = null;
 
@@ -149,7 +131,6 @@ public class ConnectionsManager implements Action.ActionDelegate{
     };
 
     public ConnectionsManager() {
-        lastOutgoingMessageId = 0;
         loadSession();
 
         if (!isNetworkOnline()) {
@@ -308,8 +289,6 @@ public class ConnectionsManager implements Action.ActionDelegate{
                     SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("dataconfig", Context.MODE_PRIVATE);
                     isTestBackend = preferences.getInt("datacenterSetId", 0);
                     timeDifference = preferences.getInt("timeDifference", 0);
-                    lastDcUpdateTime = preferences.getInt("lastDcUpdateTime", 0);
-                    pushSessionId = preferences.getLong("pushSessionId", 0);
 
                     try {
                         sessionsToDestroy.clear();
@@ -490,67 +469,14 @@ public class ConnectionsManager implements Action.ActionDelegate{
     public void cancelRpcsForClassGuid(int guid) {
         ArrayList<Long> requests = requestsByGuids.get(guid);
         if (requests != null) {
-            for (Long request : requests) {
-                cancelRpc(request, true);
-            }
+//            for (Long request : requests) {
+//                cancelRpc(request, true);
+//            }
             requestsByGuids.remove(guid);
         }
     }
 
 
-    public void cancelRpc(final long token, final boolean notifyServer) {
-        cancelRpc(token, notifyServer, false);
-    }
-
-    public void cancelRpc(final long token, final boolean notifyServer, final boolean ifNotSent) {
-        if (token == 0) {
-            return;
-        }
-        Utilities.stageQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                boolean found = false;
-
-                for (int i = 0; i < requestQueue.size(); i++) {
-                    RPCRequest request = requestQueue.get(i);
-                    if (request.token == token) {
-                        found = true;
-                        request.cancelled = true;
-                        FileLog.d("tmessages", "===== Cancelled queued rpc request " + request.rawRequest);
-                        requestQueue.remove(i);
-                        break;
-                    }
-                }
-
-                if (!ifNotSent) {
-                    for (int i = 0; i < runningRequests.size(); i++) {
-                        RPCRequest request = runningRequests.get(i);
-                        if (request.token == token) {
-                            found = true;
-
-                            FileLog.d("tmessages", "===== Cancelled running rpc request " + request.rawRequest);
-
-                            if ((request.flags & RPCRequest.RPCRequestClassGeneric) != 0) {
-                                if (notifyServer) {
-                                    TLRPC.TL_rpc_drop_answer dropAnswer = new TLRPC.TL_rpc_drop_answer();
-                                    dropAnswer.req_msg_id = request.runningMessageId;
-                                }
-                            }
-
-                            request.cancelled = true;
-                            request.rawRequest.freeResources();
-                            request.rpcRequest.freeResources();
-                            runningRequests.remove(i);
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        FileLog.d("tmessages", "***** Warning: cancelling unknown request");
-                    }
-                }
-            }
-        });
-    }
 
     //TODO NEED
     public static boolean isNetworkOnline() {
