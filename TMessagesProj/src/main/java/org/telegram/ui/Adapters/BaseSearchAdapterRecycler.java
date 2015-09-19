@@ -57,25 +57,25 @@ public abstract class BaseSearchAdapterRecycler extends RecyclerView.Adapter {
         req.q = query;
         req.limit = 50;
         final int currentReqId = ++lastReqId;
-        reqId = ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
-            @Override
-            public void run(final TLObject response, final TLRPC.TL_error error) {
-                AndroidUtilities.runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (currentReqId == lastReqId) {
-                            if (error == null) {
-                                TLRPC.TL_contacts_found res = (TLRPC.TL_contacts_found) response;
-                                globalSearch = res.users;
-                                lastFoundUsername = query;
-                                notifyDataSetChanged();
-                            }
-                        }
-                        reqId = 0;
-                    }
-                });
-            }
-        }, true, RPCRequest.RPCRequestClassGeneric | RPCRequest.RPCRequestClassFailOnServerErrors);
+//        reqId = ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
+//            @Override
+//            public void run(final TLObject response, final TLRPC.TL_error error) {
+//                AndroidUtilities.runOnUIThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (currentReqId == lastReqId) {
+//                            if (error == null) {
+//                                TLRPC.TL_contacts_found res = (TLRPC.TL_contacts_found) response;
+//                                globalSearch = res.users;
+//                                lastFoundUsername = query;
+//                                notifyDataSetChanged();
+//                            }
+//                        }
+//                        reqId = 0;
+//                    }
+//                });
+//            }
+//        }, true, RPCRequest.RPCRequestClassGeneric | RPCRequest.RPCRequestClassFailOnServerErrors);
     }
 
     public void loadRecentHashtags() {

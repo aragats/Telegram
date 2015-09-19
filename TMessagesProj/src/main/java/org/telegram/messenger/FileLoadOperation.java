@@ -470,13 +470,13 @@ public class FileLoadOperation {
             final RequestInfo requestInfo = new RequestInfo();
             requestInfos.add(requestInfo);
             requestInfo.offset = req.offset;
-            requestInfo.requestToken = ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
-                @Override
-                public void run(TLObject response, TLRPC.TL_error error) {
-                    requestInfo.response = (TLRPC.TL_upload_file) response;
-                    processRequestResult(requestInfo, error);
-                }
-            }, null, true, RPCRequest.RPCRequestClassDownloadMedia | (isForceRequest ? RPCRequest.RPCRequestClassForceDownload : 0), datacenter_id, isLast);
+//            requestInfo.requestToken = ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
+//                @Override
+//                public void run(TLObject response, TLRPC.TL_error error) {
+//                    requestInfo.response = (TLRPC.TL_upload_file) response;
+//                    processRequestResult(requestInfo, error);
+//                }
+//            }, null, true, RPCRequest.RPCRequestClassDownloadMedia | (isForceRequest ? RPCRequest.RPCRequestClassForceDownload : 0), datacenter_id, isLast);
         }
     }
 

@@ -357,55 +357,55 @@ public class FileUploadOperation {
             cleanup();
             return;
         }
-        requestToken = ConnectionsManager.getInstance().performRpc(finalRequest, new RPCRequest.RPCRequestDelegate() {
-            @Override
-            public void run(TLObject response, TLRPC.TL_error error) {
-                requestToken = 0;
-                if (error == null) {
-                    if (response instanceof TLRPC.TL_boolTrue) {
-                        currentPartNum++;
-                        delegate.didChangedUploadProgress(FileUploadOperation.this, currentUploaded / (float) totalFileSize);
-                        if (isLastPart) {
-                            state = 3;
-                            if (key == null) {
-                                TLRPC.InputFile result;
-                                if (isBigFile) {
-                                    result = new TLRPC.TL_inputFileBig();
-                                } else {
-                                    result = new TLRPC.TL_inputFile();
-                                    result.md5_checksum = String.format(Locale.US, "%32s", new BigInteger(1, mdEnc.digest()).toString(16)).replace(' ', '0');
-                                }
-                                result.parts = currentPartNum;
-                                result.id = currentFileId;
-                                result.name = uploadingFilePath.substring(uploadingFilePath.lastIndexOf("/") + 1);
-                                delegate.didFinishUploadingFile(FileUploadOperation.this, result, null, null, null);
-                                cleanup();
-                            } else {
-                                TLRPC.InputEncryptedFile result;
-                                if (isBigFile) {
-                                    result = new TLRPC.TL_inputEncryptedFileBigUploaded();
-                                } else {
-                                    result = new TLRPC.TL_inputEncryptedFileUploaded();
-                                    result.md5_checksum = String.format(Locale.US, "%32s", new BigInteger(1, mdEnc.digest()).toString(16)).replace(' ', '0');
-                                }
-                                result.parts = currentPartNum;
-                                result.id = currentFileId;
-                                result.key_fingerprint = fingerprint;
-                                delegate.didFinishUploadingFile(FileUploadOperation.this, null, result, key, iv);
-                                cleanup();
-                            }
-                        } else {
-                            startUploadRequest();
-                        }
-                    } else {
-                        delegate.didFailedUploadingFile(FileUploadOperation.this);
-                        cleanup();
-                    }
-                } else {
-                    delegate.didFailedUploadingFile(FileUploadOperation.this);
-                    cleanup();
-                }
-            }
-        }, null, true, RPCRequest.RPCRequestClassUploadMedia, ConnectionsManager.DEFAULT_DATACENTER_ID);
+//        requestToken = ConnectionsManager.getInstance().performRpc(finalRequest, new RPCRequest.RPCRequestDelegate() {
+//            @Override
+//            public void run(TLObject response, TLRPC.TL_error error) {
+//                requestToken = 0;
+//                if (error == null) {
+//                    if (response instanceof TLRPC.TL_boolTrue) {
+//                        currentPartNum++;
+//                        delegate.didChangedUploadProgress(FileUploadOperation.this, currentUploaded / (float) totalFileSize);
+//                        if (isLastPart) {
+//                            state = 3;
+//                            if (key == null) {
+//                                TLRPC.InputFile result;
+//                                if (isBigFile) {
+//                                    result = new TLRPC.TL_inputFileBig();
+//                                } else {
+//                                    result = new TLRPC.TL_inputFile();
+//                                    result.md5_checksum = String.format(Locale.US, "%32s", new BigInteger(1, mdEnc.digest()).toString(16)).replace(' ', '0');
+//                                }
+//                                result.parts = currentPartNum;
+//                                result.id = currentFileId;
+//                                result.name = uploadingFilePath.substring(uploadingFilePath.lastIndexOf("/") + 1);
+//                                delegate.didFinishUploadingFile(FileUploadOperation.this, result, null, null, null);
+//                                cleanup();
+//                            } else {
+//                                TLRPC.InputEncryptedFile result;
+//                                if (isBigFile) {
+//                                    result = new TLRPC.TL_inputEncryptedFileBigUploaded();
+//                                } else {
+//                                    result = new TLRPC.TL_inputEncryptedFileUploaded();
+//                                    result.md5_checksum = String.format(Locale.US, "%32s", new BigInteger(1, mdEnc.digest()).toString(16)).replace(' ', '0');
+//                                }
+//                                result.parts = currentPartNum;
+//                                result.id = currentFileId;
+//                                result.key_fingerprint = fingerprint;
+//                                delegate.didFinishUploadingFile(FileUploadOperation.this, null, result, key, iv);
+//                                cleanup();
+//                            }
+//                        } else {
+//                            startUploadRequest();
+//                        }
+//                    } else {
+//                        delegate.didFailedUploadingFile(FileUploadOperation.this);
+//                        cleanup();
+//                    }
+//                } else {
+//                    delegate.didFailedUploadingFile(FileUploadOperation.this);
+//                    cleanup();
+//                }
+//            }
+//        }, null, true, RPCRequest.RPCRequestClassUploadMedia, ConnectionsManager.DEFAULT_DATACENTER_ID);
     }
 }

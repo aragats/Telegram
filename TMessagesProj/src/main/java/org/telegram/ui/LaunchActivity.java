@@ -763,127 +763,16 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         if (username != null) {
             TLRPC.TL_contacts_resolveUsername req = new TLRPC.TL_contacts_resolveUsername();
             req.username = username;
-            requestId = ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
-                @Override
-                public void run(final TLObject response, final TLRPC.TL_error error) {
-                    AndroidUtilities.runOnUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!LaunchActivity.this.isFinishing()) {
-                                try {
-                                    progressDialog.dismiss();
-                                } catch (Exception e) {
-                                    FileLog.e("tmessages", e);
-                                }
-                                if (error == null && actionBarLayout != null) {
-                                    TLRPC.User user = (TLRPC.User) response;
-//                                    MessagesController.getInstance().putUser(user, false);
-                                    ArrayList<TLRPC.User> users = new ArrayList<>();
-                                    users.add(user);
-//                                    MessagesStorage.getInstance().putUsersAndChats(users, null, false, true);
-                                    Bundle args = new Bundle();
-                                    args.putInt("user_id", user.id);
-                                }
-                            }
-                        }
-                    });
-                }
-            });
+//            requestId = ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() { });
         } else if (group != null) {
             if (state == 0) {
                 final TLRPC.TL_messages_checkChatInvite req = new TLRPC.TL_messages_checkChatInvite();
                 req.hash = group;
-                requestId = ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
-                    @Override
-                    public void run(final TLObject response, final TLRPC.TL_error error) {
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!LaunchActivity.this.isFinishing()) {
-                                    try {
-                                        progressDialog.dismiss();
-                                    } catch (Exception e) {
-                                        FileLog.e("tmessages", e);
-                                    }
-                                    if (error == null && actionBarLayout != null) {
-                                        TLRPC.ChatInvite invite = (TLRPC.ChatInvite) response;
-                                        if (invite.chat != null && !invite.chat.left) {
-//                                            MessagesController.getInstance().putChat(invite.chat, false);
-                                            ArrayList<TLRPC.Chat> chats = new ArrayList<>();
-                                            chats.add(invite.chat);
-//                                            MessagesStorage.getInstance().putUsersAndChats(null, chats, false, true);
-                                            Bundle args = new Bundle();
-                                            args.putInt("chat_id", invite.chat.id);
-                                        } else {
-                                            AlertDialog.Builder builder = new AlertDialog.Builder(LaunchActivity.this);
-                                            builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                                            builder.setMessage(LocaleController.formatString("JoinToGroup", R.string.JoinToGroup, invite.chat != null ? invite.chat.title : invite.title));
-                                            builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialogInterface, int i) {
-                                                    runLinkRequest(username, group, sticker, 1);
-                                                }
-                                            });
-                                            builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                                            showAlertDialog(builder);
-                                        }
-                                    } else {
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(LaunchActivity.this);
-                                        builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                                        builder.setMessage(LocaleController.getString("JoinToGroupErrorNotExist", R.string.JoinToGroupErrorNotExist));
-                                        builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), null);
-                                        showAlertDialog(builder);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
+//                requestId = ConnectionsManager.getInstance().performRpc(req, );
             } else if (state == 1) {
                 TLRPC.TL_messages_importChatInvite req = new TLRPC.TL_messages_importChatInvite();
                 req.hash = group;
-                ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
-                    @Override
-                    public void run(final TLObject response, final TLRPC.TL_error error) {
-                        if (error == null) {
-                            TLRPC.Updates updates = (TLRPC.Updates) response;
-//                            MessagesController.getInstance().processUpdates(updates, false);
-                        }
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!LaunchActivity.this.isFinishing()) {
-                                    try {
-                                        progressDialog.dismiss();
-                                    } catch (Exception e) {
-                                        FileLog.e("tmessages", e);
-                                    }
-                                    if (error == null) {
-                                        if (actionBarLayout != null) {
-                                            TLRPC.Updates updates = (TLRPC.Updates) response;
-                                            if (!updates.chats.isEmpty()) {
-//                                                MessagesController.getInstance().putUsers(updates.users, false);
-//                                                MessagesController.getInstance().putChats(updates.chats, false);
-                                                Bundle args = new Bundle();
-                                                args.putInt("chat_id", updates.chats.get(0).id);
-                                            }
-                                        }
-                                    } else {
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(LaunchActivity.this);
-                                        builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                                        if (error.text.equals("USERS_TOO_MUCH")) {
-                                            builder.setMessage(LocaleController.getString("JoinToGroupErrorFull", R.string.JoinToGroupErrorFull));
-                                        } else {
-                                            builder.setMessage(LocaleController.getString("JoinToGroupErrorNotExist", R.string.JoinToGroupErrorNotExist));
-                                        }
-                                        builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), null);
-                                        showAlertDialog(builder);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
+//                ConnectionsManager.getInstance().performRpc(req, );
             }
         }
 
