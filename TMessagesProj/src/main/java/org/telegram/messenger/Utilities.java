@@ -349,43 +349,6 @@ public class Utilities {
                 + (((long) bytes[3] & 0xFF) << 24) + (((long) bytes[2] & 0xFF) << 16) + (((long) bytes[1] & 0xFF) << 8) + ((long) bytes[0] & 0xFF);
     }
 
-    public static TLObject decompress(byte[] data, TLObject parentObject, boolean exception) {
-        final int BUFFER_SIZE = 16384;
-        ByteArrayInputStream is = new ByteArrayInputStream(data);
-        GZIPInputStream gis;
-        SerializedData stream = null;
-        try {
-            if (decompressBuffer == null) {
-                decompressBuffer = new byte[BUFFER_SIZE];
-                decompressStream = new ByteArrayOutputStreamExpand(BUFFER_SIZE);
-            }
-            decompressStream.reset();
-            gis = new GZIPInputStream(is, BUFFER_SIZE);
-            int bytesRead;
-            while ((bytesRead = gis.read(decompressBuffer)) != -1) {
-                decompressStream.write(decompressBuffer, 0, bytesRead);
-            }
-            try {
-                gis.close();
-            } catch (Exception e) {
-                FileLog.e("tmessages", e);
-            }
-            try {
-                is.close();
-            } catch (Exception e) {
-                FileLog.e("tmessages", e);
-            }
-            stream = new SerializedData(decompressStream.toByteArray());
-        } catch (IOException e) {
-            FileLog.e("tmessages", e);
-        }
-        if (stream != null) {
-            TLObject object = ConnectionsManager.getInstance().deserialize(parentObject, stream, exception);
-            stream.cleanup();
-            return object;
-        }
-        return null;
-    }
 
     public static byte[] compress(byte[] data) {
         if (data == null) {

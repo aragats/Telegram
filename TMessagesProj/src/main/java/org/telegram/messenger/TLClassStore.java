@@ -42,7 +42,6 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_rpc_answer_unknown.constructor, TLRPC.TL_rpc_answer_unknown.class);
         classStore.put(TLRPC.TL_rpc_answer_dropped.constructor, TLRPC.TL_rpc_answer_dropped.class);
         classStore.put(TLRPC.TL_rpc_answer_dropped_running.constructor, TLRPC.TL_rpc_answer_dropped_running.class);
-        classStore.put(TLRPC.TL_rpc_result.constructor, TLRPC.TL_rpc_result.class);
         classStore.put(TLRPC.TL_auth_exportedAuthorization.constructor, TLRPC.TL_auth_exportedAuthorization.class);
         classStore.put(TLRPC.TL_destroy_session_ok.constructor, TLRPC.TL_destroy_session_ok.class);
         classStore.put(TLRPC.TL_destroy_session_none.constructor, TLRPC.TL_destroy_session_none.class);
@@ -70,7 +69,6 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_client_DH_inner_data.constructor, TLRPC.TL_client_DH_inner_data.class);
         classStore.put(TLRPC.TL_null.constructor, TLRPC.TL_null.class);
         classStore.put(TLRPC.TL_destroy_sessions_res.constructor, TLRPC.TL_destroy_sessions_res.class);
-        classStore.put(TLRPC.TL_msg_container.constructor, TLRPC.TL_msg_container.class);
 
 
         classStore.put(TLRPC.TL_video.constructor, TLRPC.TL_video.class);

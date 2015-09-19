@@ -167,32 +167,17 @@ public class ContactsController {
         int time = preferences.getInt("invitetexttime", 0);
         if (!updatingInviteText && (inviteText == null || time + 86400 < (int)(System.currentTimeMillis() / 1000))) {
             updatingInviteText = true;
-            TLRPC.TL_help_getInviteText req = new TLRPC.TL_help_getInviteText();
-            req.lang_code = LocaleController.getLocaleString(LocaleController.getInstance().getSystemDefaultLocale());
-            if (req.lang_code == null || req.lang_code.length() == 0) {
-                req.lang_code = "en";
-            }
-            ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
-                @Override
-                public void run(TLObject response, TLRPC.TL_error error) {
-                    if (error == null) {
-                        final TLRPC.TL_help_inviteText res = (TLRPC.TL_help_inviteText)response;
-                        if (res.message.length() != 0) {
-                            AndroidUtilities.runOnUIThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updatingInviteText = false;
-                                    SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = preferences.edit();
-                                    editor.putString("invitetext", res.message);
-                                    editor.putInt("invitetexttime", (int) (System.currentTimeMillis() / 1000));
-                                    editor.commit();
-                                }
-                            });
-                        }
-                    }
-                }
-            }, true, RPCRequest.RPCRequestClassGeneric | RPCRequest.RPCRequestClassFailOnServerErrors);
+
+            //Load from the server invite message for lang async and save to settings
+            String inviteMessage = "Check Whats going on?";
+
+            updatingInviteText = false;
+            preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("invitetext", inviteMessage);
+            editor.putInt("invitetexttime", (int) (System.currentTimeMillis() / 1000));
+            editor.commit();
+
         }
     }
 

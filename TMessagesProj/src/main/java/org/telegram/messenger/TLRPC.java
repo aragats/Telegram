@@ -15442,82 +15442,8 @@ public class TLRPC {
         }
     }
 
-    public static class TL_msg_container extends TLObject {
-        public ArrayList<TL_protoMessage> messages;
 
-        public static int constructor = 0x73f1f8dc;
 
-        public void readParams(AbsSerializedData stream, boolean exception) {
-            messages = new ArrayList<>();
-            int count = stream.readInt32(exception);
-            for (int a = 0; a < count; a++) {
-                TL_protoMessage message = new TL_protoMessage();
-                message.msg_id = stream.readInt64(exception);
-                message.seqno = stream.readInt32(exception);
-                message.bytes = stream.readInt32(exception);
-                int position = stream.getPosition();
-                message.body = ConnectionsManager.getInstance().deserialize(ConnectionsManager.getInstance().getRequestWithMessageId(message.msg_id), stream, exception);
-                if (message.body == null) {
-                    stream.skip(message.bytes - (stream.getPosition() - position));
-                } else {
-                    messages.add(message);
-                }
-            }
-        }
-
-        public void serializeToStream(AbsSerializedData stream) {
-            stream.writeInt32(constructor);
-            stream.writeInt32(messages.size());
-            for (TLObject obj : messages) {
-                TL_protoMessage proto = (TL_protoMessage) obj;
-                stream.writeInt64(proto.msg_id);
-                stream.writeInt32(proto.seqno);
-                stream.writeInt32(proto.bytes);
-                proto.body.serializeToStream(stream);
-            }
-        }
-    }
-
-    public static class TL_rpc_result extends TLObject {
-        public static int constructor = 0xf35c6d01;
-
-        public long req_msg_id;
-        public TLObject result;
-
-        public static TL_rpc_result TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
-            if (TL_rpc_result.constructor != constructor) {
-                if (exception) {
-                    throw new RuntimeException(String.format("can't parse magic %x in TL_rpc_result", constructor));
-                } else {
-                    return null;
-                }
-            }
-            TL_rpc_result result = new TL_rpc_result();
-            result.readParams(stream, exception);
-            return result;
-        }
-
-        public void readParams(AbsSerializedData stream, boolean exception) {
-            req_msg_id = stream.readInt64(exception);
-            result = ConnectionsManager.getInstance().deserialize(ConnectionsManager.getInstance().getRequestWithMessageId(req_msg_id), stream, exception);
-        }
-
-        public void serializeToStream(AbsSerializedData stream) {
-            stream.writeInt32(constructor);
-            stream.writeInt64(req_msg_id);
-            result.serializeToStream(stream);
-        }
-
-        @Override
-        public void freeResources() {
-            if (disableFree) {
-                return;
-            }
-            if (result != null) {
-                result.freeResources();
-            }
-        }
-    }
 
     public static class TL_futureSalt extends TLObject {
         public static int constructor = 0x0949d9dc;

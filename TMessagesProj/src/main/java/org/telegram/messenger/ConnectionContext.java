@@ -80,31 +80,6 @@ public class ConnectionContext extends PyroClientAdapter {
         messagesIdsForConfirmation.add(messageId);
     }
 
-    public NetworkMessage generateConfirmationRequest() {
-        NetworkMessage networkMessage = null;
-
-        if (!messagesIdsForConfirmation.isEmpty()) {
-            TLRPC.TL_msgs_ack msgAck = new TLRPC.TL_msgs_ack();
-            msgAck.msg_ids = new ArrayList<>();
-            msgAck.msg_ids.addAll(messagesIdsForConfirmation);
-
-            ByteBufferDesc os = new ByteBufferDesc(true);
-            msgAck.serializeToStream(os);
-
-            networkMessage = new NetworkMessage();
-            networkMessage.protoMessage = new TLRPC.TL_protoMessage();
-
-            networkMessage.protoMessage.msg_id = ConnectionsManager.getInstance().generateMessageId();
-            networkMessage.protoMessage.seqno = generateMessageSeqNo(false);
-
-            networkMessage.protoMessage.bytes = os.length();
-            networkMessage.protoMessage.body = msgAck;
-
-            messagesIdsForConfirmation.clear();
-        }
-
-        return networkMessage;
-    }
 
     public boolean isSessionProcessed(long sessionId) {
         return processedSessionChanges.contains(sessionId);

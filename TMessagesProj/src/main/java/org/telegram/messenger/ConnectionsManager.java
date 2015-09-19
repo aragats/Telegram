@@ -121,7 +121,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                     FileLog.e("tmessages", "time for push ping");
                     lastPushPingTime = System.currentTimeMillis();
                     if (datacenter != null) {
-                        generatePing(datacenter, true);
+//                        generatePing(datacenter, true);
                     }
                 }
             }
@@ -180,7 +180,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                     if (datacenter.authKey != null) {
                         if (lastPingTime < System.currentTimeMillis() - 19000) {
                             lastPingTime = System.currentTimeMillis();
-                            generatePing();
+//                            generatePing();
                         }
                         if (!updatingDcSettings && lastDcUpdateTime < (int) (System.currentTimeMillis() / 1000) - DC_UPDATE_TIME) {
                         }
@@ -257,6 +257,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         });
     }
 
+    //TODO NEED?
     public void applicationMovedToForeground() {
         Utilities.stageQueue.postRunnable(stageRunnable);
         Utilities.stageQueue.postRunnable(new Runnable() {
@@ -270,6 +271,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         });
     }
 
+    //TODO NEED ?
     public void setAppPaused(final boolean value, final boolean byScreenState) {
         Utilities.stageQueue.postRunnable(new Runnable() {
             @Override
@@ -703,17 +705,6 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         });
     }
 
-    long generateMessageId() {
-        long messageId = (long) ((((double) System.currentTimeMillis() + ((double) timeDifference) * 1000) * 4294967296.0) / 1000.0);
-        if (messageId <= lastOutgoingMessageId) {
-            messageId = lastOutgoingMessageId + 1;
-        }
-        while (messageId % 4 != 0) {
-            messageId++;
-        }
-        lastOutgoingMessageId = messageId;
-        return messageId;
-    }
 
     long getTimeFromMsgId(long messageId) {
         return (long) (messageId / 4294967296.0 * 1000);
@@ -770,29 +761,6 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
 
 
 
-    public void initPushConnection() {
-        Utilities.stageQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                Datacenter datacenter = datacenterWithId(currentDatacenterId);
-                if (datacenter != null) {
-                    if (datacenter.pushConnection == null) {
-                        datacenter.pushConnection = new TcpConnection(datacenter.datacenterId);
-                        datacenter.pushConnection.setSessionId(pushSessionId);
-                        datacenter.pushConnection.delegate = ConnectionsManager.this;
-                        datacenter.pushConnection.transportRequestClass = RPCRequest.RPCRequestClassPush;
-                        datacenter.pushConnection.connect();
-                        generatePing(datacenter, true);
-                    } else {
-                        if (UserConfig.isClientActivated() && !UserConfig.registeredForInternalPush) {
-                            registerForPush();
-                        }
-                    }
-                }
-            }
-        });
-    }
-
 
 
 
@@ -801,7 +769,6 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         if (object.layer() > 0) {
             Datacenter datacenter = datacenterWithId(datacenterId);
             if (datacenter == null || datacenter.lastInitVersion != BuildVars.BUILD_VERSION) {
-                registerForPush();
                 request.initRequest = true;
                 TLRPC.initConnection invoke = new TLRPC.initConnection();
                 invoke.query = object;
@@ -969,6 +936,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         return false;
     }
 
+    //TODO NEED
     public static boolean isRoaming() {
         try {
             ConnectivityManager cm = (ConnectivityManager) ApplicationLoader.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -982,6 +950,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         return false;
     }
 
+    //TODO NEED
     public static boolean isConnectedToWiFi() {
         try {
             ConnectivityManager cm = (ConnectivityManager) ApplicationLoader.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -995,6 +964,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         return false;
     }
 
+    //TODO NEED
     public int getCurrentTime() {
         return (int) (System.currentTimeMillis() / 1000) + timeDifference;
     }
@@ -1151,7 +1121,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
 
                 if (request.runningMessageSeqNo == 0) {
                     request.runningMessageSeqNo = connection.generateMessageSeqNo(true);
-                    request.runningMessageId = generateMessageId();
+//                    request.runningMessageId = generateMessageId();
                 }
                 networkMessage.protoMessage.msg_id = request.runningMessageId;
                 networkMessage.protoMessage.seqno = request.runningMessageSeqNo;
@@ -1308,7 +1278,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                 }
             }
 
-            long messageId = generateMessageId();
+            long messageId = 0;
 
             boolean canCompress = (request.flags & RPCRequest.RPCRequestClassCanCompress) != 0;
 
@@ -1457,7 +1427,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         if ((requestClass & RPCRequest.RPCRequestClassGeneric) != 0) {
             ArrayList<NetworkMessage> messagesIt = genericMessagesToDatacenters.get(_datacenterId);
             if (messagesIt == null || messagesIt.size() == 0) {
-                generatePing();
+//                generatePing();
             }
         }
 
@@ -1488,18 +1458,10 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
             if (num != currentDatacenterId && num != movingToDatacenterId && UserConfig.isClientActivated()) {
                 boolean notFound = true;
                 for (Action actor : actionQueue) {
-                    if (actor instanceof ExportAuthorizationAction) {
-                        ExportAuthorizationAction eactor = (ExportAuthorizationAction) actor;
-                        if (eactor.datacenter.datacenterId == num) {
-                            notFound = false;
-                            break;
-                        }
-                    }
+
                 }
                 if (notFound) {
-                    ExportAuthorizationAction actor = new ExportAuthorizationAction(datacenterWithId(num));
-                    actor.delegate = this;
-                    dequeueActor(actor, true);
+
                 }
             }
         }
@@ -1520,7 +1482,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
 
         if (os.length() != 0) {
             TLRPC.TL_protoMessage protoMessage = new TLRPC.TL_protoMessage();
-            protoMessage.msg_id = generateMessageId();
+//            protoMessage.msg_id = generateMessageId();
             protoMessage.bytes = os.length();
             protoMessage.body = message;
             protoMessage.seqno = connection.generateMessageSeqNo(meaningful);
@@ -1541,201 +1503,16 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
             messages.addAll(messageList);
         }
 
-        NetworkMessage message = connection.generateConfirmationRequest();
+        NetworkMessage message = null;
         if (message != null) {
             messages.add(message);
         }
 
-        sendMessagesToTransport(messages, connection, reportAck);
+//        sendMessagesToTransport(messages, connection, reportAck);
     }
 
-    void sendMessagesToTransport(ArrayList<NetworkMessage> messagesToSend, TcpConnection connection, boolean reportAck) {
-        if (messagesToSend.size() == 0) {
-            return;
-        }
 
-        if (connection == null) {
-            return;
-        }
 
-        ArrayList<NetworkMessage> currentMessages = new ArrayList<>();
-
-        int currentSize = 0;
-        for (int a = 0; a < messagesToSend.size(); a++) {
-            NetworkMessage networkMessage = messagesToSend.get(a);
-            currentMessages.add(networkMessage);
-
-            TLRPC.TL_protoMessage protoMessage = networkMessage.protoMessage;
-
-            currentSize += protoMessage.bytes;
-
-            if (currentSize >= 3 * 1024 || a == messagesToSend.size() - 1) {
-                ArrayList<Integer> quickAckId = new ArrayList<>();
-                ByteBufferDesc transportData = createConnectionData(currentMessages, quickAckId, connection);
-
-                if (transportData != null) {
-                    if (reportAck && quickAckId.size() != 0) {
-                        ArrayList<Long> requestIds = new ArrayList<>();
-
-                        for (NetworkMessage message : messagesToSend) {
-                            if (message.requestId != 0) {
-                                requestIds.add(message.requestId);
-                            }
-                        }
-
-                        if (requestIds.size() != 0) {
-                            int ack = quickAckId.get(0);
-                            ArrayList<Long> arr = quickAckIdToRequestIds.get(ack);
-                            if (arr == null) {
-                                arr = new ArrayList<>();
-                                quickAckIdToRequestIds.put(ack, arr);
-                            }
-                            arr.addAll(requestIds);
-                        }
-                    }
-
-                    connection.sendData(transportData, true, reportAck);
-                } else {
-                    FileLog.e("tmessages", "***** Transport data is nil");
-                }
-
-                currentSize = 0;
-                currentMessages.clear();
-            }
-        }
-    }
-
-    ByteBufferDesc createConnectionData(ArrayList<NetworkMessage> messages, ArrayList<Integer> quickAckId, TcpConnection connection) {
-        Datacenter datacenter = datacenterWithId(connection.getDatacenterId());
-        if (datacenter.authKey == null) {
-            return null;
-        }
-
-        long messageId;
-        TLObject messageBody;
-        int messageSeqNo;
-
-        if (messages.size() == 1) {
-            NetworkMessage networkMessage = messages.get(0);
-            TLRPC.TL_protoMessage message = networkMessage.protoMessage;
-
-            if (BuildVars.DEBUG_VERSION) {
-                if (message.body instanceof TLRPC.invokeWithLayer) {
-                    FileLog.d("tmessages", connection.getSissionId() + ":DC" + datacenter.datacenterId + "> Send message (" + message.seqno + ", " + message.msg_id + "): " + ((TLRPC.invokeWithLayer) message.body).query);
-                } else if (message.body instanceof TLRPC.initConnection) {
-                    TLRPC.initConnection r = (TLRPC.initConnection) message.body;
-                    if (r.query instanceof TLRPC.invokeWithLayer) {
-                        FileLog.d("tmessages", connection.getSissionId() + ":DC" + datacenter.datacenterId + "> Send message (" + message.seqno + ", " + message.msg_id + "): " + ((TLRPC.invokeWithLayer) r.query).query);
-                    } else {
-                        FileLog.d("tmessages", connection.getSissionId() + ":DC" + datacenter.datacenterId + "> Send message (" + message.seqno + ", " + message.msg_id + "): " + r.query);
-                    }
-                } else {
-                    FileLog.d("tmessages", connection.getSissionId() + ":DC" + datacenter.datacenterId + "> Send message (" + message.seqno + ", " + message.msg_id + "): " + message.body);
-                }
-            }
-
-            long msg_time = getTimeFromMsgId(message.msg_id);
-            long currentTime = System.currentTimeMillis() + ((long) timeDifference) * 1000;
-
-            if (msg_time < currentTime - 30000 || msg_time > currentTime + 25000) {
-                FileLog.d("tmessages", "wrap in messages continaer");
-                TLRPC.TL_msg_container messageContainer = new TLRPC.TL_msg_container();
-                messageContainer.messages = new ArrayList<>();
-                messageContainer.messages.add(message);
-
-                messageId = generateMessageId();
-                messageBody = messageContainer;
-                messageSeqNo = connection.generateMessageSeqNo(false);
-            } else {
-                messageId = message.msg_id;
-                messageBody = message.body;
-                messageSeqNo = message.seqno;
-            }
-        } else {
-            TLRPC.TL_msg_container messageContainer = new TLRPC.TL_msg_container();
-
-            ArrayList<TLRPC.TL_protoMessage> containerMessages = new ArrayList<>(messages.size());
-
-            for (NetworkMessage networkMessage : messages) {
-                TLRPC.TL_protoMessage message = networkMessage.protoMessage;
-                containerMessages.add(message);
-                if (BuildVars.DEBUG_VERSION) {
-                    if (message.body instanceof TLRPC.invokeWithLayer) {
-                        FileLog.d("tmessages", connection.getSissionId() + ":DC" + datacenter.datacenterId + "> Send message (" + message.seqno + ", " + message.msg_id + "): " + ((TLRPC.invokeWithLayer) message.body).query);
-                    } else if (message.body instanceof TLRPC.initConnection) {
-                        TLRPC.initConnection r = (TLRPC.initConnection) message.body;
-                        if (r.query instanceof TLRPC.invokeWithLayer) {
-                            FileLog.d("tmessages", connection.getSissionId() + ":DC" + datacenter.datacenterId + "> Send message (" + message.seqno + ", " + message.msg_id + "): " + ((TLRPC.invokeWithLayer) r.query).query);
-                        } else {
-                            FileLog.d("tmessages", connection.getSissionId() + ":DC" + datacenter.datacenterId + "> Send message (" + message.seqno + ", " + message.msg_id + "): " + r.query);
-                        }
-                    } else {
-                        FileLog.d("tmessages", connection.getSissionId() + ":DC" + datacenter.datacenterId + "> Send message (" + message.seqno + ", " + message.msg_id + "): " + message.body);
-                    }
-                }
-            }
-
-            messageContainer.messages = containerMessages;
-
-            messageId = generateMessageId();
-            messageBody = messageContainer;
-            messageSeqNo = connection.generateMessageSeqNo(false);
-        }
-
-        ByteBufferDesc sizeBuffer = new ByteBufferDesc(true);
-        messageBody.serializeToStream(sizeBuffer);
-
-        ByteBufferDesc innerOs = BuffersStorage.getInstance().getFreeBuffer(8 + 8 + 8 + 4 + 4 + sizeBuffer.length());
-
-        long serverSalt = datacenter.selectServerSalt(getCurrentTime());
-        if (serverSalt == 0) {
-            innerOs.writeInt64(0);
-        } else {
-            innerOs.writeInt64(serverSalt);
-        }
-        innerOs.writeInt64(connection.getSissionId());
-        innerOs.writeInt64(messageId);
-        innerOs.writeInt32(messageSeqNo);
-        innerOs.writeInt32(sizeBuffer.length());
-        messageBody.serializeToStream(innerOs);
-
-        byte[] messageKeyFull = Utilities.computeSHA1(innerOs.buffer, 0, innerOs.limit());
-        byte[] messageKey = new byte[16];
-        System.arraycopy(messageKeyFull, messageKeyFull.length - 16, messageKey, 0, 16);
-
-        if (quickAckId != null) {
-            SerializedData data = new SerializedData(messageKeyFull);
-            quickAckId.add(data.readInt32(false) & 0x7fffffff);
-            data.cleanup();
-        }
-
-        MessageKeyData keyData = MessageKeyData.generateMessageKeyData(datacenter.authKey, messageKey, false);
-
-        int zeroCount = 0;
-        if (innerOs.limit() % 16 != 0) {
-            zeroCount = 16 - innerOs.limit() % 16;
-        }
-
-        ByteBufferDesc dataForEncryption = BuffersStorage.getInstance().getFreeBuffer(innerOs.limit() + zeroCount);
-        dataForEncryption.writeRaw(innerOs);
-        BuffersStorage.getInstance().reuseFreeBuffer(innerOs);
-
-        if (zeroCount != 0) {
-            byte[] b = new byte[zeroCount];
-            Utilities.random.nextBytes(b);
-            dataForEncryption.writeRaw(b);
-        }
-
-        Utilities.aesIgeEncryption(dataForEncryption.buffer, keyData.aesKey, keyData.aesIv, true, false, 0, dataForEncryption.limit());
-
-        ByteBufferDesc data = BuffersStorage.getInstance().getFreeBuffer(8 + messageKey.length + dataForEncryption.limit());
-        data.writeInt64(datacenter.authKeyId);
-        data.writeRaw(messageKey);
-        data.writeRaw(dataForEncryption);
-        BuffersStorage.getInstance().reuseFreeBuffer(dataForEncryption);
-
-        return data;
-    }
 
     void refillSaltSet(final Datacenter datacenter) {
         Utilities.stageQueue.postRunnable(new Runnable() {
@@ -1808,616 +1585,10 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         });
     }
 
-    private void registerForPush() {
-        if (registeringForPush || !UserConfig.isClientActivated()) {
-            return;
-        }
-        UserConfig.registeredForInternalPush = false;
-        UserConfig.saveConfig(false);
-        registeringForPush = true;
-        TLRPC.TL_account_registerDevice req = new TLRPC.TL_account_registerDevice();
-        req.token_type = 7;
-        req.token = "" + pushSessionId;
-        req.app_sandbox = false;
-        try {
-            req.lang_code = LocaleController.getLocaleString(LocaleController.getInstance().getSystemDefaultLocale());
-            if (req.lang_code.length() == 0) {
-                req.lang_code = "en";
-            }
-            req.device_model = Build.MANUFACTURER + Build.MODEL;
-            req.system_version = "SDK " + Build.VERSION.SDK_INT;
-            PackageInfo pInfo = ApplicationLoader.applicationContext.getPackageManager().getPackageInfo(ApplicationLoader.applicationContext.getPackageName(), 0);
-            req.app_version = pInfo.versionName + " (" + pInfo.versionCode + ")";
-        } catch (Exception e) {
-            FileLog.e("tmessages", e);
-            req.lang_code = "en";
-            req.device_model = "Android unknown";
-            req.system_version = "SDK " + Build.VERSION.SDK_INT;
-            req.app_version = "App version unknown";
-        }
 
-        if (req.lang_code == null || req.lang_code.length() == 0) {
-            req.lang_code = "en";
-        }
-        if (req.device_model == null || req.device_model.length() == 0) {
-            req.device_model = "Android unknown";
-        }
-        if (req.app_version == null || req.app_version.length() == 0) {
-            req.app_version = "App version unknown";
-        }
-        if (req.system_version == null || req.system_version.length() == 0) {
-            req.system_version = "SDK Unknown";
-        }
 
-        if (req.app_version != null) {
-            ConnectionsManager.getInstance().performRpc(req, new RPCRequest.RPCRequestDelegate() {
-                @Override
-                public void run(TLObject response, TLRPC.TL_error error) {
-                    if (error == null) {
-                        UserConfig.registeredForInternalPush = true;
-                        UserConfig.saveConfig(false);
-                        saveSession();
-                        FileLog.e("tmessages", "registered for internal push");
-                    } else {
-                        UserConfig.registeredForInternalPush = false;
-                    }
-                    registeringForPush = false;
-                }
-            }, true, RPCRequest.RPCRequestClassGeneric);
-        }
-    }
 
-    void processMessage(TLObject message, long messageId, int messageSeqNo, long messageSalt, TcpConnection connection, long innerMsgId, long containerMessageId) {
-        if (message == null) {
-            FileLog.e("tmessages", "message is null");
-            return;
-        }
-        Datacenter datacenter = datacenterWithId(connection.getDatacenterId());
 
-        if (message instanceof TLRPC.TL_new_session_created) {
-            TLRPC.TL_new_session_created newSession = (TLRPC.TL_new_session_created) message;
-
-            if (!connection.isSessionProcessed(newSession.unique_id)) {
-                FileLog.d("tmessages", "New session:");
-                FileLog.d("tmessages", String.format("    first message id: %d", newSession.first_msg_id));
-                FileLog.d("tmessages", String.format("    server salt: %d", newSession.server_salt));
-                FileLog.d("tmessages", String.format("    unique id: %d", newSession.unique_id));
-
-                long serverSalt = newSession.server_salt;
-
-                ServerSalt serverSaltDesc = new ServerSalt();
-                serverSaltDesc.validSince = getCurrentTime();
-                serverSaltDesc.validUntil = getCurrentTime() + 30 * 60;
-                serverSaltDesc.value = serverSalt;
-                datacenter.addServerSalt(serverSaltDesc);
-
-                for (RPCRequest request : runningRequests) {
-                    Datacenter dcenter = datacenterWithId(request.runningDatacenterId);
-                    if (request.runningMessageId < newSession.first_msg_id && (request.flags & connection.transportRequestClass) != 0 && dcenter != null && dcenter.datacenterId == datacenter.datacenterId) {
-                        request.runningMessageId = 0;
-                        request.runningMessageSeqNo = 0;
-                        request.runningStartTime = 0;
-                        request.runningMinStartTime = 0;
-                        request.transportChannelToken = 0;
-                    }
-                }
-
-                saveSession();
-
-                if (datacenter.datacenterId == currentDatacenterId && UserConfig.isClientActivated()) {
-                    if ((connection.transportRequestClass & RPCRequest.RPCRequestClassPush) != 0) {
-                        registerForPush();
-                    } else if ((connection.transportRequestClass & RPCRequest.RPCRequestClassGeneric) != 0) {
-//                        MessagesController.getInstance().getDifference();
-                    }
-                }
-                connection.addProcessedSession(newSession.unique_id);
-            }
-        } else if (message instanceof TLRPC.TL_msg_container) {
-            /*if (messageId != 0) {
-                long time = getTimeFromMsgId(messageId);
-                long currentTime = System.currentTimeMillis();
-                timeDifference = (int)((time - currentTime) / 1000 - currentPingTime / 2.0);
-            }*/
-
-            TLRPC.TL_msg_container messageContainer = (TLRPC.TL_msg_container) message;
-            for (TLRPC.TL_protoMessage innerMessage : messageContainer.messages) {
-                long innerMessageId = innerMessage.msg_id;
-                if (innerMessage.seqno % 2 != 0) {
-                    connection.addMessageToConfirm(innerMessageId);
-                }
-                if (connection.isMessageIdProcessed(innerMessageId)) {
-                    continue;
-                }
-                processMessage(innerMessage.body, 0, innerMessage.seqno, messageSalt, connection, innerMessageId, messageId);
-                connection.addProcessedMessageId(innerMessageId);
-            }
-        } else if (message instanceof TLRPC.TL_pong) {
-            if (UserConfig.isClientActivated() && !UserConfig.registeredForInternalPush && (connection.transportRequestClass & RPCRequest.RPCRequestClassPush) != 0) {
-                registerForPush();
-            }
-            if ((connection.transportRequestClass & RPCRequest.RPCRequestClassPush) == 0) {
-                TLRPC.TL_pong pong = (TLRPC.TL_pong) message;
-                long pingId = pong.ping_id;
-
-                ArrayList<Long> itemsToDelete = new ArrayList<>();
-                for (Long pid : pingIdToDate.keySet()) {
-                    if (pid == pingId) {
-                        int time = pingIdToDate.get(pid);
-                        int pingTime = (int) (System.currentTimeMillis() / 1000) - time;
-
-                        if (Math.abs(pingTime) < 10) {
-                            currentPingTime = (pingTime + currentPingTime) / 2;
-
-                            if (messageId != 0) {
-                                long timeMessage = getTimeFromMsgId(messageId);
-                                long currentTime = System.currentTimeMillis();
-                                timeDifference = (int) ((timeMessage - currentTime) / 1000 - currentPingTime / 2.0);
-                            }
-                        }
-                        itemsToDelete.add(pid);
-                    } else if (pid < pingId) {
-                        itemsToDelete.add(pid);
-                    }
-                }
-                for (Long pid : itemsToDelete) {
-                    pingIdToDate.remove(pid);
-                }
-            } else {
-                FileLog.e("tmessages", "received push ping");
-                sendingPushPing = false;
-            }
-        } else if (message instanceof TLRPC.TL_futuresalts) {
-            TLRPC.TL_futuresalts futureSalts = (TLRPC.TL_futuresalts) message;
-            long requestMid = futureSalts.req_msg_id;
-            for (RPCRequest request : runningRequests) {
-                if (request.respondsToMessageId(requestMid)) {
-                    if (request.completionBlock != null) {
-                        request.completionBlock.run(futureSalts, null);
-                    }
-
-                    futureSalts.freeResources();
-
-                    messagesConfirmed(requestMid);
-                    request.completed = true;
-                    rpcCompleted(requestMid);
-
-                    break;
-                }
-            }
-        } else if (message instanceof TLRPC.DestroySessionRes) {
-            TLRPC.DestroySessionRes res = (TLRPC.DestroySessionRes) message;
-            ArrayList<Long> lst = new ArrayList<>();
-            lst.addAll(sessionsToDestroy);
-            destroyingSessions.remove(res.session_id);
-            for (long session : lst) {
-                if (session == res.session_id) {
-                    sessionsToDestroy.remove(session);
-                    FileLog.d("tmessages", String.format("Destroyed session %d (%s)", res.session_id, res instanceof TLRPC.TL_destroy_session_ok ? "ok" : "not found"));
-                    break;
-                }
-            }
-        } else if (message instanceof TLRPC.TL_rpc_result) {
-            TLRPC.TL_rpc_result resultContainer = (TLRPC.TL_rpc_result) message;
-            long resultMid = resultContainer.req_msg_id;
-
-            boolean ignoreResult = false;
-            FileLog.d("tmessages", "object in rpc_result is " + resultContainer.result);
-            if (resultContainer.result instanceof TLRPC.RpcError) {
-                String errorMessage = ((TLRPC.RpcError) resultContainer.result).error_message;
-                FileLog.e("tmessages", String.format("***** RPC error %d: %s", ((TLRPC.RpcError) resultContainer.result).error_code, errorMessage));
-
-                int migrateToDatacenterId = DEFAULT_DATACENTER_ID;
-
-                if (((TLRPC.RpcError) resultContainer.result).error_code == 303) {
-                    ArrayList<String> migrateErrors = new ArrayList<>();
-                    migrateErrors.add("NETWORK_MIGRATE_");
-                    migrateErrors.add("PHONE_MIGRATE_");
-                    migrateErrors.add("USER_MIGRATE_");
-                    for (String possibleError : migrateErrors) {
-                        if (errorMessage.contains(possibleError)) {
-                            String errorMsg = errorMessage.replace(possibleError, "");
-
-                            Pattern pattern = Pattern.compile("[0-9]+");
-                            Matcher matcher = pattern.matcher(errorMsg);
-                            if (matcher.find()) {
-                                errorMsg = matcher.group(0);
-                            }
-
-                            Integer val;
-                            try {
-                                val = Integer.parseInt(errorMsg);
-                            } catch (Exception e) {
-                                val = null;
-                            }
-
-                            if (val != null) {
-                                migrateToDatacenterId = val;
-                            } else {
-                                migrateToDatacenterId = DEFAULT_DATACENTER_ID;
-                            }
-                        }
-                    }
-                }
-
-                if (migrateToDatacenterId != DEFAULT_DATACENTER_ID) {
-                    ignoreResult = true;
-                }
-            }
-
-            int retryRequestsFromDatacenter = -1;
-            int retryRequestsClass = 0;
-
-            if (!ignoreResult) {
-                boolean found = false;
-
-                for (RPCRequest request : runningRequests) {
-                    if (request.respondsToMessageId(resultMid)) {
-                        found = true;
-
-                        boolean discardResponse = false;
-                        boolean isError = false;
-                        boolean allowInitConnection = true;
-
-                        if (request.completionBlock != null) {
-                            TLRPC.TL_error implicitError = null;
-                            if (resultContainer.result instanceof TLRPC.TL_gzip_packed) {
-                                TLRPC.TL_gzip_packed packet = (TLRPC.TL_gzip_packed) resultContainer.result;
-                                resultContainer.result = Utilities.decompress(packet.packed_data, request.rawRequest, true);
-                            }
-                            if (resultContainer.result instanceof TLRPC.RpcError) {
-                                allowInitConnection = false;
-                                String errorMessage = ((TLRPC.RpcError) resultContainer.result).error_message;
-                                FileLog.e("tmessages", String.format("***** RPC error %d: %s", ((TLRPC.RpcError) resultContainer.result).error_code, errorMessage));
-
-                                int errorCode = ((TLRPC.RpcError) resultContainer.result).error_code;
-
-                                if (errorCode == 500 || errorCode < 0) {
-                                    if ((request.flags & RPCRequest.RPCRequestClassFailOnServerErrors) == 0) {
-                                        discardResponse = true;
-                                        int delay = Math.min(1, request.serverFailureCount * 2);
-                                        request.runningMinStartTime = request.runningStartTime + delay;
-                                        request.confirmed = false;
-                                    }
-
-                                    request.serverFailureCount++;
-                                } else if (errorCode == 420) {
-                                    if ((request.flags & RPCRequest.RPCRequestClassFailOnServerErrors) == 0) {
-                                        double waitTime = 2.0;
-
-                                        if (errorMessage.contains("FLOOD_WAIT_")) {
-                                            String errorMsg = errorMessage.replace("FLOOD_WAIT_", "");
-
-                                            Pattern pattern = Pattern.compile("[0-9]+");
-                                            Matcher matcher = pattern.matcher(errorMsg);
-                                            if (matcher.find()) {
-                                                errorMsg = matcher.group(0);
-                                            }
-
-                                            Integer val;
-                                            try {
-                                                val = Integer.parseInt(errorMsg);
-                                            } catch (Exception e) {
-                                                val = null;
-                                            }
-                                            if (val != null) {
-                                                waitTime = val;
-                                            }
-                                        }
-
-                                        waitTime = Math.min(30, waitTime);
-
-                                        discardResponse = true;
-                                        request.wait = true;
-                                        request.runningMinStartTime = (int) (System.currentTimeMillis() / 1000 + waitTime);
-                                        request.confirmed = false;
-                                    }
-                                }
-
-                                implicitError = new TLRPC.TL_error();
-                                implicitError.code = ((TLRPC.RpcError) resultContainer.result).error_code;
-                                implicitError.text = ((TLRPC.RpcError) resultContainer.result).error_message;
-                            } else if (!(resultContainer.result instanceof TLRPC.TL_error)) {
-                                if (request.rawRequest == null || resultContainer.result == null) {
-                                    allowInitConnection = false;
-                                    if (request.rawRequest == null) {
-                                        FileLog.e("tmessages", "rawRequest is null");
-                                    } else {
-                                        FileLog.e("tmessages", "***** RPC error: invalid response class " + resultContainer.result + " (for request " + request.rawRequest + ")");
-                                    }
-                                    implicitError = new TLRPC.TL_error();
-                                    implicitError.code = -1000;
-                                    implicitError.text = "";
-                                }
-                            }
-
-                            if (!discardResponse) {
-                                if (implicitError != null || resultContainer.result instanceof TLRPC.TL_error) {
-                                    isError = true;
-                                    request.completionBlock.run(null, implicitError != null ? implicitError : (TLRPC.TL_error) resultContainer.result);
-                                } else {
-                                    request.completionBlock.run(resultContainer.result, null);
-                                    if (resultContainer.result instanceof TLRPC.updates_Difference) {
-                                        pushMessagesReceived = true;
-                                        AndroidUtilities.runOnUIThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (wakeLock.isHeld()) {
-                                                    FileLog.e("tmessages", "release wakelock");
-                                                    wakeLock.release();
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-
-                            if (implicitError != null && implicitError.code == 401) {
-                                allowInitConnection = false;
-                                isError = true;
-                                if (implicitError.text != null && implicitError.text.contains("SESSION_PASSWORD_NEEDED")) {
-                                    //ignore this error
-                                } else if (datacenter.datacenterId == currentDatacenterId || datacenter.datacenterId == movingToDatacenterId) {
-                                    if ((request.flags & RPCRequest.RPCRequestClassGeneric) != 0 && UserConfig.isClientActivated()) {
-                                        UserConfig.clearConfig();
-                                        AndroidUtilities.runOnUIThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-//                                                MessagesController.getInstance().performLogout(false);
-//                                                MessagesController.getInstance().performLogout(false);
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    datacenter.authorized = false;
-                                    saveSession();
-                                    discardResponse = true;
-                                    if ((request.flags & RPCRequest.RPCRequestClassDownloadMedia) != 0 || (request.flags & RPCRequest.RPCRequestClassUploadMedia) != 0) {
-                                        retryRequestsFromDatacenter = datacenter.datacenterId;
-                                        retryRequestsClass = request.flags;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (!discardResponse) {
-                            if (allowInitConnection && request.initRequest && !isError) {
-                                if (datacenter.lastInitVersion != BuildVars.BUILD_VERSION) {
-                                    datacenter.lastInitVersion = BuildVars.BUILD_VERSION;
-                                    saveSession();
-                                    FileLog.e("tmessages", "init connection completed");
-                                } else {
-                                    FileLog.e("tmessages", "rpc is init, but init connection already completed");
-                                }
-                            }
-                            request.completed = true;
-                            rpcCompleted(resultMid);
-                        } else {
-                            request.runningMessageId = 0;
-                            request.runningMessageSeqNo = 0;
-                            request.transportChannelToken = 0;
-                        }
-                        break;
-                    }
-                }
-
-                resultContainer.freeResources();
-
-                if (!found) {
-                    FileLog.d("tmessages", "Response received, but request wasn't found.");
-                    rpcCompleted(resultMid);
-                }
-
-                messagesConfirmed(resultMid);
-            }
-
-            if (retryRequestsFromDatacenter >= 0) {
-                processRequestQueue(retryRequestsClass, retryRequestsFromDatacenter);
-            } else {
-                processRequestQueue(0, 0);
-            }
-        } else if (message instanceof TLRPC.TL_msgs_ack) {
-
-        } else if (message instanceof TLRPC.TL_ping) {
-
-        } else if (message instanceof TLRPC.TL_bad_msg_notification) {
-            TLRPC.TL_bad_msg_notification badMsgNotification = (TLRPC.TL_bad_msg_notification) message;
-
-            FileLog.e("tmessages", String.format("***** Bad message: %d", badMsgNotification.error_code));
-
-            if (badMsgNotification.error_code == 16 || badMsgNotification.error_code == 17 || badMsgNotification.error_code == 19 || badMsgNotification.error_code == 32 || badMsgNotification.error_code == 33 || badMsgNotification.error_code == 64) {
-                long realId = messageId != 0 ? messageId : containerMessageId;
-                if (realId == 0) {
-                    realId = innerMsgId;
-                }
-
-                if (realId != 0) {
-                    long time = getTimeFromMsgId(messageId);
-                    long currentTime = System.currentTimeMillis();
-                    timeDifference = (int) ((time - currentTime) / 1000 - currentPingTime / 2.0);
-                }
-
-                datacenter.recreateSessions();
-                saveSession();
-
-                lastOutgoingMessageId = 0;
-
-                clearRequestsForRequestClass(RPCRequest.RPCRequestClassGeneric, datacenter);
-                clearRequestsForRequestClass(RPCRequest.RPCRequestClassDownloadMedia, datacenter);
-                clearRequestsForRequestClass(RPCRequest.RPCRequestClassUploadMedia, datacenter);
-            }
-        } else if (message instanceof TLRPC.TL_bad_server_salt) {
-            if (messageId != 0) {
-                long time = getTimeFromMsgId(messageId);
-                long currentTime = System.currentTimeMillis();
-                timeDifference = (int) ((time - currentTime) / 1000 - currentPingTime / 2.0);
-
-                lastOutgoingMessageId = Math.max(messageId, lastOutgoingMessageId);
-            }
-            long resultMid = ((TLRPC.TL_bad_server_salt) message).bad_msg_id;
-            if (resultMid != 0) {
-                for (RPCRequest request : runningRequests) {
-                    if ((request.flags & RPCRequest.RPCRequestClassDownloadMedia) == 0) {
-                        continue;
-                    }
-                    if (request.respondsToMessageId(resultMid)) {
-                        request.retryCount = 0;
-                        request.salt = true;
-                        break;
-                    }
-                }
-            }
-
-            datacenter.clearServerSalts();
-
-            ServerSalt serverSaltDesc = new ServerSalt();
-            serverSaltDesc.validSince = getCurrentTime();
-            serverSaltDesc.validUntil = getCurrentTime() + 30 * 60;
-            serverSaltDesc.value = messageSalt;
-
-            datacenter.addServerSalt(serverSaltDesc);
-            saveSession();
-
-            refillSaltSet(datacenter);
-            if (datacenter.authKey != null) {
-                processRequestQueue(RPCRequest.RPCRequestClassTransportMask, datacenter.datacenterId);
-            }
-        } else if (message instanceof TLRPC.MsgDetailedInfo) {
-            TLRPC.MsgDetailedInfo detailedInfo = (TLRPC.MsgDetailedInfo) message;
-
-            boolean requestResend = false;
-            boolean confirm = true;
-
-            if (detailedInfo instanceof TLRPC.TL_msg_detailed_info) {
-                for (RPCRequest request : runningRequests) {
-                    if (request.respondsToMessageId(detailedInfo.msg_id)) {
-                        if (request.completed) {
-                            break;
-                        }
-                        if (request.lastResendTime == 0 || request.lastResendTime + 60 < (int) (System.currentTimeMillis() / 1000)) {
-                            request.lastResendTime = (int) (System.currentTimeMillis() / 1000);
-                            requestResend = true;
-                        } else {
-                            confirm = false;
-                        }
-                        break;
-                    }
-                }
-            } else {
-                if (!connection.isMessageIdProcessed(messageId)) {
-                    requestResend = true;
-                }
-            }
-
-            if (requestResend) {
-                TLRPC.TL_msg_resend_req resendReq = new TLRPC.TL_msg_resend_req();
-                resendReq.msg_ids.add(detailedInfo.answer_msg_id);
-
-                NetworkMessage networkMessage = new NetworkMessage();
-                networkMessage.protoMessage = wrapMessage(resendReq, connection, false);
-
-                ArrayList<NetworkMessage> arr = new ArrayList<>();
-                arr.add(networkMessage);
-                sendMessagesToTransport(arr, connection, false);
-            } else if (confirm) {
-                connection.addMessageToConfirm(detailedInfo.answer_msg_id);
-            }
-        } else if (message instanceof TLRPC.TL_gzip_packed) {
-            TLRPC.TL_gzip_packed packet = (TLRPC.TL_gzip_packed) message;
-            TLObject result = Utilities.decompress(packet.packed_data, getRequestWithMessageId(messageId), true);
-            if (result != null) {
-                processMessage(result, messageId, messageSeqNo, messageSalt, connection, innerMsgId, containerMessageId);
-            }
-        } else if (message instanceof TLRPC.Updates) {
-            if ((connection.transportRequestClass & RPCRequest.RPCRequestClassPush) != 0) {
-                FileLog.e("tmessages", "received internal push");
-                if (paused) {
-                    pushMessagesReceived = false;
-                }
-                AndroidUtilities.runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        FileLog.e("tmessages", "acquire wakelock");
-                        wakeLock.acquire(20000);
-                    }
-                });
-                resumeNetworkInternal();
-            } else {
-                pushMessagesReceived = true;
-//                MessagesController.getInstance().processUpdates((TLRPC.Updates) message, false);
-                AndroidUtilities.runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (wakeLock.isHeld()) {
-                            FileLog.e("tmessages", "release wakelock");
-                            wakeLock.release();
-                        }
-                    }
-                });
-            }
-        } else {
-            FileLog.e("tmessages", "***** Error: unknown message class " + message);
-        }
-    }
-
-    void generatePing() {
-        Datacenter datacenter = datacenterWithId(currentDatacenterId);
-        if (datacenter != null) {
-            generatePing(datacenter, false);
-        }
-    }
-
-    private ByteBufferDesc generatePingData(TcpConnection connection) {
-        if (connection == null) {
-            return null;
-        }
-
-        TLRPC.TL_ping_delay_disconnect ping = new TLRPC.TL_ping_delay_disconnect();
-        ping.ping_id = nextPingId++;
-        if ((connection.transportRequestClass & RPCRequest.RPCRequestClassPush) != 0) {
-            ping.disconnect_delay = 60 * 7;
-        } else {
-            ping.disconnect_delay = 35;
-            pingIdToDate.put(ping.ping_id, (int) (System.currentTimeMillis() / 1000));
-            if (pingIdToDate.size() > 20) {
-                ArrayList<Long> itemsToDelete = new ArrayList<>();
-                for (Long pid : pingIdToDate.keySet()) {
-                    if (pid < nextPingId - 10) {
-                        itemsToDelete.add(pid);
-                    }
-                }
-                for (Long pid : itemsToDelete) {
-                    pingIdToDate.remove(pid);
-                }
-            }
-        }
-
-        NetworkMessage networkMessage = new NetworkMessage();
-        networkMessage.protoMessage = wrapMessage(ping, connection, false);
-
-        ArrayList<NetworkMessage> arr = new ArrayList<>();
-        arr.add(networkMessage);
-        return createConnectionData(arr, null, connection);
-    }
-
-    void generatePing(Datacenter datacenter, boolean push) {
-        TcpConnection connection;
-        if (push) {
-            connection = datacenter.pushConnection;
-        } else {
-            connection = datacenter.connection;
-        }
-        if (connection != null && (push || connection.channelToken != 0)) {
-            ByteBufferDesc transportData = generatePingData(connection);
-            if (transportData != null) {
-                if (push) {
-                    FileLog.e("tmessages", "send push ping");
-                    sendingPushPing = true;
-                }
-                connection.sendData(transportData, true, false);
-            }
-        }
-    }
 
     //================================================================================
     // TCPConnection delegate
@@ -2490,7 +1661,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                 //lastPushPingTime = System.currentTimeMillis() - 60000 * 3 + 4000; //TODO check this
                 //FileLog.e("tmessages", "schedule push ping in 4 seconds");
                 lastPushPingTime = System.currentTimeMillis();
-                generatePing(datacenter, true);
+//                generatePing(datacenter, true);
             } else {
                 if (paused && lastPauseTime != 0) {
                     lastPauseTime = System.currentTimeMillis();
@@ -2564,10 +1735,10 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
 
             int messageLength = data.readInt32(false);
 
-            TLObject message = deserialize(getRequestWithMessageId(messageId), data, true);
+            TLObject message = null;
 
             if (message != null) {
-                processMessage(message, messageId, 0, 0, connection, 0, 0);
+//                processMessage(message, messageId, 0, 0, connection, 0, 0);
                 connection.addProcessedMessageId(messageId);
             }
         } else {
@@ -2621,19 +1792,19 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
             }
 
             if (!doNotProcess) {
-                TLObject message = deserialize(getRequestWithMessageId(messageId), data, true);
+                TLObject message = null;
                 if (message != null) {
                     FileLog.d("tmessages", "received object " + message);
-                    processMessage(message, messageId, messageSeqNo, messageServerSalt, connection, 0, 0);
+//                    processMessage(message, messageId, messageSeqNo, messageServerSalt, connection, 0, 0);
                     connection.addProcessedMessageId(messageId);
 
                     if ((connection.transportRequestClass & RPCRequest.RPCRequestClassPush) != 0) {
                         ArrayList<NetworkMessage> messages = new ArrayList<>();
-                        NetworkMessage networkMessage = connection.generateConfirmationRequest();
-                        if (networkMessage != null) {
-                            messages.add(networkMessage);
-                        }
-                        sendMessagesToTransport(messages, connection, false);
+//                        NetworkMessage networkMessage = connection.generateConfirmationRequest();
+//                        if (networkMessage != null) {
+//                            messages.add(networkMessage);
+//                        }
+//                        sendMessagesToTransport(messages, connection, false);
                     }
                 }
             } else {
@@ -2643,46 +1814,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         }
     }
 
-    protected TLObject deserialize(TLObject request, AbsSerializedData data, boolean exception) {
-        int constructor = 0;
-        try {
-            constructor = data.readInt32(exception);
-        } catch (Exception e) {
-            FileLog.e("tmessages", e);
-        }
-        TLObject message = null;
-        try {
-            message = TLClassStore.Instance().TLdeserialize(data, constructor, exception);
-        } catch (Exception e) {
-            FileLog.e("tmessages", e);
-        }
-        if (message == null) {
-            if (request != null) {
-                try {
-                    message = request.deserializeResponse(data, constructor, exception);
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                }
-                if (message == null) {
-                    FileLog.e("tmessages", String.format(Locale.US, "***** Error parsing message: %x", constructor));
-                }
-            } else {
-                FileLog.d("tmessages", String.format(Locale.US, "***** Not found request to parse message: %x", constructor));
-            }
-        } else if (message instanceof TLRPC.TL_rpc_result && ((TLRPC.TL_rpc_result) message).result == null) {
-            message = null;
-        }
-        return message;
-    }
 
-    public TLObject getRequestWithMessageId(long msgId) {
-        for (RPCRequest request : runningRequests) {
-            if (msgId == request.runningMessageId) {
-                return request.rawRequest;
-            }
-        }
-        return null;
-    }
 
 
     //================================================================================
@@ -2712,13 +1844,6 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
                 clearRequestsForRequestClass(RPCRequest.RPCRequestClassUploadMedia, eactor.datacenter);
             }
             processRequestQueue(RPCRequest.RPCRequestClassTransportMask, eactor.datacenter.datacenterId);
-        } else if (action instanceof ExportAuthorizationAction) {
-            ExportAuthorizationAction eactor = (ExportAuthorizationAction) action;
-
-            Datacenter datacenter = eactor.datacenter;
-            datacenter.authorized = true;
-            saveSession();
-            processRequestQueue(RPCRequest.RPCRequestClassTransportMask, datacenter.datacenterId);
         }
         Utilities.stageQueue.postRunnable(new Runnable() {
             @Override

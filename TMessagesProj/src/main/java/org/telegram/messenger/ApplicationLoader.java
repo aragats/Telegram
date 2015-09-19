@@ -149,7 +149,7 @@ public class ApplicationLoader extends Application {
         if (UserConfig.getCurrentUser() != null) {
             PostsController.getInstance().setUser(UserConfig.getCurrentUser());
 //            ConnectionsManager.getInstance().applyCountryPortNumber(UserConfig.getCurrentUser().phone);
-            ConnectionsManager.getInstance().initPushConnection();
+//            ConnectionsManager.getInstance().initPushConnection();
 //            MessagesController.getInstance().getBlockedUsers(true);
         }
 
