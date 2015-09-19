@@ -1520,7 +1520,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                         Post post = cell.getPost();
 
                         PhotoViewer.getInstance().setParentActivity(getParentActivity());
-                        PhotoViewer.getInstance().openPhoto(post, PostCreateActivity.this);
+//                        PhotoViewer.getInstance().openPhoto(post, PostCreateActivity.this);
+//                        PhotoViewer.getInstance().openPhotoNew(post, PostCreateActivity.this);
 
                         //TODO open location view
 //                                LocationActivity fragment = new LocationActivity();
