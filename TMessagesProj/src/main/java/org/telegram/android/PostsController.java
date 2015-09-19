@@ -110,7 +110,6 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     public void cleanUp() {
         MediaController.getInstance().cleanup();
-        NotificationsController.getInstance().cleanup();
 
         postsMap.clear();
         posts.clear();

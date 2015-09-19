@@ -6920,42 +6920,6 @@ public class TLRPC {
         }
     }
 
-    public static class TL_inputPhoneContact extends TLObject {
-        public static int constructor = 0xf392b7f4;
-
-        public long client_id;
-        public String phone;
-        public String first_name;
-        public String last_name;
-
-        public static TL_inputPhoneContact TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
-            if (TL_inputPhoneContact.constructor != constructor) {
-                if (exception) {
-                    throw new RuntimeException(String.format("can't parse magic %x in TL_inputPhoneContact", constructor));
-                } else {
-                    return null;
-                }
-            }
-            TL_inputPhoneContact result = new TL_inputPhoneContact();
-            result.readParams(stream, exception);
-            return result;
-        }
-
-        public void readParams(AbsSerializedData stream, boolean exception) {
-            client_id = stream.readInt64(exception);
-            phone = stream.readString(exception);
-            first_name = stream.readString(exception);
-            last_name = stream.readString(exception);
-        }
-
-        public void serializeToStream(AbsSerializedData stream) {
-            stream.writeInt32(constructor);
-            stream.writeInt64(client_id);
-            stream.writeString(phone);
-            stream.writeString(first_name);
-            stream.writeString(last_name);
-        }
-    }
 
     public static class Bool extends TLObject {
 
@@ -7066,27 +7030,6 @@ public class TLRPC {
         }
     }
 
-    public static class TL_messages_messageEmpty extends TLObject {
-        public static int constructor = 0x3f4e0648;
-
-
-        public static TL_messages_messageEmpty TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
-            if (TL_messages_messageEmpty.constructor != constructor) {
-                if (exception) {
-                    throw new RuntimeException(String.format("can't parse magic %x in TL_messages_messageEmpty", constructor));
-                } else {
-                    return null;
-                }
-            }
-            TL_messages_messageEmpty result = new TL_messages_messageEmpty();
-            result.readParams(stream, exception);
-            return result;
-        }
-
-        public void serializeToStream(AbsSerializedData stream) {
-            stream.writeInt32(constructor);
-        }
-    }
 
     public static class DestroySessionRes extends TLObject {
         public long session_id;
@@ -12972,27 +12915,6 @@ public class TLRPC {
         }
     }
 
-    public static class TL_contacts_importContacts extends TLObject {
-        public static int constructor = 0xda30b32d;
-
-        public ArrayList<TL_inputPhoneContact> contacts = new ArrayList<>();
-        public boolean replace;
-
-        public TLObject deserializeResponse(AbsSerializedData stream, int constructor, boolean exception) {
-            return TL_contacts_importedContacts.TLdeserialize(stream, constructor, exception);
-        }
-
-        public void serializeToStream(AbsSerializedData stream) {
-            stream.writeInt32(constructor);
-            stream.writeInt32(0x1cb5c415);
-            int count = contacts.size();
-            stream.writeInt32(count);
-            for (int a = 0; a < count; a++) {
-                contacts.get(a).serializeToStream(stream);
-            }
-            stream.writeBool(replace);
-        }
-    }
 
     public static class TL_contacts_getSuggested extends TLObject {
         public static int constructor = 0xcd773428;

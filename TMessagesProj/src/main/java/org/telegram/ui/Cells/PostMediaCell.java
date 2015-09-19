@@ -21,7 +21,6 @@ import android.view.SoundEffectConstants;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.ImageReceiver;
 import org.telegram.android.MediaController;
-import org.telegram.android.MessageObject;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.ui.Components.AvatarDrawable;
@@ -78,7 +77,6 @@ public class PostMediaCell extends BaseCell implements MediaController.FileDownl
     private boolean buttonPressed = false;
 
     private static TextPaint infoPaint;
-    private static MessageObject lastDownloadedGifMessage = null;
     private static TextPaint namePaint;
 
     private RadialProgress radialProgress;

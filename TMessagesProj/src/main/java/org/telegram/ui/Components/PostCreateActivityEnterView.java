@@ -38,15 +38,11 @@ import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.android.AnimationCompat.ViewProxy;
 import org.telegram.android.Emoji;
 import org.telegram.android.LocaleController;
-import org.telegram.android.MessageObject;
-import org.telegram.android.MessagesController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
-import org.telegram.messenger.TLRPC;
-import org.telegram.messenger.UserConfig;
 import org.telegram.ui.ActionBar.BaseFragment;
 
 /**
@@ -83,29 +79,19 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
     private PowerManager.WakeLock mWakeLock;
     private AnimatorSetProxy runningAnimation;
     private AnimatorSetProxy runningAnimation2;
-    private ObjectAnimatorProxy runningAnimationAudio;
     private int runningAnimationType;
-    private int audioInterfaceState;
 
     private int keyboardHeight;
     private int keyboardHeightLand;
     private boolean keyboardVisible;
     private boolean sendByEnter;
     private long lastTypingTimeSend;
-    private String lastTimeString;
-    private float startedDraggingX = -1;
-    private float distCanMove = AndroidUtilities.dp(80);
-    private boolean recordingAudio;
     private boolean forceShowSendButton;
     private boolean allowStickers;
 
     private Activity parentActivity;
     private BaseFragment parentFragment;
-    private long dialog_id;
     private boolean ignoreTextChange;
-    private MessageObject replyingMessageObject;
-    private TLRPC.WebPage messageWebPage;
-    private boolean messageWebPageSearch = true;
     private PostCreateActivityEnterViewDelegate delegate;
 
     private float topViewAnimation;
@@ -277,9 +263,6 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
                 checkSendButton(true);
 
                 if (delegate != null) {
-                    if (count > 2 || charSequence == null || charSequence.length() == 0) {
-                        messageWebPageSearch = true;
-                    }
                     delegate.onTextChanged(charSequence, before > count + 1 || (count - before) > 2);
                 }
 
@@ -580,41 +563,10 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
         }
     }
 
-    public void setDialogId(long id) {
-        dialog_id = id;
-    }
-
-    public void setReplyingMessageObject(MessageObject messageObject) {
-        replyingMessageObject = messageObject;
-    }
-
-    public void setWebPage(TLRPC.WebPage webPage, boolean searchWebPages) {
-        messageWebPage = webPage;
-        messageWebPageSearch = searchWebPages;
-    }
-
-    public boolean isMessageWebPageSearchEnabled() {
-        return messageWebPageSearch;
-    }
 
     private void sendMessage() {
         if (parentFragment != null) {
-            String action;
-            TLRPC.Chat currentChat;
-            if ((int) dialog_id < 0) {
-//                currentChat = MessagesController.getInstance().getChat(-(int) dialog_id);
-                currentChat = null;
-                if (currentChat != null && currentChat.participants_count > MessagesController.getInstance().groupBigSize) {
-                    action = "bigchat_message";
-                } else {
-                    action = "chat_message";
-                }
-            } else {
-                action = "pm_message";
-            }
-            if (!MessagesController.isFeatureEnabled(action, parentFragment)) {
-                return;
-            }
+            String action = "pm_message";
         }
         String message = messageEditText.getText().toString();
         if (processSendingText(message)) {
@@ -869,13 +821,6 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
                             messageEditText.setSelection(j, j);
                         } catch (Exception e) {
                             FileLog.e("tmessages", e);
-                        }
-                    }
-
-                    public void onStickerSelected(TLRPC.Document sticker) {
-//                        SendMessagesHelper.getInstance().sendSticker(sticker, dialog_id, replyingMessageObject);
-                        if (delegate != null) {
-                            delegate.onMessageSend(null);
                         }
                     }
                 });

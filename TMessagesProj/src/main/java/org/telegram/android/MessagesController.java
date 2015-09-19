@@ -109,7 +109,6 @@ public class MessagesController implements NotificationCenter.NotificationCenter
     public void cleanUp() {
         ContactsController.getInstance().cleanup();
         MediaController.getInstance().cleanup();
-        NotificationsController.getInstance().cleanup();
 
         totalDialogsCount = 0;
         loadingDialogs = false;

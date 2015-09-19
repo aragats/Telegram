@@ -42,7 +42,7 @@ public class EmojiView extends LinearLayout implements NotificationCenter.Notifi
     public interface Listener {
         boolean onBackspace();
         void onEmojiSelected(String emoji);
-        void onStickerSelected(TLRPC.Document sticker);
+//        void onStickerSelected(TLRPC.Document sticker);
     }
 
     private ArrayList<EmojiGridAdapter> adapters = new ArrayList<>();

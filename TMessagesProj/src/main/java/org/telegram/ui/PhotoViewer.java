@@ -2093,7 +2093,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     private void setIndexToImage(ImageReceiver imageReceiver, int index) {
         imageReceiver.setOrientation(0, false);
         if (!imagesArrLocals.isEmpty()) {
-            imageReceiver.setParentMessageObject(null);
             if (index >= 0 && index < imagesArrLocals.size()) {
                 Object object = imagesArrLocals.get(index);
                 int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
@@ -2130,7 +2129,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         } else {
             int size[] = new int[1];
             imageReceiver.setNeedsQualityThumb(false);
-            imageReceiver.setParentMessageObject(null);
             if (size[0] == 0) {
                 imageReceiver.setImageBitmap((Bitmap) null);
             } else {
@@ -2145,7 +2143,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     private void setIndexToImagePostNew(ImageReceiver imageReceiver, int index) {
         imageReceiver.setOrientation(0, false);
         if (!imagesPostArr.isEmpty()) {
-            imageReceiver.setParentMessageObject(null);
             if (index >= 0 && index < imagesPostArr.size() && imagesPostArr.get(index) != null) {
                 Post post = imagesPostArr.get(index);
                 int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);

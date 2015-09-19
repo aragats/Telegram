@@ -682,22 +682,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     AndroidUtilities.cancelRunOnUIThread(waitingForCharaterEnterRunnable);
                     waitingForCharaterEnterRunnable = null;
                 }
-                if (postCreateActivityEnterView.isMessageWebPageSearchEnabled()) {
-                    if (bigChange) {
-//                        searchLinks(text, true);
-                    } else {
-                        waitingForCharaterEnterRunnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                if (this == waitingForCharaterEnterRunnable) {
-//                                    searchLinks(text, false);
-                                    waitingForCharaterEnterRunnable = null;
-                                }
-                            }
-                        };
-                        AndroidUtilities.runOnUIThread(waitingForCharaterEnterRunnable, 3000);
-                    }
-                }
             }
 
             @Override

@@ -49,7 +49,7 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
     private View parentView;
     private Integer tag;
     private Integer thumbTag;
-    private MessageObject parentMessageObject;
+//    private MessageObject parentMessageObject;
     private boolean canceledLoading;
 
     private SetImageBackup setImageBackup;
@@ -739,13 +739,13 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
         return roundRadius;
     }
 
-    public void setParentMessageObject(MessageObject messageObject) {
-        parentMessageObject = messageObject;
-    }
+//    public void setParentMessageObject(MessageObject messageObject) {
+//        parentMessageObject = messageObject;
+//    }
 
-    public MessageObject getParentMessageObject() {
-        return parentMessageObject;
-    }
+//    public MessageObject getParentMessageObject() {
+//        return parentMessageObject;
+//    }
 
     public void setNeedsQualityThumb(boolean value) {
         needsQualityThumb = value;

@@ -113,15 +113,6 @@
             android:name="org.telegram.ui.IntroActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
         </activity>
-        <activity
-            android:name="org.telegram.ui.PopupNotificationActivity"
-            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTask"
-            android:taskAffinity=""
-            android:theme="@style/Theme.TMessages.PopupNotification"
-            android:windowSoftInputMode="adjustResize|stateHidden">
-        </activity>
 
 
         <service android:name="org.telegram.android.AuthenticatorService" android:exported="true">
@@ -141,17 +132,6 @@
             <meta-data android:name="android.provider.CONTACTS_STRUCTURE"
                 android:resource="@xml/contacts" />
         </service>
-
-        <service android:name="org.telegram.android.NotificationsService" android:enabled="true"/>
-        <service android:name="org.telegram.android.NotificationRepeat" android:exported="false"/>
-        <service android:name="org.telegram.android.NotificationDelay" android:exported="false"/>
-
-        <receiver android:name="org.telegram.android.AppStartReceiver" android:enabled="true">
-            <intent-filter>
-                <action android:name="org.telegram.start" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
 
         <uses-library android:name="com.sec.android.app.multiwindow" android:required="false" />
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />

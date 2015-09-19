@@ -1454,7 +1454,6 @@ public class ImageLoader {
 
         final Integer finalTag = TAG;
         final boolean finalIsNeedsQualityThumb = imageReceiver.isNeedsQualityThumb();
-        final MessageObject parentMessageObject = imageReceiver.getParentMessageObject();
         final boolean shouldGenerateQualityThumb = imageReceiver.isShouldGenerateQualityThumb();
         imageLoadQueue.postRunnable(new Runnable() {
             @Override
@@ -1509,34 +1508,6 @@ public class ImageLoader {
                             cacheFile = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), "q_" + url);
                             if (!cacheFile.exists()) {
                                 cacheFile = null;
-                            }
-                        }
-
-                        if (parentMessageObject != null) {
-                            File attachPath = null;
-                            if (parentMessageObject.messageOwner.attachPath != null && parentMessageObject.messageOwner.attachPath.length() > 0) {
-                                attachPath = new File(parentMessageObject.messageOwner.attachPath);
-                                if (!attachPath.exists()) {
-                                    attachPath = null;
-                                }
-                            }
-                            if (attachPath == null) {
-                                attachPath = FileLoader.getPathToMessage(parentMessageObject.messageOwner);
-                            }
-                            if (finalIsNeedsQualityThumb && cacheFile == null) {
-                                String location = parentMessageObject.getFileName();
-                                ThumbGenerateInfo info = waitingForQualityThumb.get(location);
-                                if (info == null) {
-                                    info = new ThumbGenerateInfo();
-                                    info.fileLocation = (TLRPC.TL_fileLocation) imageLocation;
-                                    info.filter = filter;
-                                    waitingForQualityThumb.put(location, info);
-                                }
-                                info.count++;
-                                waitingForQualityThumbByTag.put(finalTag, location);
-                            }
-                            if (attachPath.exists() && shouldGenerateQualityThumb) {
-                                generateThumb(parentMessageObject.getFileType(), attachPath, (TLRPC.TL_fileLocation) imageLocation, filter);
                             }
                         }
                     }
