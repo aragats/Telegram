@@ -45,43 +45,43 @@ public class BackupImageView extends View {
         imageReceiver = new ImageReceiver(this);
     }
 
-    public void setImage(TLObject path, String filter, String ext, Drawable thumb) {
-        setImage(path, null, filter, thumb, null, null, null, ext, 0);
+    public void setImage(String path, String filter, String ext, Drawable thumb) {
+        setImage(null, filter, thumb, null, null, ext, 0);
     }
 
-    public void setImage(TLObject path, String filter, Drawable thumb) {
-        setImage(path, null, filter, thumb, null, null, null, null, 0);
+    public void setImage(String filter, Drawable thumb) {
+        setImage(null, filter, thumb, null, null, null, 0);
     }
 
-    public void setImage(TLObject path, String filter, Bitmap thumb) {
-        setImage(path, null, filter, null, thumb, null, null, null, 0);
+    public void setImage(String filter, Bitmap thumb) {
+        setImage(null, filter, null, thumb, null, null, 0);
     }
 
-    public void setImage(TLObject path, String filter, Drawable thumb, int size) {
-        setImage(path, null, filter, thumb, null, null, null, null, size);
+    public void setImage(String filter, Drawable thumb, int size) {
+        setImage(null, filter, thumb, null, null, null, size);
     }
 
-    public void setImage(TLObject path, String filter, Bitmap thumb, int size) {
-        setImage(path, null, filter, null, thumb, null, null, null, size);
+    public void setImage(String filter, Bitmap thumb, int size) {
+        setImage(null, filter, null, thumb, null, null, size);
     }
 
-    public void setImage(TLObject path, String filter, TLRPC.FileLocation thumb, int size) {
-        setImage(path, null, filter, null, null, thumb, null, null, size);
+    public void setImage(String filter, int size) {
+        setImage(null, filter, null, null, null, null, size);
     }
 
     public void setImage(String path, String filter, Drawable thumb) {
-        setImage(null, path, filter, thumb, null, null, null, null, 0);
+        setImage(path, filter, thumb, null, null, null, 0);
     }
 
     public void setOrientation(int angle, boolean center) {
         imageReceiver.setOrientation(angle, center);
     }
 
-    public void setImage(TLObject path, String httpUrl, String filter, Drawable thumb, Bitmap thumbBitmap, TLRPC.FileLocation thumbLocation, String thumbFilter, String ext, int size) {
+    public void setImage(String httpUrl, String filter, Drawable thumb, Bitmap thumbBitmap, String thumbFilter, String ext, int size) {
         if (thumbBitmap != null) {
             thumb = new BitmapDrawable(null, thumbBitmap);
         }
-        imageReceiver.setImage(path, httpUrl, filter, thumb, thumbLocation, thumbFilter, size, ext, false);
+        imageReceiver.setImage(httpUrl, filter, thumb, thumbFilter, size, ext, false);
     }
 
     public void setImageBitmap(Bitmap bitmap) {

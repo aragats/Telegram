@@ -15,11 +15,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Outline;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -49,10 +46,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
-import org.telegram.android.MessagesController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.location.LocationManagerHelper;
-import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
@@ -817,9 +812,9 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
     public void didReceivedNotification(int id, Object... args) {
         if (id == NotificationCenter.updateInterfaces) {
             int mask = (Integer) args[0];
-            if ((mask & MessagesController.UPDATE_MASK_AVATAR) != 0 || (mask & MessagesController.UPDATE_MASK_NAME) != 0) {
-                updateUserData();
-            }
+//            if ((mask & MessagesController.UPDATE_MASK_AVATAR) != 0 || (mask & MessagesController.UPDATE_MASK_NAME) != 0) {
+//                updateUserData();
+//            }
         } else if (id == NotificationCenter.closeChats) {
             removeSelfFromStack();
         }

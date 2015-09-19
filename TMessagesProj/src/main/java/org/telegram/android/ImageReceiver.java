@@ -23,8 +23,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-import org.telegram.messenger.TLObject;
-import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.Utilities;
 
@@ -35,11 +33,9 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
     }
 
     private class SetImageBackup {
-        public TLObject fileLocation;
         public String httpUrl;
         public String filter;
         public Drawable thumb;
-        public TLRPC.FileLocation thumbLocation;
         public String thumbFilter;
         public int size;
         public boolean cacheOnly;
@@ -54,14 +50,12 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
 
     private SetImageBackup setImageBackup;
 
-    private TLObject currentImageLocation;
     private String currentKey;
     private String currentThumbKey;
     private String currentHttpUrl;
     private String currentFilter;
     private String currentThumbFilter;
     private String currentExt;
-    private TLRPC.FileLocation currentThumbLocation;
     private int currentSize;
     private boolean currentCacheOnly;
     private BitmapDrawable currentImage;
@@ -107,52 +101,30 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
         canceledLoading = true;
     }
 
-    public void setImage(TLObject path, String filter, Drawable thumb, String ext, boolean cacheOnly) {
-        setImage(path, null, filter, thumb, null, null, 0, ext, cacheOnly);
-    }
-
-    public void setImage(TLObject path, String filter, Drawable thumb, int size, String ext, boolean cacheOnly) {
-        setImage(path, null, filter, thumb, null, null, size, ext, cacheOnly);
-    }
 
     //TODO ser image by url. investigate the method nad new parameters.
     public void setImage(String httpUrl, String filter, Drawable thumb, String ext, int size) {
-        setImage(null, httpUrl, filter, thumb, null, null, size, ext, true);
+        setImage(httpUrl, filter, thumb, null, size, ext, true);
     }
 
-    public void setImage(TLObject fileLocation, String filter, TLRPC.FileLocation thumbLocation, String thumbFilter, String ext, boolean cacheOnly) {
-        setImage(fileLocation, null, filter, null, thumbLocation, thumbFilter, 0, ext, cacheOnly);
-    }
-
-    public void setImage(TLObject fileLocation, String filter, TLRPC.FileLocation thumbLocation, String thumbFilter, int size, String ext, boolean cacheOnly) {
-        setImage(fileLocation, null, filter, null, thumbLocation, thumbFilter, size, ext, cacheOnly);
-    }
-
-    public void setImage(TLObject fileLocation, String httpUrl, String filter, Drawable thumb, TLRPC.FileLocation thumbLocation, String thumbFilter, int size, String ext, boolean cacheOnly) {
+    public void setImage(String httpUrl, String filter, Drawable thumb, String thumbFilter, int size, String ext, boolean cacheOnly) {
         if (setImageBackup != null) {
-            setImageBackup.fileLocation = null;
             setImageBackup.httpUrl = null;
-            setImageBackup.thumbLocation = null;
             setImageBackup.thumb = null;
         }
 
-        if ((fileLocation == null && httpUrl == null && thumbLocation == null)
-                || (fileLocation != null && !(fileLocation instanceof TLRPC.TL_fileLocation)
-                && !(fileLocation instanceof TLRPC.TL_fileEncryptedLocation)
-                && !(fileLocation instanceof TLRPC.TL_document))) {
+        if (httpUrl == null) {
             recycleBitmap(null, false);
             recycleBitmap(null, true);
             currentKey = null;
             currentExt = ext;
             currentThumbKey = null;
             currentThumbFilter = null;
-            currentImageLocation = null;
             currentHttpUrl = null;
             currentFilter = null;
             currentCacheOnly = false;
             staticThumb = thumb;
             currentAlpha = 1;
-            currentThumbLocation = null;
             currentSize = 0;
             currentImage = null;
             bitmapShader = null;
@@ -172,22 +144,8 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
 
 
 
-        if (!(thumbLocation instanceof TLRPC.TL_fileLocation)) {
-            thumbLocation = null;
-        }
+        String  key = Utilities.MD5(httpUrl);;
 
-        String key = null;
-        if (fileLocation != null) {
-            if (fileLocation instanceof TLRPC.FileLocation) {
-                TLRPC.FileLocation location = (TLRPC.FileLocation) fileLocation;
-                key = location.volume_id + "_" + location.local_id;
-            } else if (fileLocation instanceof TLRPC.Document) {
-                TLRPC.Document location = (TLRPC.Document) fileLocation;
-                key = location.dc_id + "_" + location.id;
-            }
-        } else if (httpUrl != null) {
-            key = Utilities.MD5(httpUrl);
-        }
         if (key != null) {
             if (filter != null) {
                 key += "@" + filter;
@@ -204,12 +162,6 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
         }
 
         String thumbKey = null;
-        if (thumbLocation != null) {
-            thumbKey = thumbLocation.volume_id + "_" + thumbLocation.local_id;
-            if (thumbFilter != null) {
-                thumbKey += "@" + thumbFilter;
-            }
-        }
 
         recycleBitmap(key, false);
         recycleBitmap(thumbKey, true);
@@ -217,13 +169,11 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
         currentThumbKey = thumbKey;
         currentKey = key;
         currentExt = ext;
-        currentImageLocation = fileLocation;
         currentHttpUrl = httpUrl;
         currentFilter = filter;
         currentThumbFilter = thumbFilter;
         currentSize = size;
         currentCacheOnly = cacheOnly;
-        currentThumbLocation = thumbLocation;
         staticThumb = thumb;
         bitmapShader = null;
         currentAlpha = 1.0f;
@@ -280,22 +230,18 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
         recycleBitmap(null, false);
         recycleBitmap(null, true);
         staticThumb = bitmap;
-        currentThumbLocation = null;
         currentKey = null;
         currentExt = null;
         currentThumbKey = null;
         currentImage = null;
         currentThumbFilter = null;
-        currentImageLocation = null;
         currentHttpUrl = null;
         currentFilter = null;
         currentSize = 0;
         currentCacheOnly = false;
         bitmapShader = null;
         if (setImageBackup != null) {
-            setImageBackup.fileLocation = null;
             setImageBackup.httpUrl = null;
-            setImageBackup.thumbLocation = null;
             setImageBackup.thumb = null;
         }
         currentAlpha = 1;
@@ -321,15 +267,13 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
     }
 
     public void onDetachedFromWindow() {
-        if (currentImageLocation != null || currentHttpUrl != null || currentThumbLocation != null || staticThumb != null) {
+        if (currentHttpUrl != null || staticThumb != null) {
             if (setImageBackup == null) {
                 setImageBackup = new SetImageBackup();
             }
-            setImageBackup.fileLocation = currentImageLocation;
             setImageBackup.httpUrl = currentHttpUrl;
             setImageBackup.filter = currentFilter;
             setImageBackup.thumb = staticThumb;
-            setImageBackup.thumbLocation = currentThumbLocation;
             setImageBackup.thumbFilter = currentThumbFilter;
             setImageBackup.size = currentSize;
             setImageBackup.ext = currentExt;
@@ -341,8 +285,8 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
 
     public boolean onAttachedToWindow() {
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.didReplacedPhotoInMemCache);
-        if (setImageBackup != null && (setImageBackup.fileLocation != null || setImageBackup.httpUrl != null || setImageBackup.thumbLocation != null || setImageBackup.thumb != null)) {
-            setImage(setImageBackup.fileLocation, setImageBackup.httpUrl, setImageBackup.filter, setImageBackup.thumb, setImageBackup.thumbLocation, setImageBackup.thumbFilter, setImageBackup.size, setImageBackup.ext, setImageBackup.cacheOnly);
+        if (setImageBackup != null && (setImageBackup.httpUrl != null || setImageBackup.thumb != null)) {
+            setImage(setImageBackup.httpUrl, setImageBackup.filter, setImageBackup.thumb, setImageBackup.thumbFilter, setImageBackup.size, setImageBackup.ext, setImageBackup.cacheOnly);
             return true;
         }
         return false;
@@ -403,7 +347,7 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
                             ImageLoader.getInstance().removeImage(currentThumbKey);
                             currentThumbKey = null;
                         }
-                        setImage(currentImageLocation, currentHttpUrl, currentFilter, currentThumb, currentThumbLocation, currentThumbFilter, currentSize, currentExt, currentCacheOnly);
+                        setImage(currentHttpUrl, currentFilter, currentThumb, currentThumbFilter, currentSize, currentExt, currentCacheOnly);
                         FileLog.e("tmessages", e);
                     }
                     canvas.restore();
@@ -448,7 +392,7 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
                                     ImageLoader.getInstance().removeImage(currentThumbKey);
                                     currentThumbKey = null;
                                 }
-                                setImage(currentImageLocation, currentHttpUrl, currentFilter, currentThumb, currentThumbLocation, currentThumbFilter, currentSize, currentExt, currentCacheOnly);
+                                setImage(currentHttpUrl, currentFilter, currentThumb, currentThumbFilter, currentSize, currentExt, currentCacheOnly);
                                 FileLog.e("tmessages", e);
                             }
                         }
@@ -485,7 +429,7 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
                                     ImageLoader.getInstance().removeImage(currentThumbKey);
                                     currentThumbKey = null;
                                 }
-                                setImage(currentImageLocation, currentHttpUrl, currentFilter, currentThumb, currentThumbLocation, currentThumbFilter, currentSize, currentExt, currentCacheOnly);
+                                setImage(currentHttpUrl, currentFilter, currentThumb, currentThumbFilter, currentSize, currentExt, currentCacheOnly);
                                 FileLog.e("tmessages", e);
                             }
                         }
@@ -692,14 +636,6 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
 
     public int getSize() {
         return currentSize;
-    }
-
-    public TLObject getImageLocation() {
-        return currentImageLocation;
-    }
-
-    public TLRPC.FileLocation getThumbLocation() {
-        return currentThumbLocation;
     }
 
     public String getHttpImageLocation() {
@@ -914,20 +850,16 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
             String oldKey = (String) args[0];
             if (currentKey != null && currentKey.equals(oldKey)) {
                 currentKey = (String) args[1];
-                currentImageLocation = (TLRPC.FileLocation) args[2];
             }
             if (currentThumbKey != null && currentThumbKey.equals(oldKey)) {
                 currentThumbKey = (String) args[1];
-                currentThumbLocation = (TLRPC.FileLocation) args[2];
             }
             if (setImageBackup != null) {
                 if (currentKey != null && currentKey.equals(oldKey)) {
                     currentKey = (String) args[1];
-                    currentImageLocation = (TLRPC.FileLocation) args[2];
                 }
                 if (currentThumbKey != null && currentThumbKey.equals(oldKey)) {
                     currentThumbKey = (String) args[1];
-                    currentThumbLocation = (TLRPC.FileLocation) args[2];
                 }
             }
         }

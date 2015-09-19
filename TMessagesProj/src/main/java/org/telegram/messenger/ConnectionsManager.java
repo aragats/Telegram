@@ -19,9 +19,7 @@ import android.os.PowerManager;
 import android.util.Base64;
 
 import org.telegram.android.AndroidUtilities;
-import org.telegram.android.ContactsController;
 import org.telegram.android.LocaleController;
-import org.telegram.android.MessagesController;
 import org.telegram.android.NotificationCenter;
 
 import java.io.File;
@@ -2520,7 +2518,7 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
 
     private void finishUpdatingState(TcpConnection connection) {
         if (connection.getDatacenterId() == currentDatacenterId && (connection.transportRequestClass & RPCRequest.RPCRequestClassGeneric) != 0) {
-            if (ConnectionsManager.getInstance().connectionState == 3 && !MessagesController.getInstance().gettingDifference && !MessagesController.getInstance().gettingDifferenceAgain) {
+            if (ConnectionsManager.getInstance().connectionState == 3) {
                 ConnectionsManager.getInstance().connectionState = 0;
                 final int stateCopy = ConnectionsManager.getInstance().connectionState;
                 AndroidUtilities.runOnUIThread(new Runnable() {
@@ -2686,25 +2684,6 @@ public class ConnectionsManager implements Action.ActionDelegate, TcpConnection.
         return null;
     }
 
-    //================================================================================
-    // Move to datacenter manage
-    //================================================================================
-
-
-
-
-
-    void authorizedOnMovingDatacenter() {
-        Datacenter datacenter = datacenterWithId(currentDatacenterId);
-        if (datacenter != null && datacenter.connection != null) {
-            datacenter.connection.suspendConnection(true);
-        }
-        movingAuthorization = null;
-        currentDatacenterId = movingToDatacenterId;
-        movingToDatacenterId = DEFAULT_DATACENTER_ID;
-        saveSession();
-        processRequestQueue(0, 0);
-    }
 
     //================================================================================
     // Actors manage

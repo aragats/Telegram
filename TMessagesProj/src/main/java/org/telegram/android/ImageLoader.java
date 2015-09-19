@@ -894,12 +894,12 @@ public class ImageLoader {
         }
     }
 
+    //TODO cache image
     private class CacheImage {
         protected String key;
         protected String url;
         protected String filter;
         protected String ext;
-        protected TLObject location;
 
         protected File finalFilePath;
         protected File tempFilePath;
@@ -941,13 +941,6 @@ public class ImageLoader {
                     imageLoadingByTag.remove(receiver.getTag(thumb));
                 }
                 imageReceiverArray.clear();
-                if (location != null) {
-                    if (location instanceof TLRPC.FileLocation) {
-                        FileLoader.getInstance().cancelLoadFile((TLRPC.FileLocation) location, ext);
-                    } else if (location instanceof TLRPC.Document) {
-                        FileLoader.getInstance().cancelLoadFile((TLRPC.Document) location);
-                    }
-                }
                 if (cacheTask != null) {
                     if (thumb) {
                         cacheThumbOutQueue.cancelRunnable(cacheTask);
@@ -1439,7 +1432,7 @@ public class ImageLoader {
         }
     }
 
-    private void createLoadOperationForImageReceiver(final ImageReceiver imageReceiver, final String key, final String url, final String ext, final TLObject imageLocation, final String httpLocation, final String filter, final int size, final boolean cacheOnly, final int thumb) {
+    private void createLoadOperationForImageReceiver(final ImageReceiver imageReceiver, final String key, final String url, final String ext, final String httpLocation, final String filter, final int size, final boolean cacheOnly, final int thumb) {
         if (imageReceiver == null || url == null || key == null) {
             return;
         }
@@ -1539,16 +1532,15 @@ public class ImageLoader {
                             }
                         } else {
                             img.url = url;
-                            img.location = imageLocation;
                             imageLoadingByUrl.put(url, img);
-                            if (httpLocation == null) {
-                                if (imageLocation instanceof TLRPC.FileLocation) {
-                                    TLRPC.FileLocation location = (TLRPC.FileLocation) imageLocation;
-                                    FileLoader.getInstance().loadFile(location, ext, size, size == 0 || location.key != null || cacheOnly);
-                                } else if (imageLocation instanceof TLRPC.Document) {
-                                    FileLoader.getInstance().loadFile((TLRPC.Document) imageLocation, true, true);
-                                }
-                            } else {
+//                            if (httpLocation == null) {
+//                                if (imageLocation instanceof TLRPC.FileLocation) {
+//                                    TLRPC.FileLocation location = (TLRPC.FileLocation) imageLocation;
+//                                    FileLoader.getInstance().loadFile(location, ext, size, size == 0 || location.key != null || cacheOnly);
+//                                } else if (imageLocation instanceof TLRPC.Document) {
+//                                    FileLoader.getInstance().loadFile((TLRPC.Document) imageLocation, true, true);
+//                                }
+//                            } else {
                                 String file = Utilities.MD5(httpLocation);
                                 File cacheDir = FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE);
                                 img.tempFilePath = new File(cacheDir, file + "_temp.jpg");
@@ -1556,7 +1548,7 @@ public class ImageLoader {
                                 img.httpTask = new HttpImageTask(img, size);
                                 httpTasks.add(img.httpTask);
                                 runHttpTasks(false);
-                            }
+//                            }
                         }
                     }
                 }
@@ -1591,8 +1583,6 @@ public class ImageLoader {
             }
         }
 
-        TLRPC.FileLocation thumbLocation = imageReceiver.getThumbLocation();
-        TLObject imageLocation = imageReceiver.getImageLocation();
         String httpLocation = imageReceiver.getHttpImageLocation();
 
         boolean saveImageToCache = false;
@@ -1608,46 +1598,6 @@ public class ImageLoader {
         if (httpLocation != null) {
             key = Utilities.MD5(httpLocation);
             url = key + "." + getHttpUrlExtension(httpLocation);
-        } else if (imageLocation != null) {
-            if (imageLocation instanceof TLRPC.FileLocation) {
-                TLRPC.FileLocation location = (TLRPC.FileLocation) imageLocation;
-                key = location.volume_id + "_" + location.local_id;
-                url = key + "." + ext;
-                if (imageReceiver.getExt() != null || location.key != null || location.volume_id == Integer.MIN_VALUE && location.local_id < 0) {
-                    saveImageToCache = true;
-                }
-            } else if (imageLocation instanceof TLRPC.Document) {
-                TLRPC.Document location = (TLRPC.Document) imageLocation;
-                if (location.id == 0 || location.dc_id == 0) {
-                    return;
-                }
-                key = location.dc_id + "_" + location.id;
-                String docExt = FileLoader.getDocumentFileName(location);
-                int idx;
-                if (docExt == null || (idx = docExt.lastIndexOf(".")) == -1) {
-                    docExt = "";
-                } else {
-                    docExt = docExt.substring(idx);
-                    if (docExt.length() <= 1) {
-                        docExt = "";
-                    }
-                }
-                url = key + docExt;
-                if (thumbKey != null) {
-                    thumbUrl = thumbKey + "." + ext;
-                }
-                saveImageToCache = true;
-            }
-            if (imageLocation == thumbLocation) {
-                imageLocation = null;
-                key = null;
-                url = null;
-            }
-        }
-
-        if (thumbLocation != null) {
-            thumbKey = thumbLocation.volume_id + "_" + thumbLocation.local_id;
-            thumbUrl = thumbKey + "." + ext;
         }
 
         String filter = imageReceiver.getFilter();
@@ -1660,11 +1610,12 @@ public class ImageLoader {
         }
 
         if (httpLocation != null) {
-            createLoadOperationForImageReceiver(imageReceiver, key, url, ext, null, httpLocation, filter, 0, true, 0);
-        } else {
-            createLoadOperationForImageReceiver(imageReceiver, thumbKey, thumbUrl, ext, thumbLocation, null, thumbFilter, 0, true, thumbSet ? 2 : 1);
-            createLoadOperationForImageReceiver(imageReceiver, key, url, ext, imageLocation, null, filter, imageReceiver.getSize(), saveImageToCache || imageReceiver.getCacheOnly(), 0);
+            createLoadOperationForImageReceiver(imageReceiver, key, url, ext, httpLocation, filter, 0, true, 0);
         }
+//        else {
+//            createLoadOperationForImageReceiver(imageReceiver, thumbKey, thumbUrl, ext, null, thumbFilter, 0, true, thumbSet ? 2 : 1);
+//            createLoadOperationForImageReceiver(imageReceiver, key, url, ext, imageLocation, null, filter, imageReceiver.getSize(), saveImageToCache || imageReceiver.getCacheOnly(), 0);
+//        }
     }
 
     private void httpFileLoadError(final String location) {
