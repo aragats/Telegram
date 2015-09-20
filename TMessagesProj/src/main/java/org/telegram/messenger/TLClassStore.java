@@ -16,10 +16,7 @@ public class TLClassStore {
     public TLClassStore() {
         classStore = new HashMap<>();
 
-        classStore.put(TLRPC.TL_auth_authorization.constructor, TLRPC.TL_auth_authorization.class);
-        classStore.put(TLRPC.TL_dh_gen_retry.constructor, TLRPC.TL_dh_gen_retry.class);
-        classStore.put(TLRPC.TL_dh_gen_fail.constructor, TLRPC.TL_dh_gen_fail.class);
-        classStore.put(TLRPC.TL_dh_gen_ok.constructor, TLRPC.TL_dh_gen_ok.class);
+
         classStore.put(TLRPC.TL_server_DH_inner_data.constructor, TLRPC.TL_server_DH_inner_data.class);
         classStore.put(TLRPC.TL_msgs_ack.constructor, TLRPC.TL_msgs_ack.class);
         classStore.put(TLRPC.TL_futureSalt.constructor, TLRPC.TL_futureSalt.class);
@@ -44,13 +41,6 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_server_DH_params_fail.constructor, TLRPC.TL_server_DH_params_fail.class);
         classStore.put(TLRPC.TL_server_DH_params_ok.constructor, TLRPC.TL_server_DH_params_ok.class);
         classStore.put(TLRPC.TL_protoMessage.constructor, TLRPC.TL_protoMessage.class);
-        classStore.put(TLRPC.TL_p_q_inner_data.constructor, TLRPC.TL_p_q_inner_data.class);
-        classStore.put(TLRPC.TL_updateShortChatMessage.constructor, TLRPC.TL_updateShortChatMessage.class);
-        classStore.put(TLRPC.TL_updates.constructor, TLRPC.TL_updates.class);
-        classStore.put(TLRPC.TL_updateShortMessage.constructor, TLRPC.TL_updateShortMessage.class);
-        classStore.put(TLRPC.TL_updateShort.constructor, TLRPC.TL_updateShort.class);
-        classStore.put(TLRPC.TL_updatesCombined.constructor, TLRPC.TL_updatesCombined.class);
-        classStore.put(TLRPC.TL_updatesTooLong.constructor, TLRPC.TL_updatesTooLong.class);
         classStore.put(TLRPC.TL_msgs_state_info.constructor, TLRPC.TL_msgs_state_info.class);
         classStore.put(TLRPC.TL_decryptedMessageLayer.constructor, TLRPC.TL_decryptedMessageLayer.class);
         classStore.put(TLRPC.TL_http_wait.constructor, TLRPC.TL_http_wait.class);
