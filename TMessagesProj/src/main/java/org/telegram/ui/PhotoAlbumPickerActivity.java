@@ -30,7 +30,6 @@ import android.widget.TextView;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
-import org.telegram.android.MessagesStorage;
 import org.telegram.android.NotificationCenter;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.R;

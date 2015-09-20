@@ -115,24 +115,6 @@
         </activity>
 
 
-        <service android:name="org.telegram.android.AuthenticatorService" android:exported="true">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
-            </intent-filter>
-            <meta-data android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/auth"/>
-        </service>
-
-        <service android:name="org.telegram.android.ContactsSyncAdapterService" android:exported="true">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                android:resource="@xml/sync_contacts" />
-            <meta-data android:name="android.provider.CONTACTS_STRUCTURE"
-                android:resource="@xml/contacts" />
-        </service>
-
         <uses-library android:name="com.sec.android.app.multiwindow" android:required="false" />
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
         <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:value="632dp" />

@@ -36,7 +36,6 @@ import org.json.JSONObject;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
-import org.telegram.android.MessagesStorage;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.volley.AuthFailureError;
 import org.telegram.android.volley.Request;

@@ -19,8 +19,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -30,11 +28,8 @@ import android.provider.MediaStore;
 
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ConnectionsManager;
-import org.telegram.messenger.DispatchQueue;
-import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
-import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.UserConfig;
 
 import java.io.File;
@@ -45,7 +40,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 public class MediaController implements NotificationCenter.NotificationCenterDelegate {
 
@@ -309,13 +303,13 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         lastCheckMask = currentMask;
 
         int mask = getAutodownloadMask();
-        if (mask == 0) {
-            MessagesStorage.getInstance().clearDownloadQueue(0);
-        } else {
-            if ((mask & AUTODOWNLOAD_MASK_PHOTO) == 0) {
-                MessagesStorage.getInstance().clearDownloadQueue(AUTODOWNLOAD_MASK_PHOTO);
-            }
-        }
+//        if (mask == 0) {
+//            MessagesStorage.getInstance().clearDownloadQueue(0);
+//        } else {
+//            if ((mask & AUTODOWNLOAD_MASK_PHOTO) == 0) {
+//                MessagesStorage.getInstance().clearDownloadQueue(AUTODOWNLOAD_MASK_PHOTO);
+//            }
+//        }
     }
 
     public boolean canDownloadMedia(int type) {

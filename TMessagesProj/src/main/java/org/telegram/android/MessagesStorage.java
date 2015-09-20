@@ -55,6 +55,7 @@ public class MessagesStorage {
 
     private static volatile MessagesStorage Instance = null;
 
+    @Deprecated
     public static MessagesStorage getInstance() {
         MessagesStorage localInstance = Instance;
         if (localInstance == null) {
@@ -483,28 +484,8 @@ public class MessagesStorage {
 
 
     public void removeFromDownloadQueue(final long id, final int type, final boolean move) {
-        storageQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (move) {
-                        int minDate = -1;
-                        SQLiteCursor cursor = database.queryFinalized(String.format(Locale.US, "SELECT min(date) FROM download_queue WHERE type = %d", type));
-                        if (cursor.next()) {
-                            minDate = cursor.intValue(0);
-                        }
-                        cursor.dispose();
-                        if (minDate != -1) {
-                            database.executeFast(String.format(Locale.US, "UPDATE download_queue SET date = %d WHERE uid = %d AND type = %d", minDate - 1, id, type)).stepThis().dispose();
-                        }
-                    } else {
-                        database.executeFast(String.format(Locale.US, "DELETE FROM download_queue WHERE uid = %d AND type = %d", id, type)).stepThis().dispose();
-                    }
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                }
-            }
-        });
+        //Queue in DB.
+
     }
 
 
@@ -525,62 +506,6 @@ public class MessagesStorage {
         });
     }
 
-    public void getDownloadQueue(final int type) {
-        storageQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final ArrayList<DownloadObject> objects = new ArrayList<>();
-                    SQLiteCursor cursor = database.queryFinalized(String.format(Locale.US, "SELECT uid, type, data FROM download_queue WHERE type = %d ORDER BY date DESC LIMIT 3", type));
-                    while (cursor.next()) {
-                        DownloadObject downloadObject = new DownloadObject();
-                        downloadObject.type = cursor.intValue(1);
-                        downloadObject.id = cursor.longValue(0);
-                        ByteBufferDesc data = buffersStorage.getFreeBuffer(cursor.byteArrayLength(2));
-                        if (data != null && cursor.byteBufferValue(2, data.buffer) != 0) {
-                            downloadObject.object = TLClassStore.Instance().TLdeserialize(data, data.readInt32(false), false);
-                        }
-                        buffersStorage.reuseFreeBuffer(data);
-                        objects.add(downloadObject);
-                    }
-                    cursor.dispose();
-
-                    AndroidUtilities.runOnUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            MediaController.getInstance().processDownloadObjects(type, objects);
-                        }
-                    });
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                }
-            }
-        });
-    }
-
-
-    public void saveSecretParams(final int lsv, final int sg, final byte[] pbytes) {
-        storageQueue.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    SQLitePreparedStatement state = database.executeFast("UPDATE params SET lsv = ?, sg = ?, pbytes = ? WHERE id = 1");
-                    state.bindInteger(1, lsv);
-                    state.bindInteger(2, sg);
-                    ByteBufferDesc data = buffersStorage.getFreeBuffer(pbytes != null ? pbytes.length : 1);
-                    if (pbytes != null) {
-                        data.writeRaw(pbytes);
-                    }
-                    state.bindByteBuffer(3, data.buffer);
-                    state.step();
-                    state.dispose();
-                    buffersStorage.reuseFreeBuffer(data);
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                }
-            }
-        });
-    }
 
     public void saveDiffParams() {
 

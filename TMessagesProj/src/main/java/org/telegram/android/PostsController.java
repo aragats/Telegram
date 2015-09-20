@@ -82,7 +82,6 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     public PostsController() {
         ImageLoader.getInstance();
-        MessagesStorage.getInstance();
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidUpload);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidFailUpload);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidLoaded);
