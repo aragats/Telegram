@@ -89,14 +89,7 @@ public class FileLoader {
         if (forceCache) {
             dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
         } else {
-            if (attach instanceof TLRPC.Video) {
-                TLRPC.Video video = (TLRPC.Video) attach;
-                if (video.key != null) {
-                    dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
-                } else {
-                    dir = getInstance().getDirectory(MEDIA_DIR_VIDEO);
-                }
-            } else if (attach instanceof TLRPC.Document) {
+            if (attach instanceof TLRPC.Document) {
                 TLRPC.Document document = (TLRPC.Document) attach;
                 if (document.key != null) {
                     dir = getInstance().getDirectory(MEDIA_DIR_CACHE);

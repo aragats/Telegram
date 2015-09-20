@@ -70,12 +70,6 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_destroy_sessions_res.constructor, TLRPC.TL_destroy_sessions_res.class);
 
 
-        classStore.put(TLRPC.TL_video.constructor, TLRPC.TL_video.class);
-        classStore.put(TLRPC.TL_videoEmpty.constructor, TLRPC.TL_videoEmpty.class);
-        classStore.put(TLRPC.TL_video_old2.constructor, TLRPC.TL_video_old2.class);
-        classStore.put(TLRPC.TL_video_old.constructor, TLRPC.TL_video_old.class);
-        classStore.put(TLRPC.TL_videoEncrypted.constructor, TLRPC.TL_videoEncrypted.class);
-
         classStore.put(TLRPC.TL_audio.constructor, TLRPC.TL_audio.class);
         classStore.put(TLRPC.TL_audioEncrypted.constructor, TLRPC.TL_audioEncrypted.class);
         classStore.put(TLRPC.TL_audioEmpty.constructor, TLRPC.TL_audioEmpty.class);
