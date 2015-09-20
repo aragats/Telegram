@@ -96,31 +96,9 @@ public class DrawerProfileCell extends FrameLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Drawable backgroundDrawable = ApplicationLoader.getCachedWallpaper();
-        if (ApplicationLoader.isCustomTheme() && backgroundDrawable != null) {
-            phoneTextView.setTextColor(0xffffffff);
-            shadowView.setVisibility(VISIBLE);
-            if (backgroundDrawable instanceof ColorDrawable) {
-                backgroundDrawable.setBounds(0, 0, getMeasuredWidth(), getMeasuredHeight());
-                backgroundDrawable.draw(canvas);
-            } else if (backgroundDrawable instanceof BitmapDrawable) {
-                Bitmap bitmap = ((BitmapDrawable) backgroundDrawable).getBitmap();
-                float scaleX = (float) getMeasuredWidth() / (float) bitmap.getWidth();
-                float scaleY = (float) getMeasuredHeight() / (float) bitmap.getHeight();
-                float scale = scaleX < scaleY ? scaleY : scaleX;
-                int width = (int) (getMeasuredWidth() / scale);
-                int height = (int) (getMeasuredHeight() / scale);
-                int x = (bitmap.getWidth() - width) / 2;
-                int y = (bitmap.getHeight() - height) / 2;
-                srcRect.set(x, y, x + width, y + height);
-                destRect.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
-                canvas.drawBitmap(bitmap, srcRect, destRect, paint);
-            }
-        } else {
-            shadowView.setVisibility(INVISIBLE);
-            phoneTextView.setTextColor(0xffc2e5ff);
-            super.onDraw(canvas);
-        }
+        shadowView.setVisibility(INVISIBLE);
+        phoneTextView.setTextColor(0xffc2e5ff);
+        super.onDraw(canvas);
     }
 
     public void setUser(User user) {

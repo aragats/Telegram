@@ -66,7 +66,6 @@ public class ImageLoader {
     private DispatchQueue cacheThumbOutQueue = new DispatchQueue("cacheThumbOutQueue");
     private DispatchQueue imageLoadQueue = new DispatchQueue("imageLoadQueue");
     private ConcurrentHashMap<String, Float> fileProgresses = new ConcurrentHashMap<>();
-    private HashMap<String, ThumbGenerateTask> thumbGenerateTasks = new HashMap<>();
     private static byte[] bytes;
     private static byte[] bytesThumb;
     private static byte[] header = new byte[12];
@@ -390,115 +389,6 @@ public class ImageLoader {
                     });
                 }
             });
-        }
-    }
-
-    private class ThumbGenerateTask implements Runnable {
-
-        private File originalPath;
-        private int mediaType;
-        private TLRPC.FileLocation thumbLocation;
-        private String filter;
-
-        public ThumbGenerateTask(int type, File path, TLRPC.FileLocation location, String f) {
-            mediaType = type;
-            originalPath = path;
-            thumbLocation = location;
-            filter = f;
-        }
-
-        private void removeTask() {
-            if (thumbLocation == null) {
-                return;
-            }
-            final String name = FileLoader.getAttachFileName(thumbLocation);
-            imageLoadQueue.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    thumbGenerateTasks.remove(name);
-                }
-            });
-        }
-
-        @Override
-        public void run() {
-            try {
-                if (thumbLocation == null) {
-                    removeTask();
-                    return;
-                }
-                final String key = thumbLocation.volume_id + "_" + thumbLocation.local_id;
-                File thumbFile = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), "q_" + key + ".jpg");
-                if (thumbFile.exists() || !originalPath.exists()) {
-                    removeTask();
-                    return;
-                }
-                int size = Math.min(180, Math.min(AndroidUtilities.displaySize.x, AndroidUtilities.displaySize.y) / 4);
-                Bitmap originalBitmap = null;
-                if (mediaType == FileLoader.MEDIA_DIR_IMAGE) {
-                    originalBitmap = ImageLoader.loadBitmap(originalPath.toString(), null, size, size, false);
-                } else if (mediaType == FileLoader.MEDIA_DIR_VIDEO) {
-                    originalBitmap = ThumbnailUtils.createVideoThumbnail(originalPath.toString(), MediaStore.Video.Thumbnails.MINI_KIND);
-                } else if (mediaType == FileLoader.MEDIA_DIR_DOCUMENT) {
-                    String path = originalPath.toString().toLowerCase();
-                    if (!path.endsWith(".jpg") && !path.endsWith(".jpeg") && !path.endsWith(".png") && !path.endsWith(".gif")) {
-                        removeTask();
-                        return;
-                    }
-                    originalBitmap = ImageLoader.loadBitmap(path, null, size, size, false);
-                }
-                if (originalBitmap == null) {
-                    removeTask();
-                    return;
-                }
-
-                int w = originalBitmap.getWidth();
-                int h = originalBitmap.getHeight();
-                if (w == 0 || h == 0) {
-                    removeTask();
-                    return;
-                }
-                float scaleFactor = Math.min((float) w / size, (float) h / size);
-                Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, (int) (w / scaleFactor), (int) (h / scaleFactor), true);
-                if (scaledBitmap != originalBitmap) {
-                    originalBitmap.recycle();
-                }
-                originalBitmap = scaledBitmap;
-                FileOutputStream stream = new FileOutputStream(thumbFile);
-                originalBitmap.compress(Bitmap.CompressFormat.JPEG, 60, stream);
-                try {
-                    stream.close();
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                }
-                final BitmapDrawable bitmapDrawable = new BitmapDrawable(originalBitmap);
-                AndroidUtilities.runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        removeTask();
-
-                        String kf = key;
-                        if (filter != null) {
-                            kf += "@" + filter;
-                        }
-                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.messageThumbGenerated, bitmapDrawable, kf);
-                        /*BitmapDrawable old = memCache.get(kf);
-                        if (old != null) {
-                            Bitmap image = old.getBitmap();
-                            if (runtimeHack != null) {
-                                runtimeHack.trackAlloc(image.getRowBytes() * image.getHeight());
-                            }
-                            if (!image.isRecycled()) {
-                                image.recycle();
-                            }
-                        }*/
-                        memCache.put(kf, bitmapDrawable);
-                    }
-                });
-            } catch (Throwable e) {
-                FileLog.e("tmessages", e);
-                removeTask();
-            }
         }
     }
 

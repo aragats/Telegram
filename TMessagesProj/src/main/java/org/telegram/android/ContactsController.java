@@ -45,21 +45,12 @@ public class ContactsController {
     private Account currentAccount;
     private boolean loadingContacts = false;
     private static final Object loadContactsSync = new Object();
-    private boolean ignoreChanges = false;
-    private boolean contactsSyncInProgress = false;
-    private final Object observerLock = new Object();
     public boolean contactsLoaded = false;
-    private boolean contactsBookLoaded = false;
-    private String lastContactsVersions = "";
     private ArrayList<Integer> delayedContactsUpdate = new ArrayList<>();
     private String inviteText;
     private boolean updatingInviteText = false;
     private HashMap<String, String> sectionsToReplace = new HashMap<>();
 
-    private int loadingDeleteInfo = 0;
-    private int deleteAccountTTL;
-    private int loadingLastSeenInfo = 0;
-    private ArrayList<TLRPC.PrivacyRule> privacyRules = null;
 
     public static class Contact {
         public int id;
@@ -151,14 +142,7 @@ public class ContactsController {
         contactsByPhone.clear();
 
         loadingContacts = false;
-        contactsSyncInProgress = false;
         contactsLoaded = false;
-        contactsBookLoaded = false;
-        lastContactsVersions = "";
-        loadingDeleteInfo = 0;
-        deleteAccountTTL = 0;
-        loadingLastSeenInfo = 0;
-        privacyRules = null;
     }
 
     public void checkInviteText() {

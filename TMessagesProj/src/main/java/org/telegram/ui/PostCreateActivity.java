@@ -564,7 +564,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         emptyView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         emptyView.setGravity(Gravity.CENTER);
         emptyView.setTextColor(0xffffffff);
-        emptyView.setBackgroundResource(ApplicationLoader.isCustomTheme() ? R.drawable.system_black : R.drawable.system_blue);
+//        emptyView.setBackgroundResource(ApplicationLoader.isCustomTheme() ? R.drawable.system_black : R.drawable.system_blue);
+        emptyView.setBackgroundResource(R.drawable.system_blue);
         emptyView.setPadding(AndroidUtilities.dp(7), AndroidUtilities.dp(1), AndroidUtilities.dp(7), AndroidUtilities.dp(1));
         emptyView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -647,7 +648,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         contentView.addView(progressView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.LEFT, 0, 0, 0, 48));
 
         View view = new View(context);
-        view.setBackgroundResource(ApplicationLoader.isCustomTheme() ? R.drawable.system_loader2 : R.drawable.system_loader1);
+//        view.setBackgroundResource(ApplicationLoader.isCustomTheme() ? R.drawable.system_loader2 : R.drawable.system_loader1);
+        view.setBackgroundResource(R.drawable.system_loader1);
         progressView.addView(view, LayoutHelper.createFrame(36, 36, Gravity.CENTER));
 
         ProgressBar progressBar = new ProgressBar(context);
@@ -1459,7 +1461,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             } else if (viewType == 5) {
                 LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = li.inflate(R.layout.chat_loading_layout, parent, false);
-                view.findViewById(R.id.progressLayout).setBackgroundResource(ApplicationLoader.isCustomTheme() ? R.drawable.system_loader2 : R.drawable.system_loader1);
+//                view.findViewById(R.id.progressLayout).setBackgroundResource(ApplicationLoader.isCustomTheme() ? R.drawable.system_loader2 : R.drawable.system_loader1);
+                view.findViewById(R.id.progressLayout).setBackgroundResource(R.drawable.system_loader1);
             } else if (viewType == 6) {
                 LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = li.inflate(R.layout.chat_unread_layout, parent, false);

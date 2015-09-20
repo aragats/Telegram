@@ -40,8 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ApplicationLoader extends Application {
 
     private static Drawable cachedWallpaper;
-    private static int selectedColor;
-    private static boolean isCustomTheme;
+
     private static final Object sync = new Object();
 
     public static volatile Context applicationContext;
@@ -51,18 +50,6 @@ public class ApplicationLoader extends Application {
     public static volatile boolean isScreenOn = false;
     public static volatile boolean mainInterfacePaused = true;
 
-    public static boolean isCustomTheme() {
-        return isCustomTheme;
-    }
-
-    public static int getSelectedColor() {
-        return selectedColor;
-    }
-
-    public static void reloadWallpaper() {
-        cachedWallpaper = null;
-        loadWallpaper();
-    }
 
     public static void loadWallpaper() {
         if (cachedWallpaper != null) {
@@ -79,19 +66,7 @@ public class ApplicationLoader extends Application {
                         selectedColor = preferences.getInt("selectedColor", 0);
                         int cacheColorHint = 0;
                         if (selectedColor == 0) {
-                            if (selectedBackground == 1000001) {
-                                cachedWallpaper = applicationContext.getResources().getDrawable(R.drawable.background_hd);
-                                isCustomTheme = false;
-                            } else {
-                                File toFile = new File(ApplicationLoader.applicationContext.getFilesDir(), "wallpaper.jpg");
-                                if (toFile.exists()) {
-                                    cachedWallpaper = Drawable.createFromPath(toFile.getAbsolutePath());
-                                    isCustomTheme = true;
-                                } else {
-                                    cachedWallpaper = applicationContext.getResources().getDrawable(R.drawable.background_hd);
-                                    isCustomTheme = false;
-                                }
-                            }
+                            cachedWallpaper = applicationContext.getResources().getDrawable(R.drawable.background_hd);
                         }
                     } catch (Throwable throwable) {
                         //ignore

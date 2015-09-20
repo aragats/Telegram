@@ -35,7 +35,6 @@ import android.view.Surface;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -49,7 +48,6 @@ import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.android.AnimationCompat.ViewProxy;
-import org.telegram.android.ContactsController;
 import org.telegram.android.ImageLoader;
 import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
@@ -66,7 +64,6 @@ import org.telegram.messenger.dto.Post;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
-import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.CheckBox;
 import org.telegram.ui.Components.ClippingImageView;
 import org.telegram.ui.Components.LayoutHelper;
@@ -136,9 +133,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
     private float animationValues[][] = new float[2][8];
 
-    private AnimatorSetProxy mentionListAnimation;
-    private boolean allowMentions;
-
     private int animationInProgress = 0;
     private long transitionAnimationStartTime = 0;
     private Runnable animationEndRunnable = null;
@@ -160,11 +154,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     private Bitmap currentThumb = null;
 
     private int totalImagesCount;
-    private boolean isFirstLoading;
     private boolean needSearchImageInArr;
-    private boolean loadingMoreImages;
-    private boolean cacheEndReached;
-    private boolean opennedFromMedia;
 
     private boolean draggingDown = false;
     private float dragY;
@@ -207,7 +197,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
     private ArrayList<Integer> imagesArrLocationsSizes = new ArrayList<>();
     private ArrayList<Object> imagesArrLocals = new ArrayList<>();
-    private TLRPC.FileLocation currentUserAvatarLocation = null;
 
     private final static int gallery_menu_save = 1;
     private final static int gallery_menu_showall = 2;
@@ -972,12 +961,12 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             @Override
             public void onWindowSizeChanged(int size) {
 //                int height = AndroidUtilities.dp(36 * Math.min(3, mentionsAdapter.getCount()) + (mentionsAdapter.getCount() > 3 ? 18 : 0));
-                int height = AndroidUtilities.dp(36 * Math.min(3, 0) + (0 > 3 ? 18 : 0));
-                if (size - AndroidUtilities.getCurrentActionBarHeight() * 2 < height) {
-                    allowMentions = false;
-                } else {
-                    allowMentions = true;
-                }
+//                int height = AndroidUtilities.dp(36 * Math.min(3, 0) + (0 > 3 ? 18 : 0));
+//                if (size - AndroidUtilities.getCurrentActionBarHeight() * 2 < height) {
+//                    allowMentions = false;
+//                } else {
+//                    allowMentions = true;
+//                }
             }
         });
         containerView.addView(captionEditText, LayoutHelper.createRelative(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, -400, RelativeLayout.ALIGN_PARENT_BOTTOM));
@@ -1563,11 +1552,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentFileNames[2] = null;
         totalImagesCount = 0;
         currentEditMode = 0;
-        isFirstLoading = true;
         needSearchImageInArr = false;
-        loadingMoreImages = false;
-        cacheEndReached = false;
-        opennedFromMedia = false;
         needCaptionLayout = false;
         canShowBottom = true;
         //TODO-aragats new
@@ -1575,7 +1560,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         //
         imagesArrLocationsSizes.clear();
         imagesArrLocals.clear();
-        currentUserAvatarLocation = null;
         containerView.setPadding(0, 0, 0, 0);
         currentThumb = object != null ? object.thumb : null;
         menuItem.setVisibility(View.VISIBLE);
@@ -1639,11 +1623,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentFileNames[2] = null;
         totalImagesCount = 0;
         currentEditMode = 0;
-        isFirstLoading = true;
         needSearchImageInArr = false;
-        loadingMoreImages = false;
-        cacheEndReached = false;
-        opennedFromMedia = false;
         needCaptionLayout = false;
         canShowBottom = true;
         //TODO-aragats new
@@ -1651,7 +1631,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         //
         imagesArrLocationsSizes.clear();
         imagesArrLocals.clear();
-        currentUserAvatarLocation = null;
         containerView.setPadding(0, 0, 0, 0);
         currentThumb = object != null ? object.thumb : null;
         menuItem.setVisibility(View.VISIBLE);
