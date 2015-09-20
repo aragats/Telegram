@@ -327,32 +327,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }
     }
 
-    protected void processDownloadObjects(int type, ArrayList<DownloadObject> objects) {
-        if (objects.isEmpty()) {
-            return;
-        }
-//        ArrayList<DownloadObject> queue = null;
-//        if (type == AUTODOWNLOAD_MASK_PHOTO) {
-//            queue = photoDownloadQueue;
-//        }
-//        for (DownloadObject downloadObject : objects) {
-//            String path = FileLoader.getAttachFileName(downloadObject.object);
-//            if (downloadQueueKeys.containsKey(path)) {
-//                continue;
-//            }
-//
-////            boolean added = true;
-////            if (downloadObject.object instanceof TLRPC.PhotoSize) {
-////                FileLoader.getInstance().loadFile((TLRPC.PhotoSize)downloadObject.object, null, false);
-////            } else {
-////                added = false;
-////            }
-////            if (added) {
-////                queue.add(downloadObject);
-////                downloadQueueKeys.put(path, downloadObject);
-////            }
-//        }
-    }
 
     private void checkDownloadFinished(String fileName, int state) {
 //        DownloadObject downloadObject = downloadQueueKeys.get(fileName);

@@ -30,7 +30,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConnectionsManager implements Action.ActionDelegate{
+public class ConnectionsManager implements Action.ActionDelegate {
 
     private ArrayList<Long> sessionsToDestroy = new ArrayList<>();
     private HashMap<Integer, ArrayList<Long>> quickAckIdToRequestIds = new HashMap<>();
@@ -39,10 +39,7 @@ public class ConnectionsManager implements Action.ActionDelegate{
     private ConcurrentHashMap<Integer, ArrayList<Long>> requestsByGuids = new ConcurrentHashMap<>(100, 1.0f, 2);
     private volatile int connectionState = 2;
 
-    private ArrayList<RPCRequest> requestQueue = new ArrayList<>();
-    private ArrayList<RPCRequest> runningRequests = new ArrayList<>();
     private ArrayList<Action> actionQueue = new ArrayList<>();
-
 
 
     private int isTestBackend = 0;
@@ -75,60 +72,6 @@ public class ConnectionsManager implements Action.ActionDelegate{
         return localInstance;
     }
 
-    private Runnable stageRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Utilities.stageQueue.handler.removeCallbacks(stageRunnable);
-
-            long currentTime = System.currentTimeMillis();
-            if (lastPauseTime != 0 && lastPauseTime < currentTime - nextSleepTimeout) {
-                boolean dontSleep = !pushMessagesReceived;
-                if (!dontSleep) {
-                    for (RPCRequest request : runningRequests) {
-                        if (request.rawRequest instanceof TLRPC.TL_get_future_salts) {
-                            dontSleep = true;
-                        } else if (request.retryCount < 10 && (request.runningStartTime + 60 > (int) (currentTime / 1000)) && ((request.flags & RPCRequest.RPCRequestClassDownloadMedia) != 0 || (request.flags & RPCRequest.RPCRequestClassUploadMedia) != 0)) {
-                            dontSleep = true;
-                            break;
-                        }
-                    }
-                }
-                if (!dontSleep) {
-                    for (RPCRequest request : requestQueue) {
-                        if (request.rawRequest instanceof TLRPC.TL_get_future_salts) {
-                            dontSleep = true;
-                        } else if ((request.flags & RPCRequest.RPCRequestClassDownloadMedia) != 0 || (request.flags & RPCRequest.RPCRequestClassUploadMedia) != 0) {
-                            dontSleep = true;
-                            break;
-                        }
-                    }
-                }
-                if (!dontSleep) {
-                    if (!paused) {
-                        FileLog.e("tmessages", "pausing network and timers by sleep time = " + nextSleepTimeout);
-
-                    }
-                    try {
-                        paused = true;
-                        Utilities.stageQueue.postRunnable(stageRunnable, 1000);
-                        return;
-                    } catch (Exception e) {
-                        FileLog.e("tmessages", e);
-                    }
-                } else {
-                    lastPauseTime += 30 * 1000;
-                    FileLog.e("tmessages", "don't sleep 30 seconds because of salt, upload or download request");
-                }
-            }
-            if (paused) {
-                paused = false;
-                FileLog.e("tmessages", "resume network and timers");
-            }
-
-
-            Utilities.stageQueue.postRunnable(stageRunnable, 1000);
-        }
-    };
 
     public ConnectionsManager() {
         loadSession();
@@ -137,7 +80,6 @@ public class ConnectionsManager implements Action.ActionDelegate{
             connectionState = 1;
         }
 
-        Utilities.stageQueue.postRunnable(stageRunnable, 1000);
 
         try {
             PowerManager pm = (PowerManager) ApplicationLoader.applicationContext.getSystemService(Context.POWER_SERVICE);
@@ -178,7 +120,7 @@ public class ConnectionsManager implements Action.ActionDelegate{
 
     //TODO NEED?
     public void applicationMovedToForeground() {
-        Utilities.stageQueue.postRunnable(stageRunnable);
+//        Utilities.stageQueue.postRunnable(stageRunnable);
         Utilities.stageQueue.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -412,38 +354,8 @@ public class ConnectionsManager implements Action.ActionDelegate{
         Utilities.stageQueue.postRunnable(new Runnable() {
             @Override
             public void run() {
-                for (int a = 0; a < requestQueue.size(); a++) {
-                    RPCRequest request = requestQueue.get(a);
-                    if ((request.flags & RPCRequest.RPCRequestClassWithoutLogin) != 0) {
-                        continue;
-                    }
-                    requestQueue.remove(a);
-                    if (request.completionBlock != null) {
-                        TLRPC.TL_error implicitError = new TLRPC.TL_error();
-                        implicitError.code = -1000;
-                        implicitError.text = "";
-                        request.completionBlock.run(null, implicitError);
-                    }
-                    a--;
-                }
-                for (int a = 0; a < runningRequests.size(); a++) {
-                    RPCRequest request = runningRequests.get(a);
-                    if ((request.flags & RPCRequest.RPCRequestClassWithoutLogin) != 0) {
-                        continue;
-                    }
-                    runningRequests.remove(a);
-                    if (request.completionBlock != null) {
-                        TLRPC.TL_error implicitError = new TLRPC.TL_error();
-                        implicitError.code = -1000;
-                        implicitError.text = "";
-                        request.completionBlock.run(null, implicitError);
-                    }
-                    a--;
-                }
                 pingIdToDate.clear();
                 quickAckIdToRequestIds.clear();
-
-
                 sessionsToDestroy.clear();
                 saveSession();
             }
@@ -475,7 +387,6 @@ public class ConnectionsManager implements Action.ActionDelegate{
             requestsByGuids.remove(guid);
         }
     }
-
 
 
     //TODO NEED
@@ -545,7 +456,6 @@ public class ConnectionsManager implements Action.ActionDelegate{
     //================================================================================
     // TCPConnection delegate
     //================================================================================
-
 
 
     //================================================================================
