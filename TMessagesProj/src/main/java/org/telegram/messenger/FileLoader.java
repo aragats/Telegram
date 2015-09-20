@@ -89,14 +89,7 @@ public class FileLoader {
         if (forceCache) {
             dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
         } else {
-            if (attach instanceof TLRPC.Document) {
-                TLRPC.Document document = (TLRPC.Document) attach;
-                if (document.key != null) {
-                    dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
-                } else {
-                    dir = getInstance().getDirectory(MEDIA_DIR_DOCUMENT);
-                }
-            } else if (attach instanceof TLRPC.PhotoSize) {
+            if (attach instanceof TLRPC.PhotoSize) {
                 TLRPC.PhotoSize photoSize = (TLRPC.PhotoSize) attach;
                 if (photoSize.location == null || photoSize.location.key != null || photoSize.location.volume_id == Integer.MIN_VALUE && photoSize.location.local_id < 0) {
                     dir = getInstance().getDirectory(MEDIA_DIR_CACHE);

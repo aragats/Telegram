@@ -376,9 +376,9 @@ public class PhotoViewerCaptionEnterView extends FrameLayoutFixed implements Not
                         }
                     }
 
-                    public void onStickerSelected(TLRPC.Document sticker) {
-
-                    }
+//                    public void onStickerSelected(TLRPC.Document sticker) {
+//
+//                    }
                 });
                 emojiPopup = new PopupWindow(emojiView);
             }

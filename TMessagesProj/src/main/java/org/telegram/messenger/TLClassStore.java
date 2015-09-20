@@ -16,10 +16,6 @@ public class TLClassStore {
     public TLClassStore() {
         classStore = new HashMap<>();
 
-        classStore.put(TLRPC.TL_futuresalts.constructor, TLRPC.TL_futuresalts.class);
-        classStore.put(TLRPC.TL_msg_new_detailed_info.constructor, TLRPC.TL_msg_new_detailed_info.class);
-        classStore.put(TLRPC.TL_msg_detailed_info.constructor, TLRPC.TL_msg_detailed_info.class);
-        classStore.put(TLRPC.TL_error.constructor, TLRPC.TL_error.class);
         classStore.put(TLRPC.TL_auth_authorization.constructor, TLRPC.TL_auth_authorization.class);
         classStore.put(TLRPC.TL_dh_gen_retry.constructor, TLRPC.TL_dh_gen_retry.class);
         classStore.put(TLRPC.TL_dh_gen_fail.constructor, TLRPC.TL_dh_gen_fail.class);
@@ -36,7 +32,6 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_bad_server_salt.constructor, TLRPC.TL_bad_server_salt.class);
         classStore.put(TLRPC.TL_new_session_created.constructor, TLRPC.TL_new_session_created.class);
         classStore.put(TLRPC.TL_resPQ.constructor, TLRPC.TL_resPQ.class);
-        classStore.put(TLRPC.TL_config.constructor, TLRPC.TL_config.class);
         classStore.put(TLRPC.TL_msg_copy.constructor, TLRPC.TL_msg_copy.class);
         classStore.put(TLRPC.TL_pong.constructor, TLRPC.TL_pong.class);
         classStore.put(TLRPC.TL_rpc_answer_unknown.constructor, TLRPC.TL_rpc_answer_unknown.class);
@@ -74,12 +69,6 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_audioEncrypted.constructor, TLRPC.TL_audioEncrypted.class);
         classStore.put(TLRPC.TL_audioEmpty.constructor, TLRPC.TL_audioEmpty.class);
         classStore.put(TLRPC.TL_audio_old.constructor, TLRPC.TL_audio_old.class);
-
-        classStore.put(TLRPC.TL_document.constructor, TLRPC.TL_document.class);
-        classStore.put(TLRPC.TL_documentEmpty.constructor, TLRPC.TL_documentEmpty.class);
-        classStore.put(TLRPC.TL_documentEncrypted_old.constructor, TLRPC.TL_documentEncrypted_old.class);
-        classStore.put(TLRPC.TL_documentEncrypted.constructor, TLRPC.TL_documentEncrypted.class);
-        classStore.put(TLRPC.TL_document_old.constructor, TLRPC.TL_document_old.class);
 
         classStore.put(TLRPC.TL_photo.constructor, TLRPC.TL_photo.class);
         classStore.put(TLRPC.TL_photoEmpty.constructor, TLRPC.TL_photoEmpty.class);

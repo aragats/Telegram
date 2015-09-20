@@ -1267,9 +1267,6 @@ public class ImageLoader {
             if (fileLocation instanceof TLRPC.FileLocation) {
                 TLRPC.FileLocation location = (TLRPC.FileLocation) fileLocation;
                 key = location.volume_id + "_" + location.local_id;
-            } else if (fileLocation instanceof TLRPC.Document) {
-                TLRPC.Document location = (TLRPC.Document) fileLocation;
-                key = location.dc_id + "_" + location.id;
             }
         }
         if (filter != null) {
