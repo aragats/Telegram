@@ -135,7 +135,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
     }
 
     public boolean isGlobalSearch(int i) {
-        return i > searchResult.size() && i <= globalSearch.size() + searchResult.size();
+        return i > searchResult.size();
     }
 
     @Override
@@ -351,8 +351,6 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
                 GreySectionCell cell = (GreySectionCell) holder.itemView;
                 if (!searchResultHashtags.isEmpty()) {
                     cell.setText(LocaleController.getString("Hashtags", R.string.Hashtags).toUpperCase());
-                } else if (!globalSearch.isEmpty() && position == searchResult.size()) {
-                    cell.setText(LocaleController.getString("GlobalSearch", R.string.GlobalSearch));
                 } else {
                     cell.setText(LocaleController.getString("SearchMessages", R.string.SearchMessages));
                 }

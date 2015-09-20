@@ -71,7 +71,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     private ArrayList<Uri> documentsUrisArray;
     private String documentsMimeType;
     private ArrayList<String> documentsOriginalPathsArray;
-    private ArrayList<TLRPC.User> contactsToSend;
+//    private ArrayList<TLRPC.User> contactsToSend;
     private int currentConnectionState;
     private static ArrayList<BaseFragment> mainFragmentsStack = new ArrayList<>();
     private static ArrayList<BaseFragment> layerFragmentsStack = new ArrayList<>();
@@ -417,7 +417,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             documentsOriginalPathsArray = null;
             documentsMimeType = null;
             documentsUrisArray = null;
-            contactsToSend = null;
+//            contactsToSend = null;
 
             if (UserConfig.isClientActivated() && (flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
                 if (intent != null && intent.getAction() != null && !restore) {
@@ -487,15 +487,15 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                         FileLog.e("tmessages", e);
                                     }
                                     if (name != null && !phones.isEmpty()) {
-                                        contactsToSend = new ArrayList<>();
-                                        for (String phone : phones) {
-                                            TLRPC.User user = new TLRPC.TL_userContact();
-                                            user.phone = phone;
-                                            user.first_name = name;
-                                            user.last_name = "";
-                                            user.id = 0;
-                                            contactsToSend.add(user);
-                                        }
+//                                        contactsToSend = new ArrayList<>();
+//                                        for (String phone : phones) {
+//                                            TLRPC.User user = new TLRPC.TL_userContact();
+//                                            user.phone = phone;
+//                                            user.first_name = name;
+//                                            user.last_name = "";
+//                                            user.id = 0;
+//                                            contactsToSend.add(user);
+//                                        }
                                     }
                                 } else {
                                     error = true;

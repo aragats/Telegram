@@ -23,7 +23,6 @@ public abstract class BaseSearchAdapterRecycler extends RecyclerView.Adapter {
         int date;
     }
 
-    protected ArrayList<TLRPC.User> globalSearch = new ArrayList<>();
     private long reqId = 0;
     private int lastReqId;
     protected String lastFoundUsername = null;

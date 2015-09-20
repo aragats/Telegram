@@ -96,13 +96,6 @@ public class FileLoader {
                 } else {
                     dir = getInstance().getDirectory(MEDIA_DIR_IMAGE);
                 }
-            } else if (attach instanceof TLRPC.Audio) {
-                TLRPC.Audio audio = (TLRPC.Audio) attach;
-                if (audio.key != null) {
-                    dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
-                } else {
-                    dir = getInstance().getDirectory(MEDIA_DIR_AUDIO);
-                }
             } else if (attach instanceof TLRPC.FileLocation) {
                 TLRPC.FileLocation fileLocation = (TLRPC.FileLocation) attach;
                 if (fileLocation.key != null || fileLocation.volume_id == Integer.MIN_VALUE && fileLocation.local_id < 0) {

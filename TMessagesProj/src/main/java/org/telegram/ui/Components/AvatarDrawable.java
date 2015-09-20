@@ -70,13 +70,6 @@ public class AvatarDrawable extends Drawable {
         }
     }
 
-    public AvatarDrawable(TLRPC.User user, boolean profile) {
-        this();
-        isProfile = profile;
-        if (user != null) {
-            setInfo(user.id, user.first_name, user.last_name, false);
-        }
-    }
 
     public void setSmallStyle(boolean value) {
         smallStyle = value;
@@ -133,11 +126,11 @@ public class AvatarDrawable extends Drawable {
         return arrColorsNames[getColorIndex(id)];
     }
 
-    public void setInfo(TLRPC.User user) {
-        if (user != null) {
-            setInfo(user.id, user.first_name, user.last_name, false);
-        }
-    }
+//    public void setInfo(TLRPC.User user) {
+//        if (user != null) {
+//            setInfo(user.id, user.first_name, user.last_name, false);
+//        }
+//    }
 
     public void setColor(int value) {
         color = value;
