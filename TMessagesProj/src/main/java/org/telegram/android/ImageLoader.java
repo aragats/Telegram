@@ -922,101 +922,7 @@ public class ImageLoader {
             }
         };
 
-        FileLoader.getInstance().setDelegate(new FileLoader.FileLoaderDelegate() {
-            @Override
-            public void fileUploadProgressChanged(final String location, final float progress, final boolean isEncrypted) {
-                fileProgresses.put(location, progress);
-                long currentTime = System.currentTimeMillis();
-                if (lastProgressUpdateTime == 0 || lastProgressUpdateTime < currentTime - 500) {
-                    lastProgressUpdateTime = currentTime;
-
-                    AndroidUtilities.runOnUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.FileUploadProgressChanged, location, progress, isEncrypted);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void fileDidUploaded(final String location, final TLRPC.InputFile inputFile, final TLRPC.InputEncryptedFile inputEncryptedFile, final byte[] key, final byte[] iv) {
-                Utilities.stageQueue.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                NotificationCenter.getInstance().postNotificationName(NotificationCenter.FileDidUpload, location, inputFile, inputEncryptedFile, key, iv);
-                            }
-                        });
-                        fileProgresses.remove(location);
-                    }
-                });
-            }
-
-            @Override
-            public void fileDidFailedUpload(final String location, final boolean isEncrypted) {
-                Utilities.stageQueue.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                NotificationCenter.getInstance().postNotificationName(NotificationCenter.FileDidFailUpload, location, isEncrypted);
-                            }
-                        });
-                        fileProgresses.remove(location);
-                    }
-                });
-            }
-
-            @Override
-            public void fileDidLoaded(final String location, final File finalFile, final int type) {
-                fileProgresses.remove(location);
-                AndroidUtilities.runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (location != null) {
-                            if (MediaController.getInstance().canSaveToGallery() && telegramPath != null && finalFile != null && finalFile.exists() && (location.endsWith(".mp4") || location.endsWith(".jpg"))) {
-                                if (finalFile.toString().startsWith(telegramPath.toString())) {
-                                    AndroidUtilities.addMediaToGallery(finalFile.toString());
-                                }
-                            }
-                        }
-                        ImageLoader.this.fileDidLoaded(location, finalFile, type);
-                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.FileDidLoaded, location);
-                    }
-                });
-            }
-
-            @Override
-            public void fileDidFailedLoad(final String location, final int canceled) {
-                fileProgresses.remove(location);
-                AndroidUtilities.runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ImageLoader.this.fileDidFailedLoad(location, canceled);
-                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.FileDidFailedLoad, location, canceled);
-                    }
-                });
-            }
-
-            @Override
-            public void fileLoadProgressChanged(final String location, final float progress) {
-                fileProgresses.put(location, progress);
-                long currentTime = System.currentTimeMillis();
-                if (lastProgressUpdateTime == 0 || lastProgressUpdateTime < currentTime - 500) {
-                    lastProgressUpdateTime = currentTime;
-                    AndroidUtilities.runOnUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.FileLoadProgressChanged, location, progress);
-                        }
-                    });
-                }
-            }
-        });
+        ;
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -1256,19 +1162,11 @@ public class ImageLoader {
         return memCache.get(key);
     }
 
-    public BitmapDrawable getImageFromMemory(TLObject fileLocation, String httpUrl, String filter) {
-        if (fileLocation == null && httpUrl == null) {
+    public BitmapDrawable getImageFromMemory(String httpUrl, String filter) {
+        if (httpUrl == null) {
             return null;
         }
-        String key = null;
-        if (httpUrl != null) {
-            key = Utilities.MD5(httpUrl);
-        } else {
-            if (fileLocation instanceof TLRPC.FileLocation) {
-                TLRPC.FileLocation location = (TLRPC.FileLocation) fileLocation;
-                key = location.volume_id + "_" + location.local_id;
-            }
-        }
+        String key = Utilities.MD5(httpUrl);
         if (filter != null) {
             key += "@" + filter;
         }

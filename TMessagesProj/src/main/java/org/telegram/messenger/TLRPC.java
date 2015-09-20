@@ -8,42 +8,18 @@
 
 package org.telegram.messenger;
 
-import java.util.ArrayList;
-
 @SuppressWarnings("unchecked")
 public class TLRPC {
 
 
-    public static final int MESSAGE_FLAG_FWD = 4;
-
-
-
-
-
-
-
-
-    public static class InputEncryptedFile extends TLObject {
-        public long id;
-        public long access_hash;
-        public int parts;
-        public int key_fingerprint;
-        public String md5_checksum;
-
-
-    }
-
-
-
-
-
+    // Foursquare classes start
     public static class GeoPoint extends TLObject {
         public double _long;
         public double lat;
 
         public static GeoPoint TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
             GeoPoint result = null;
-            switch(constructor) {
+            switch (constructor) {
                 case 0x1117dd5f:
                     result = new TL_geoPointEmpty();
                     break;
@@ -87,56 +63,16 @@ public class TLRPC {
     }
 
 
-
-
-
-
     public static class MessageMedia extends TLObject {
-        public byte[] bytes;
-//        public Video video;
-        public String caption;
-        public Photo photo;
-//        public Audio audio;
         public GeoPoint geo;
         public String title;
         public String address;
         public String provider;
         public String venue_id;
-//        public Document document;
-        public String phone_number;
-        public String first_name;
-        public String last_name;
-        public int user_id;
-//        public WebPage webpage;
         //TODO-aragats
         public String iconUrl;
 
-        public static MessageMedia TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
-            MessageMedia result = null;
-            switch(constructor) {
-                case 0x7912b71f:
-                    result = new TL_messageMediaVenue();
-                    break;
-                case 0x56e0d474:
-                    result = new TL_messageMediaGeo();
-                    break;
-            }
-            if (result == null && exception) {
-                throw new RuntimeException(String.format("can't parse magic %x in MessageMedia", constructor));
-            }
-            if (result != null) {
-                result.readParams(stream, exception);
-            }
-            return result;
-        }
     }
-
-
-
-
-
-
-
 
 
     public static class TL_messageMediaVenue extends MessageMedia {
@@ -162,14 +98,6 @@ public class TLRPC {
     }
 
 
-
-
-
-
-
-
-
-
     public static class TL_messageMediaGeo extends MessageMedia {
         public static int constructor = 0x56e0d474;
 
@@ -183,6 +111,7 @@ public class TLRPC {
             geo.serializeToStream(stream);
         }
     }
+    // Foursquare classes end
 
 
     public static class FileLocation extends TLObject {
@@ -195,7 +124,7 @@ public class TLRPC {
 
         public static FileLocation TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
             FileLocation result = null;
-            switch(constructor) {
+            switch (constructor) {
                 case 0x53d69076:
                     result = new TL_fileLocation();
                     break;
@@ -237,33 +166,6 @@ public class TLRPC {
     }
 
 
-
-
-
-    public static class InputFile extends TLObject {
-        public long id;
-        public int parts;
-        public String name;
-        public String md5_checksum;
-
-
-    }
-
-
-
-    public static class Photo extends TLObject {
-        public long id;
-        public long access_hash;
-        public int user_id;
-        public int date;
-        public GeoPoint geo;
-        public ArrayList<PhotoSize> sizes = new ArrayList<>();
-        public String caption;
-
-    }
-
-
-
     public static class PhotoSize extends TLObject {
         public String type;
         public FileLocation location;
@@ -274,7 +176,7 @@ public class TLRPC {
 
         public static PhotoSize TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
             PhotoSize result = null;
-            switch(constructor) {
+            switch (constructor) {
                 case 0x77bfb61b:
                     result = new TL_photoSize();
                     break;

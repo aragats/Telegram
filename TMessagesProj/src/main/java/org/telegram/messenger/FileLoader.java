@@ -14,19 +14,6 @@ import java.util.HashMap;
 
 public class FileLoader {
 
-    public interface FileLoaderDelegate {
-        void fileUploadProgressChanged(String location, float progress, boolean isEncrypted);
-
-        void fileDidUploaded(String location, TLRPC.InputFile inputFile, TLRPC.InputEncryptedFile inputEncryptedFile, byte[] key, byte[] iv);
-
-        void fileDidFailedUpload(String location, boolean isEncrypted);
-
-        void fileDidLoaded(String location, File finalFile, int type);
-
-        void fileDidFailedLoad(String location, int state);
-
-        void fileLoadProgressChanged(String location, float progress);
-    }
 
     public static final int MEDIA_DIR_IMAGE = 0;
     public static final int MEDIA_DIR_AUDIO = 1;
@@ -36,8 +23,6 @@ public class FileLoader {
 
     private HashMap<Integer, File> mediaDirs = null;
     private volatile DispatchQueue fileLoaderQueue = new DispatchQueue("fileUploadQueue");
-
-    private FileLoaderDelegate delegate = null;
 
 
     private static volatile FileLoader Instance = null;
@@ -75,35 +60,21 @@ public class FileLoader {
     }
 
 
-    public void setDelegate(FileLoaderDelegate delegate) {
-        this.delegate = delegate;
-    }
-
-
-    public static File getPathToAttach(TLObject attach, boolean forceCache) {
+    public static File getPathToAttach(TLRPC.PhotoSize attach, boolean forceCache) {
         return getPathToAttach(attach, null, forceCache);
     }
 
-    public static File getPathToAttach(TLObject attach, String ext, boolean forceCache) {
+    public static File getPathToAttach(TLRPC.PhotoSize attach, String ext, boolean forceCache) {
         File dir = null;
         if (forceCache) {
             dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
         } else {
-            if (attach instanceof TLRPC.PhotoSize) {
-                TLRPC.PhotoSize photoSize = (TLRPC.PhotoSize) attach;
-                if (photoSize.location == null || photoSize.location.key != null || photoSize.location.volume_id == Integer.MIN_VALUE && photoSize.location.local_id < 0) {
-                    dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
-                } else {
-                    dir = getInstance().getDirectory(MEDIA_DIR_IMAGE);
-                }
-            } else if (attach instanceof TLRPC.FileLocation) {
-                TLRPC.FileLocation fileLocation = (TLRPC.FileLocation) attach;
-                if (fileLocation.key != null || fileLocation.volume_id == Integer.MIN_VALUE && fileLocation.local_id < 0) {
-                    dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
-                } else {
-                    dir = getInstance().getDirectory(MEDIA_DIR_IMAGE);
-                }
+            if (attach.location == null || attach.location.key != null || attach.location.volume_id == Integer.MIN_VALUE && attach.location.local_id < 0) {
+                dir = getInstance().getDirectory(MEDIA_DIR_CACHE);
+            } else {
+                dir = getInstance().getDirectory(MEDIA_DIR_IMAGE);
             }
+
         }
         if (dir == null) {
             return new File("");
@@ -111,22 +82,15 @@ public class FileLoader {
         return new File(dir, getAttachFileName(attach, ext));
     }
 
-    public static String getAttachFileName(TLObject attach) {
+    public static String getAttachFileName(TLRPC.PhotoSize attach) {
         return getAttachFileName(attach, null);
     }
 
-    public static String getAttachFileName(TLObject attach, String ext) {
-        if (attach instanceof TLRPC.PhotoSize) {
-            TLRPC.PhotoSize photo = (TLRPC.PhotoSize) attach;
-            if (photo.location == null) {
-                return "";
-            }
-            return photo.location.volume_id + "_" + photo.location.local_id + "." + (ext != null ? ext : "jpg");
-        }  else if (attach instanceof TLRPC.FileLocation) {
-            TLRPC.FileLocation location = (TLRPC.FileLocation) attach;
-            return location.volume_id + "_" + location.local_id + "." + (ext != null ? ext : "jpg");
+    public static String getAttachFileName(TLRPC.PhotoSize attach, String ext) {
+        if (attach.location == null) {
+            return "";
         }
-        return "";
+        return attach.location.volume_id + "_" + attach.location.local_id + "." + (ext != null ? ext : "jpg");
     }
 
     public void deleteFiles(final ArrayList<File> files) {
