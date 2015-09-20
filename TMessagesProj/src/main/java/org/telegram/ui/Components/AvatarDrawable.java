@@ -70,27 +70,11 @@ public class AvatarDrawable extends Drawable {
         }
     }
 
-    public AvatarDrawable(TLRPC.User user) {
-        this(user, false);
-    }
-
-    public AvatarDrawable(TLRPC.Chat chat) {
-        this(chat, false);
-    }
-
     public AvatarDrawable(TLRPC.User user, boolean profile) {
         this();
         isProfile = profile;
         if (user != null) {
             setInfo(user.id, user.first_name, user.last_name, false);
-        }
-    }
-
-    public AvatarDrawable(TLRPC.Chat chat, boolean profile) {
-        this();
-        isProfile = profile;
-        if (chat != null) {
-            setInfo(chat.id, chat.title, null, chat.id < 0);
         }
     }
 
@@ -152,12 +136,6 @@ public class AvatarDrawable extends Drawable {
     public void setInfo(TLRPC.User user) {
         if (user != null) {
             setInfo(user.id, user.first_name, user.last_name, false);
-        }
-    }
-
-    public void setInfo(TLRPC.Chat chat) {
-        if (chat != null) {
-            setInfo(chat.id, chat.title, null, chat.id < 0);
         }
     }
 

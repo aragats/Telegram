@@ -49,7 +49,6 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_server_DH_params_fail.constructor, TLRPC.TL_server_DH_params_fail.class);
         classStore.put(TLRPC.TL_server_DH_params_ok.constructor, TLRPC.TL_server_DH_params_ok.class);
         classStore.put(TLRPC.TL_protoMessage.constructor, TLRPC.TL_protoMessage.class);
-        classStore.put(TLRPC.TL_msgs_all_info.constructor, TLRPC.TL_msgs_all_info.class);
         classStore.put(TLRPC.TL_p_q_inner_data.constructor, TLRPC.TL_p_q_inner_data.class);
         classStore.put(TLRPC.TL_updateShortChatMessage.constructor, TLRPC.TL_updateShortChatMessage.class);
         classStore.put(TLRPC.TL_updates.constructor, TLRPC.TL_updates.class);

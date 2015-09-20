@@ -18,7 +18,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -26,6 +25,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 
+import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.DispatchQueue;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
@@ -33,7 +33,6 @@ import org.telegram.messenger.TLObject;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.ApplicationLoader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -1895,80 +1894,6 @@ public class ImageLoader {
             ext = "jpg";
         }
         return ext;
-    }
-
-    public static void saveMessageThumbs(TLRPC.Message message) {
-        TLRPC.PhotoSize photoSize = null;
-        if (message.media instanceof TLRPC.TL_messageMediaPhoto) {
-            for (TLRPC.PhotoSize size : message.media.photo.sizes) {
-                if (size instanceof TLRPC.TL_photoCachedSize) {
-                    photoSize = size;
-                    break;
-                }
-            }
-        } else if (message.media instanceof TLRPC.TL_messageMediaVideo) {
-            if (message.media.video.thumb instanceof TLRPC.TL_photoCachedSize) {
-                photoSize = message.media.video.thumb;
-            }
-        } else if (message.media instanceof TLRPC.TL_messageMediaDocument) {
-            if (message.media.document.thumb instanceof TLRPC.TL_photoCachedSize) {
-                photoSize = message.media.document.thumb;
-            }
-        } else if (message.media instanceof TLRPC.TL_messageMediaWebPage) {
-            if (message.media.webpage.photo != null) {
-                for (TLRPC.PhotoSize size : message.media.webpage.photo.sizes) {
-                    if (size instanceof TLRPC.TL_photoCachedSize) {
-                        photoSize = size;
-                        break;
-                    }
-                }
-            }
-        }
-        if (photoSize != null && photoSize.bytes != null && photoSize.bytes.length != 0) {
-            if (photoSize.location instanceof TLRPC.TL_fileLocationUnavailable) {
-                photoSize.location = new TLRPC.TL_fileLocation();
-                photoSize.location.volume_id = Integer.MIN_VALUE;
-                photoSize.location.dc_id = Integer.MIN_VALUE;
-                photoSize.location.local_id = UserConfig.lastLocalId;
-                UserConfig.lastLocalId--;
-            }
-            File file = FileLoader.getPathToAttach(photoSize, true);
-            if (!file.exists()) {
-                try {
-                    RandomAccessFile writeFile = new RandomAccessFile(file, "rws");
-                    writeFile.write(photoSize.bytes);
-                    writeFile.close();
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                }
-            }
-            TLRPC.TL_photoSize newPhotoSize = new TLRPC.TL_photoSize();
-            newPhotoSize.w = photoSize.w;
-            newPhotoSize.h = photoSize.h;
-            newPhotoSize.location = photoSize.location;
-            newPhotoSize.size = photoSize.size;
-            newPhotoSize.type = photoSize.type;
-
-            if (message.media instanceof TLRPC.TL_messageMediaPhoto) {
-                for (int a = 0; a < message.media.photo.sizes.size(); a++) {
-                    if (message.media.photo.sizes.get(a) instanceof TLRPC.TL_photoCachedSize) {
-                        message.media.photo.sizes.set(a, newPhotoSize);
-                        break;
-                    }
-                }
-            } else if (message.media instanceof TLRPC.TL_messageMediaVideo) {
-                message.media.video.thumb = newPhotoSize;
-            } else if (message.media instanceof TLRPC.TL_messageMediaDocument) {
-                message.media.document.thumb = newPhotoSize;
-            } else if (message.media instanceof TLRPC.TL_messageMediaWebPage) {
-                for (int a = 0; a < message.media.webpage.photo.sizes.size(); a++) {
-                    if (message.media.webpage.photo.sizes.get(a) instanceof TLRPC.TL_photoCachedSize) {
-                        message.media.webpage.photo.sizes.set(a, newPhotoSize);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
 }
