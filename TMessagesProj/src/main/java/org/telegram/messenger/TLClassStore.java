@@ -17,14 +17,8 @@ public class TLClassStore {
         classStore = new HashMap<>();
 
 
-        classStore.put(TLRPC.TL_server_DH_inner_data.constructor, TLRPC.TL_server_DH_inner_data.class);
-        classStore.put(TLRPC.TL_msgs_ack.constructor, TLRPC.TL_msgs_ack.class);
+
         classStore.put(TLRPC.TL_futureSalt.constructor, TLRPC.TL_futureSalt.class);
-        classStore.put(TLRPC.TL_msg_resend_req.constructor, TLRPC.TL_msg_resend_req.class);
-        classStore.put(TLRPC.TL_rpc_error.constructor, TLRPC.TL_rpc_error.class);
-        classStore.put(TLRPC.TL_rpc_req_error.constructor, TLRPC.TL_rpc_req_error.class);
-        classStore.put(TLRPC.TL_decryptedMessageService.constructor, TLRPC.TL_decryptedMessageService.class);
-        classStore.put(TLRPC.TL_decryptedMessage.constructor, TLRPC.TL_decryptedMessage.class);
         classStore.put(TLRPC.TL_bad_msg_notification.constructor, TLRPC.TL_bad_msg_notification.class);
         classStore.put(TLRPC.TL_bad_server_salt.constructor, TLRPC.TL_bad_server_salt.class);
         classStore.put(TLRPC.TL_new_session_created.constructor, TLRPC.TL_new_session_created.class);
@@ -35,8 +29,6 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_rpc_answer_dropped.constructor, TLRPC.TL_rpc_answer_dropped.class);
         classStore.put(TLRPC.TL_rpc_answer_dropped_running.constructor, TLRPC.TL_rpc_answer_dropped_running.class);
         classStore.put(TLRPC.TL_auth_exportedAuthorization.constructor, TLRPC.TL_auth_exportedAuthorization.class);
-        classStore.put(TLRPC.TL_destroy_session_ok.constructor, TLRPC.TL_destroy_session_ok.class);
-        classStore.put(TLRPC.TL_destroy_session_none.constructor, TLRPC.TL_destroy_session_none.class);
         classStore.put(TLRPC.TL_msgs_state_req.constructor, TLRPC.TL_msgs_state_req.class);
         classStore.put(TLRPC.TL_server_DH_params_fail.constructor, TLRPC.TL_server_DH_params_fail.class);
         classStore.put(TLRPC.TL_server_DH_params_ok.constructor, TLRPC.TL_server_DH_params_ok.class);
@@ -45,14 +37,11 @@ public class TLClassStore {
         classStore.put(TLRPC.TL_decryptedMessageLayer.constructor, TLRPC.TL_decryptedMessageLayer.class);
         classStore.put(TLRPC.TL_http_wait.constructor, TLRPC.TL_http_wait.class);
         classStore.put(TLRPC.TL_gzip_packed.constructor, TLRPC.TL_gzip_packed.class);
-        classStore.put(TLRPC.TL_decryptedMessageService_old.constructor, TLRPC.TL_decryptedMessageService_old.class);
-        classStore.put(TLRPC.TL_decryptedMessage_old.constructor, TLRPC.TL_decryptedMessage_old.class);
         classStore.put(TLRPC.TL_message_secret.constructor, TLRPC.TL_message_secret.class);
         classStore.put(TLRPC.TL_messageEncryptedAction.constructor, TLRPC.TL_messageEncryptedAction.class);
         classStore.put(TLRPC.TL_decryptedMessageHolder.constructor, TLRPC.TL_decryptedMessageHolder.class);
         classStore.put(TLRPC.TL_client_DH_inner_data.constructor, TLRPC.TL_client_DH_inner_data.class);
         classStore.put(TLRPC.TL_null.constructor, TLRPC.TL_null.class);
-        classStore.put(TLRPC.TL_destroy_sessions_res.constructor, TLRPC.TL_destroy_sessions_res.class);
 
 
         classStore.put(TLRPC.TL_audio.constructor, TLRPC.TL_audio.class);
