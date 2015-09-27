@@ -81,7 +81,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 //TODO-aragats new
-public class PostCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate,  PostPhotoViewerProvider {
+public class PostCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, PhotoViewer.PhotoViewerProvider {
 
     private ArrayList<PostMediaCell> postMediaCellsCache = new ArrayList<>();
 
@@ -1352,8 +1352,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     @Override
-    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(Post postObject) {
-        if (postObject == null) {
+    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(Object postObject, int index) {
+        if (postObject == null || !(postObject instanceof Post)) {
             return null;
         }
         int count = postListView.getChildCount();
@@ -1366,7 +1366,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 PostMediaCell cell = (PostMediaCell) view;
                 Post post = cell.getPost();
                 if (post != null && !StringUtils.isEmpty(post.getId())
-                        && post.getId().equals(postObject.getId())) {
+                        && post.getId().equals(((Post) postObject).getId())) {
                     postToOpen = post;
                     imageReceiver = cell.getPhotoImage();
                 }
@@ -1389,12 +1389,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     @Override
-    public Bitmap getThumbForPhoto(Post post, int index) {
+    public Bitmap getThumbForPhoto(int index) {
         return null;
     }
 
     @Override
-    public void willSwitchFromPhoto(Post post) {
+    public void willSwitchFromPhoto(int index) {
     }
 
     @Override

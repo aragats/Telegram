@@ -174,21 +174,6 @@ public class TLRPC {
         public int size;
         public byte[] bytes;
 
-        public static PhotoSize TLdeserialize(AbsSerializedData stream, int constructor, boolean exception) {
-            PhotoSize result = null;
-            switch (constructor) {
-                case 0x77bfb61b:
-                    result = new TL_photoSize();
-                    break;
-            }
-            if (result == null && exception) {
-                throw new RuntimeException(String.format("can't parse magic %x in PhotoSize", constructor));
-            }
-            if (result != null) {
-                result.readParams(stream, exception);
-            }
-            return result;
-        }
     }
 
     public static class TL_photoSize extends PhotoSize {

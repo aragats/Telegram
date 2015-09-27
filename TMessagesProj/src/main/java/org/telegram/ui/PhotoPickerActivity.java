@@ -486,7 +486,7 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     }
 
     @Override
-    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(int index) {
+    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(Object obj, int index) {
         PhotoPickerPhotoCell cell = getCellForIndex(index);
         if (cell != null) {
             int coords[] = new int[2];

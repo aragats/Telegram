@@ -922,4 +922,9 @@ public class PostCell extends BaseCell {
     public ImageReceiver getPhotoImage() {
         return photoImage;
     }
+
+
+    public int getIndex() {
+        return index;
+    }
 }

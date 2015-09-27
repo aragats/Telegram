@@ -82,7 +82,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
 
     //TODO-aragats new
-    private PostPhotoViewerProvider postPlaceProvider;
+//    private PostPhotoViewerProvider postPlaceProvider;
     //TODO-aragats new
     private ArrayList<Post> imagesPostArr = new ArrayList<Post>();
     //TODO-aragats new
@@ -385,7 +385,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
     public static class EmptyPhotoViewerProvider implements PhotoViewerProvider {
         @Override
-        public PlaceProviderObject getPlaceForPhoto(int index) {
+        public PlaceProviderObject getPlaceForPhoto(Object object, int index) {
             return null;
         }
 
@@ -437,7 +437,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
     public interface PhotoViewerProvider {
 
-        PlaceProviderObject getPlaceForPhoto(int index);
+        PlaceProviderObject getPlaceForPhoto(Object object, int index);
 
         Bitmap getThumbForPhoto(int index);
 
@@ -1540,7 +1540,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
 
     //TODO-aragats new
-    private void onPhotoShowNew(final Post post, final PlaceProviderObject object) {
+    private void onPhotoShowNew(final Post post, int index, final PlaceProviderObject object) {
         classGuid = ConnectionsManager.getInstance().generateClassGuid();
         //TODO-aragat new
         currentPost = null;
@@ -1767,7 +1767,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 showAfterAnimation = currentPlaceObject;
             }
         }
-        currentPlaceObject = placeProvider.getPlaceForPhoto(currentIndex);
+        currentPlaceObject = placeProvider.getPlaceForPhoto(currentPost, currentIndex);
         if (currentPlaceObject != null) {
             if (animationInProgress == 0) {
                 currentPlaceObject.imageReceiver.setVisible(false, true);
@@ -1858,7 +1858,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         currentFileNames[0] = getFileName(index);
         currentFileNames[1] = getFileName(index + 1);
         currentFileNames[2] = getFileName(index - 1);
-        postPlaceProvider.willSwitchFromPhoto(currentPost);
+        placeProvider.willSwitchFromPhoto(currentIndex);
         int prevIndex = currentIndex;
         currentIndex = index;
 
@@ -1905,7 +1905,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 showAfterAnimation = currentPlaceObject;
             }
         }
-        currentPlaceObject = postPlaceProvider.getPlaceForPhoto(currentPost);
+        currentPlaceObject = placeProvider.getPlaceForPhoto(currentPost, currentIndex);
         if (currentPlaceObject != null) {
             if (animationInProgress == 0) {
                 currentPlaceObject.imageReceiver.setVisible(false, true);
@@ -2089,7 +2089,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             } else {
                 imageReceiver.setImageBitmap((Bitmap) null);
             }
-        } else if(!imagesPostArr.isEmpty()) {
+        } else if (!imagesPostArr.isEmpty()) {
             if (index >= 0 && index < imagesPostArr.size() && imagesPostArr.get(index) != null) {
                 Post post = imagesPostArr.get(index);
                 int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
@@ -2099,7 +2099,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 }
                 //aragats it returns null.b ut curretnThumb is not null. so we miss this part of code.
                 if (placeHolder == null) {
-                    placeHolder = postPlaceProvider.getThumbForPhoto(null, index);
+                    placeHolder = placeProvider.getThumbForPhoto(index);
                 }
                 String path = post.getImage().getUrl();
                 int imageSize = 0;
@@ -2156,7 +2156,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
 
         // immer null.
-        final PlaceProviderObject object = provider.getPlaceForPhoto(index);
+        final PlaceProviderObject object = provider.getPlaceForPhoto(null, index);
         if (object == null && photos == null) {
             return;
         }
@@ -2218,13 +2218,13 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
     //TODO-aragats new
     //final PostPhotoViewerProvider provider, PostsActivity postsActivity are the same class.
-    public void openPhotoNew(final Post post, final PostPhotoViewerProvider provider, PostsActivity postsActivity) {
+    public void openPhotoNew(final Post post, final int index, final PhotoViewerProvider provider, PostsActivity postsActivity) {
         if (parentActivity == null || isVisible || provider == null || checkAnimation() || post == null) {
             return;
         }
 
         //filocation we do not need here. messageObject is used to find ChatMediaCell by id from messageObject. // method is implemented in provider.
-        final PlaceProviderObject object = provider.getPlaceForPhoto(post);
+        final PlaceProviderObject object = provider.getPlaceForPhoto(post, index);
         if (object == null) {
             return;
         }
@@ -2271,7 +2271,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.userPhotosLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
 
-        postPlaceProvider = provider;
+        placeProvider = provider;
 
         if (velocityTracker == null) {
             velocityTracker = VelocityTracker.obtain();
@@ -2283,7 +2283,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         if (object != null) {
             disableShowCheck = true;
             animationInProgress = 1;
-            onPhotoShowNew(post, object);
+            onPhotoShowNew(post, index, object);
 
             final Rect drawRegion = object.imageReceiver.getDrawRegion();
             int orientation = object.imageReceiver.getOrientation();
@@ -2418,7 +2418,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         } else {
             backgroundDrawable.setAlpha(255);
             ViewProxy.setAlpha(containerView, 1.0f);
-            onPhotoShowNew(post, object);
+            onPhotoShowNew(post, index, object);
         }
     }
 
@@ -2451,7 +2451,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             currentEditMode = 0;
         }
 
-        if (parentActivity == null || !isVisible || checkAnimation() || (placeProvider == null && postPlaceProvider == null)) {
+        if (parentActivity == null || !isVisible || checkAnimation() || (placeProvider == null)) {
             return;
         }
 
@@ -2483,10 +2483,12 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         //NOW
         PlaceProviderObject object1 = null;
         if (placeProvider != null) {
-            object1 = placeProvider.getPlaceForPhoto(currentIndex);
-        } else if (this.postPlaceProvider != null) {
-            object1 = this.postPlaceProvider.getPlaceForPhoto(currentPost);
+            object1 = placeProvider.getPlaceForPhoto(currentPost, currentIndex);
         }
+//
+//        else if (this.postPlaceProvider != null) {
+//            object1 = this.postPlaceProvider.getPlaceForPhoto(currentPost);
+//        }
         //TODO
         final PlaceProviderObject object = object1;
 

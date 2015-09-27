@@ -12,7 +12,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
-import org.telegram.android.MessagesStorage;
+import org.telegram.android.PostsStorage;
 import org.telegram.messenger.dto.User;
 import org.telegram.messenger.service.mock.UserServiceMock;
 
@@ -140,9 +140,9 @@ public class UserConfig {
                         int constructor = data.readInt32(false);
 //                        currentUser = TLRPC.TL_userSelf.TLdeserialize(data, constructor, false);
                         currentUser = UserServiceMock.getRandomUser();
-                        MessagesStorage.lastDateValue = data.readInt32(false);
-                        MessagesStorage.lastPtsValue = data.readInt32(false);
-                        MessagesStorage.lastSeqValue = data.readInt32(false);
+                        PostsStorage.lastDateValue = data.readInt32(false);
+                        PostsStorage.lastPtsValue = data.readInt32(false);
+                        PostsStorage.lastSeqValue = data.readInt32(false);
                         registeredForPush = data.readBool(false);
                         pushString = data.readString(false);
                         lastSendMessageId = data.readInt32(false);
@@ -151,13 +151,13 @@ public class UserConfig {
                         importHash = data.readString(false);
                         saveIncomingPhotos = data.readBool(false);
                         contactsVersion = 0;
-                        MessagesStorage.lastQtsValue = data.readInt32(false);
-                        MessagesStorage.lastSecretVersion = data.readInt32(false);
+                        PostsStorage.lastQtsValue = data.readInt32(false);
+                        PostsStorage.lastSecretVersion = data.readInt32(false);
                         int val = data.readInt32(false);
                         if (val == 1) {
-                            MessagesStorage.secretPBytes = data.readByteArray(false);
+                            PostsStorage.secretPBytes = data.readByteArray(false);
                         }
-                        MessagesStorage.secretG = data.readInt32(false);
+                        PostsStorage.secretG = data.readInt32(false);
                         Utilities.stageQueue.postRunnable(new Runnable() {
                             @Override
                             public void run() {

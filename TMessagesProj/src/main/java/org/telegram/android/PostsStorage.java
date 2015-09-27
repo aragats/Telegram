@@ -10,37 +10,24 @@ package org.telegram.android;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.text.TextUtils;
-import android.util.SparseArray;
 
-import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.SQLite.SQLiteCursor;
 import org.telegram.SQLite.SQLiteDatabase;
 import org.telegram.SQLite.SQLitePreparedStatement;
+import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BuffersStorage;
 import org.telegram.messenger.ByteBufferDesc;
-import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.DispatchQueue;
-import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.TLClassStore;
-import org.telegram.messenger.TLObject;
-import org.telegram.messenger.TLRPC;
-import org.telegram.messenger.Utilities;
-import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.dto.User;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 //TODO this Class work with SQL DB. save messages, dialogs and users.
-public class MessagesStorage {
+public class PostsStorage {
     private DispatchQueue storageQueue = new DispatchQueue("storageQueue");
     private SQLiteDatabase database;
     private File cacheFile;
@@ -53,23 +40,23 @@ public class MessagesStorage {
     public static byte[] secretPBytes = null;
     public static int secretG = 0;
 
-    private static volatile MessagesStorage Instance = null;
+    private static volatile PostsStorage Instance = null;
 
     @Deprecated
-    public static MessagesStorage getInstance() {
-        MessagesStorage localInstance = Instance;
+    public static PostsStorage getInstance() {
+        PostsStorage localInstance = Instance;
         if (localInstance == null) {
-            synchronized (MessagesStorage.class) {
+            synchronized (PostsStorage.class) {
                 localInstance = Instance;
                 if (localInstance == null) {
-                    Instance = localInstance = new MessagesStorage();
+                    Instance = localInstance = new PostsStorage();
                 }
             }
         }
         return localInstance;
     }
 
-    public MessagesStorage() {
+    public PostsStorage() {
         storageQueue.setPriority(Thread.MAX_PRIORITY);
         openDatabase();
     }

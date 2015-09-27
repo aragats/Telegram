@@ -79,7 +79,7 @@ import org.telegram.utils.StringUtils;
 /*
 TODO-aragats
  */
-public class PostsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, PostPhotoViewerProvider {
+public class PostsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, PhotoViewer.PhotoViewerProvider {
 
     private RecyclerListView postListView;
     private LinearLayoutManager layoutManager;
@@ -111,8 +111,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     //TODO-legacy. update according to new version.
     @Override
-    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(Post post) {
-        if (post == null) {
+    public PhotoViewer.PlaceProviderObject getPlaceForPhoto(Object post, int index) {
+        if (post == null || !(post instanceof Post)) {
             return null;
         }
         int count = this.postListView.getChildCount();
@@ -124,7 +124,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             if (view instanceof PostCell) {
                 PostCell cell = (PostCell) view;
                 Post cellPost = cell.getPost();
-                if (cellPost != null && cellPost.getId() != null && cellPost.getId().equals(post.getId())) {
+                if (cellPost != null && cellPost.getId() != null && cellPost.getId().equals(((Post) post).getId())) {
                     postToOpen = cellPost;
                     imageReceiver = cell.getPhotoImage();
                 }
@@ -148,12 +148,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     }
 
     @Override
-    public Bitmap getThumbForPhoto(Post post, int index) {
+    public Bitmap getThumbForPhoto(int index) {
         return null;
     }
 
     @Override
-    public void willSwitchFromPhoto(Post post) {
+    public void willSwitchFromPhoto(int index) {
 
     }
 
@@ -686,7 +686,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 swipeRefreshLayout.setRefreshing(false);
             }
             Activity context = getParentActivity();
-            if(context != null) {
+            if (context != null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Whats going on?");
                 builder.setMessage("Please, enable gps on your phone.");
