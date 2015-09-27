@@ -2022,9 +2022,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
 
-    //TODO-aragats new
+    //TODO-aragats for photo in posts.
     //final PostPhotoViewerProvider provider, PostsActivity postsActivity are the same class.
-    public void openPhotoNew(final Post post, final int index, final PhotoViewerProvider provider, PostsActivity postsActivity) {
+    public void openPhoto(final Post post, final int index, final PhotoViewerProvider provider, PostsActivity postsActivity) {
         if (parentActivity == null || isVisible || provider == null || checkAnimation() || post == null) {
             return;
         }
