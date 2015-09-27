@@ -44,11 +44,11 @@ import org.telegram.android.volley.Response;
 import org.telegram.android.volley.VolleyError;
 import org.telegram.android.volley.toolbox.JsonObjectRequest;
 import org.telegram.android.volley.toolbox.Volley;
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
-import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
 import org.telegram.ui.ActionBar.ActionBarMenu;

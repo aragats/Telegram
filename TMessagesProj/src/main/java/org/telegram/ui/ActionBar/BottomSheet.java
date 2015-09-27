@@ -32,8 +32,9 @@ import org.telegram.android.AnimationCompat.AnimatorSetProxy;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.android.LocaleController;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.ui.Components.LayoutHelper;
+
+import ru.aragats.wgo.R;
 
 public class BottomSheet extends Dialog {
 

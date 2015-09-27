@@ -29,13 +29,14 @@ import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
 import org.telegram.android.PostsController;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.utils.StringUtils;
+
+import ru.aragats.wgo.R;
 
 public class PostCell extends BaseCell {
 

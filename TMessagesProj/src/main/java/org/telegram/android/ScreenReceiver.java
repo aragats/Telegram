@@ -14,7 +14,7 @@ import android.content.Intent;
 
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
 
 public class ScreenReceiver extends BroadcastReceiver {
 

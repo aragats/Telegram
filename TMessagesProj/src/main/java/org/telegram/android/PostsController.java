@@ -13,7 +13,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 
 import org.telegram.android.location.LocationManagerHelper;
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
 import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;

@@ -13,9 +13,10 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.messenger.UserConfig;
 
 import java.util.HashMap;
@@ -114,7 +115,7 @@ public class ContactsController {
             FileLog.e("tmessages", e);
         }
 
-        accounts = am.getAccountsByType("org.telegram.messenger");
+        accounts = am.getAccountsByType("ru.aragats.wgo");
         boolean recreateAccount = false;
         if (UserConfig.isClientActivated()) {
             if (accounts.length == 1) {
@@ -139,7 +140,7 @@ public class ContactsController {
             if (UserConfig.isClientActivated()) {
                 try {
                     //TODO UserConfig.getCurrentUser() is null. Deshalb Method wirft Exception.
-                    currentAccount = new Account(UserConfig.getCurrentUser().getPhone(), "org.telegram.messenger");
+                    currentAccount = new Account(UserConfig.getCurrentUser().getPhone(), "ru.aragats.wgo");
                     am.addAccountExplicitly(currentAccount, "", null);
                 } catch (Exception e) {
                     FileLog.e("tmessages", e);

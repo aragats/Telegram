@@ -35,7 +35,6 @@ import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.DispatchQueue;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
 import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
@@ -55,6 +54,8 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 import javax.microedition.khronos.opengles.GL;
 import javax.microedition.khronos.opengles.GL10;
+
+import ru.aragats.wgo.R;
 
 @SuppressLint("NewApi")
 public class PhotoFilterView extends FrameLayout {

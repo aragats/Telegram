@@ -6,7 +6,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
 
 import java.util.List;
 

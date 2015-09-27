@@ -11,7 +11,8 @@ package org.telegram.ui.Components;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-import org.telegram.messenger.R;
+import ru.aragats.wgo.R;
+
 
 public class ResourceLoader {
 

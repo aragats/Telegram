@@ -31,8 +31,9 @@ import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
 import org.telegram.android.NotificationCenter;
-import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.R;
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;

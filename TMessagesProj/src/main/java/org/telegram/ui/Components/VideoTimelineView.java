@@ -23,9 +23,10 @@ import android.view.View;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 
 import java.util.ArrayList;
+
+import ru.aragats.wgo.R;
 
 @TargetApi(10)
 public class VideoTimelineView extends View {

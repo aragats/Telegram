@@ -50,9 +50,10 @@ import org.telegram.android.NotificationCenter;
 import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Image;

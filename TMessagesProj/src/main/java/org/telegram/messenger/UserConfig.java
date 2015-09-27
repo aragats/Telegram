@@ -18,6 +18,8 @@ import org.telegram.messenger.service.mock.UserServiceMock;
 
 import java.io.File;
 
+import ru.aragats.wgo.ApplicationLoader;
+
 public class UserConfig {
 
     private static User currentUser;

@@ -29,7 +29,7 @@ import android.widget.TextView;
 
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
 
 public class Emoji {
 	private static HashMap<Long, DrawableInfo> rects = new HashMap<>();

@@ -32,8 +32,9 @@ import android.widget.Toast;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
-import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.R;
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+
 import org.telegram.ui.ActionBar.BottomSheet;
 
 import java.util.HashMap;

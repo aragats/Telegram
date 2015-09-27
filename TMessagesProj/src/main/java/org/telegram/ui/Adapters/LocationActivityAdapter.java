@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.telegram.android.LocaleController;
-import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
 import org.telegram.ui.Cells.EmptyCell;
 import org.telegram.ui.Cells.GreySectionCell;
@@ -24,6 +23,8 @@ import org.telegram.ui.Cells.LocationPoweredCell;
 import org.telegram.ui.Cells.SendLocationCell;
 
 import java.util.Locale;
+
+import ru.aragats.wgo.R;
 
 public class LocationActivityAdapter extends BaseLocationAdapter {
 

@@ -29,7 +29,8 @@ import android.widget.TextView;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
-import org.telegram.messenger.R;
+
+import ru.aragats.wgo.R;
 
 public class IntroActivity extends Activity {
     private ViewPager viewPager;

@@ -29,6 +29,9 @@ import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.User;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.RadialProgress;
+
+import ru.aragats.wgo.R;
+
 //TODO-aragats
 public class PostMediaCellOld extends BaseCell {
 
@@ -109,8 +112,8 @@ public class PostMediaCellOld extends BaseCell {
             namePaint.setColor(0xff212121);
             namePaint.setTextSize(AndroidUtilities.dp(16));
 
-            backgroundMediaDrawableOutSelected = getResources().getDrawable(org.telegram.messenger.R.drawable.msg_out_photo_selected);
-            backgroundMediaDrawableOut = getResources().getDrawable(org.telegram.messenger.R.drawable.msg_out_photo);
+            backgroundMediaDrawableOutSelected = getResources().getDrawable(R.drawable.msg_out_photo_selected);
+            backgroundMediaDrawableOut = getResources().getDrawable(R.drawable.msg_out_photo);
 
 
         }

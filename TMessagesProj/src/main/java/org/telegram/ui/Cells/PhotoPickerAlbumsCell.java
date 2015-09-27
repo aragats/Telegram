@@ -20,10 +20,11 @@ import android.widget.TextView;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.MediaController;
-import org.telegram.messenger.R;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.FrameLayoutFixed;
 import org.telegram.ui.Components.LayoutHelper;
+
+import ru.aragats.wgo.R;
 
 public class PhotoPickerAlbumsCell extends FrameLayoutFixed {
 

@@ -39,10 +39,11 @@ import org.telegram.android.AnimationCompat.ViewProxy;
 import org.telegram.android.Emoji;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.BaseFragment;
 
 /**

@@ -25,10 +25,11 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import org.telegram.android.AndroidUtilities;
-import org.telegram.messenger.R;
 import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
+
+import ru.aragats.wgo.R;
 
 public class DrawerLayoutContainer extends FrameLayout {
 

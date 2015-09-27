@@ -38,9 +38,10 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.telegram.messenger.R;
 
 import java.util.Locale;
+
+import ru.aragats.wgo.R;
 
 public class NumberPicker extends LinearLayout {
 

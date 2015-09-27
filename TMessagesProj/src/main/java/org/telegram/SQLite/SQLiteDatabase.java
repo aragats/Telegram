@@ -9,7 +9,7 @@
 package org.telegram.SQLite;
 
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.ApplicationLoader;
+import ru.aragats.wgo.ApplicationLoader;
 
 public class SQLiteDatabase {
 	private final int sqliteHandle;

@@ -29,7 +29,6 @@ import android.widget.LinearLayout;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.NotificationCenter;
-import org.telegram.messenger.R;
 import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
@@ -37,6 +36,8 @@ import org.telegram.android.AnimationCompat.ViewProxy;
 import org.telegram.ui.Components.LayoutHelper;
 
 import java.util.ArrayList;
+
+import ru.aragats.wgo.R;
 
 public class ActionBarLayout extends FrameLayout {
 

@@ -32,10 +32,11 @@ import org.telegram.android.Emoji;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
 
 import java.util.ArrayList;
+
+import ru.aragats.wgo.R;
 
 public class EmojiView extends LinearLayout implements NotificationCenter.NotificationCenterDelegate {
 

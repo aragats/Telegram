@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.support.widget.RecyclerView;
-import org.telegram.messenger.R;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;
 import org.telegram.messenger.service.mock.PostServiceMock;
@@ -27,6 +26,8 @@ import org.telegram.ui.Cells.PostCell;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
+
+import ru.aragats.wgo.R;
 
 // TODO-aragats
 public class PostsSearchAdapter extends BaseSearchAdapterRecycler {

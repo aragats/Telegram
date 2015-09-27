@@ -13,10 +13,11 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 
 import org.telegram.android.AndroidUtilities;
-import org.telegram.messenger.R;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.CheckBox;
 import org.telegram.ui.Components.LayoutHelper;
+
+import ru.aragats.wgo.R;
 
 public class PhotoPickerPhotoCell extends FrameLayout {
 

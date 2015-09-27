@@ -17,8 +17,9 @@ import android.widget.TextView;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
-import org.telegram.messenger.R;
 import org.telegram.ui.Components.LayoutHelper;
+
+import ru.aragats.wgo.R;
 
 public class LocationLoadingCell extends FrameLayout {
 

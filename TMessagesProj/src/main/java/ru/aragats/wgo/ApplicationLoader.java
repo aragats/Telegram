@@ -6,7 +6,7 @@
  * Copyright Nikolai Kudashov, 2013-2015.
  */
 
-package org.telegram.messenger;
+package ru.aragats.wgo;
 
 import android.app.Activity;
 import android.app.Application;
@@ -32,10 +32,10 @@ import org.telegram.android.MediaController;
 import org.telegram.android.NativeLoader;
 import org.telegram.android.PostsController;
 import org.telegram.android.ScreenReceiver;
+import org.telegram.messenger.FileLog;
+import org.telegram.messenger.UserConfig;
+import org.telegram.messenger.Utilities;
 import org.telegram.ui.Components.ForegroundDetector;
-
-import java.io.File;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ApplicationLoader extends Application {
 

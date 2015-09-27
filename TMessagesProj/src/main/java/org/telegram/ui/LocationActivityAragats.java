@@ -49,7 +49,6 @@ import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.Venue;
@@ -69,6 +68,8 @@ import org.telegram.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import ru.aragats.wgo.R;
 
 //TODO-aragats
 public class LocationActivityAragats extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {

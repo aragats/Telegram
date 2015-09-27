@@ -32,12 +32,13 @@ import android.widget.TextView;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
-import org.telegram.messenger.R;
 import org.telegram.android.AnimationCompat.ViewProxy;
 import org.telegram.ui.Components.FrameLayoutFixed;
 import org.telegram.ui.Components.LayoutHelper;
 
 import java.lang.reflect.Field;
+
+import ru.aragats.wgo.R;
 
 public class ActionBarMenuItem extends FrameLayoutFixed {
 

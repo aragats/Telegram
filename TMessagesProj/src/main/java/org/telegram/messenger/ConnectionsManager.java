@@ -17,8 +17,6 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.util.Base64;
 
-import org.telegram.android.AndroidUtilities;
-
 import java.io.File;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -29,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import ru.aragats.wgo.ApplicationLoader;
 
 public class ConnectionsManager implements Action.ActionDelegate {
 
