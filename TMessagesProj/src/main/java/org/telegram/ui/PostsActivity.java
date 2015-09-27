@@ -19,8 +19,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,7 +39,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
@@ -57,7 +54,6 @@ import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
-//TODO delte it or reuse.
 import org.telegram.messenger.dto.Post;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
@@ -74,6 +70,8 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
+
+//TODO delte it or reuse.
 
 //TODO refresh list https://www.bignerdranch.com/blog/implementing-swipe-to-refresh/
 /*
@@ -192,9 +190,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     }
 
-    public interface MessagesActivityDelegate {
-        void didSelectDialog(PostsActivity fragment, long dialog_id, boolean param);
-    }
 
     public PostsActivity(Bundle args) {
         super(args);
@@ -422,7 +417,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     return;
                 }
                 String post_id = "";
-                String message_id = "";
                 RecyclerView.Adapter adapter = postListView.getAdapter();
                 if (adapter == postsAdapter) {
                     Post postObject = postsAdapter.getItem(position);

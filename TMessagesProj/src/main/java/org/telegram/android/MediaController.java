@@ -31,6 +31,7 @@ import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.UserConfig;
+import org.telegram.utils.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -725,10 +726,10 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
     public void checkSaveToGalleryFiles() {
         try {
-            File telegramPath = new File(Environment.getExternalStorageDirectory(), "Telegram");
-            File imagePath = new File(telegramPath, "Telegram Images");
+            File telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.WGO);
+            File imagePath = new File(telegramPath, Constants.WGO_IMAGE);
             imagePath.mkdir();
-            File videoPath = new File(telegramPath, "Telegram Video");
+            File videoPath = new File(telegramPath, Constants.WGO_VIDEO);
             videoPath.mkdir();
 
             if (saveToGallery) {

@@ -907,7 +907,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (avatarImageView != null) {
             AvatarDrawable avatarDrawable = new AvatarDrawable();
 //            avatarImageView.setImage(newPhoto, "50_50", avatarDrawable);
-//            avatarImageView.setImage("/storage/emulated/0/Telegram/Telegram Images/730111210_6623.jpg", "50_50", avatarDrawable);
+//            avatarImageView.setImage("/storage/emulated/0/Telegram/WGO Images/730111210_6623.jpg", "50_50", avatarDrawable);
             //TODO probably save venue. into field in Activity.
             if (venue != null && venue.getImage() != null && !StringUtils.isEmpty(venue.getImage().getUrl())) {
                 avatarImageView.setImage(venue.getImage().getUrl(), "50_50", avatarDrawable);
