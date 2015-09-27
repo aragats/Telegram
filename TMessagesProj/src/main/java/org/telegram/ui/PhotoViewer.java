@@ -1604,7 +1604,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         if (post != null) {
             imagesPostArr.add(post);
             menuItem.hideSubItem(gallery_menu_showall);
-            setImageIndexPostNew(0, true);
+            setImageIndex(0, true);
         }
 
     }
@@ -1714,141 +1714,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
     }
 
-    private void setImageIndex(int index, boolean init) {
-        if (currentIndex == index) {
-            return;
-        }
-        if (!init) {
-            currentThumb = null;
-        }
-        currentFileNames[0] = getFileName(index);
-        currentFileNames[1] = getFileName(index + 1);
-        currentFileNames[2] = getFileName(index - 1);
-        placeProvider.willSwitchFromPhoto(currentIndex);
-        int prevIndex = currentIndex;
-        currentIndex = index;
-
-        boolean sameImage = false;
-
-        if (!imagesArrLocals.isEmpty()) {
-            Object object = imagesArrLocals.get(index);
-            if (index < 0 || index >= imagesArrLocals.size()) {
-                closePhoto(false, false);
-                return;
-            }
-            boolean fromCamera = false;
-            CharSequence caption = null;
-            if (object instanceof MediaController.PhotoEntry) {
-                currentPathObject = ((MediaController.PhotoEntry) object).path;
-                fromCamera = ((MediaController.PhotoEntry) object).bucketId == 0 && ((MediaController.PhotoEntry) object).dateTaken == 0 && imagesArrLocals.size() == 1;
-                caption = ((MediaController.PhotoEntry) object).caption;
-            } else if (object instanceof MediaController.SearchImage) {
-                currentPathObject = ((MediaController.SearchImage) object).imageUrl;
-                caption = ((MediaController.SearchImage) object).caption;
-            }
-            if (fromCamera) {
-                actionBar.setTitle(LocaleController.getString("AttachPhoto", R.string.AttachPhoto));
-            } else {
-                actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, currentIndex + 1, imagesArrLocals.size()));
-            }
-            if (sendPhotoType == 0) {
-                checkImageView.setChecked(placeProvider.isPhotoChecked(currentIndex), false);
-            }
-
-            setCurrentCaption(caption);
-            updateCaptionTextForCurrentPhoto(object);
-        }
-
-
-        if (currentPlaceObject != null) {
-            if (animationInProgress == 0) {
-                currentPlaceObject.imageReceiver.setVisible(true, true);
-            } else {
-                showAfterAnimation = currentPlaceObject;
-            }
-        }
-        currentPlaceObject = placeProvider.getPlaceForPhoto(currentPost, currentIndex);
-        if (currentPlaceObject != null) {
-            if (animationInProgress == 0) {
-                currentPlaceObject.imageReceiver.setVisible(false, true);
-            } else {
-                hideAfterAnimation = currentPlaceObject;
-            }
-        }
-
-        if (!sameImage) {
-            draggingDown = false;
-            translationX = 0;
-            translationY = 0;
-            scale = 1;
-            animateToX = 0;
-            animateToY = 0;
-            animateToScale = 1;
-            animationStartTime = 0;
-            imageMoveAnimation = null;
-            changeModeAnimation = null;
-
-            pinchStartDistance = 0;
-            pinchStartScale = 1;
-            pinchCenterX = 0;
-            pinchCenterY = 0;
-            pinchStartX = 0;
-            pinchStartY = 0;
-            moveStartX = 0;
-            moveStartY = 0;
-            zooming = false;
-            moving = false;
-            doubleTap = false;
-            invalidCoords = false;
-            canDragDown = true;
-            changingPage = false;
-            switchImageAfterAnimation = 0;
-            canZoom = !imagesArrLocals.isEmpty() || (currentFileNames[0] != null && !currentFileNames[0].endsWith("mp4") && radialProgressViews[0].backgroundState != 0);
-            updateMinMax(scale);
-        }
-
-        if (prevIndex == -1) {
-            setImages();
-
-            for (int a = 0; a < 3; a++) {
-                checkProgress(a, false);
-            }
-        } else {
-            checkProgress(0, false);
-            if (prevIndex > currentIndex) {
-                ImageReceiver temp = rightImage;
-                rightImage = centerImage;
-                centerImage = leftImage;
-                leftImage = temp;
-
-                RadialProgressView tempProgress = radialProgressViews[0];
-                radialProgressViews[0] = radialProgressViews[2];
-                radialProgressViews[2] = tempProgress;
-                setIndexToImage(leftImage, currentIndex - 1);
-
-                checkProgress(1, false);
-                checkProgress(2, false);
-            } else if (prevIndex < currentIndex) {
-                ImageReceiver temp = leftImage;
-                leftImage = centerImage;
-                centerImage = rightImage;
-                rightImage = temp;
-
-                RadialProgressView tempProgress = radialProgressViews[0];
-                radialProgressViews[0] = radialProgressViews[1];
-                radialProgressViews[1] = tempProgress;
-                setIndexToImage(rightImage, currentIndex + 1);
-
-                checkProgress(1, false);
-                checkProgress(2, false);
-            }
-        }
-
-    }
-
-
     //TODO-aragats new
-    private void setImageIndexPostNew(int index, boolean init) {
+    private void setImageIndex(int index, boolean init) {
         if (currentIndex == index) {
             return;
         }
@@ -1885,17 +1752,38 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, (totalImagesCount - imagesPostArr.size()) + currentIndex + 1, totalImagesCount));
             }
 
-//            if (currentMessageObject.messageOwner.ttl != 0) {
-//                menuItem.hideSubItem(gallery_menu_save);
-//                shareButton.setVisibility(View.GONE);
-//            } else {
-//                menuItem.showSubItem(gallery_menu_save);
-//                shareButton.setVisibility(View.VISIBLE);
-//            }
             menuItem.hideSubItem(gallery_menu_delete);
             menuItem.showSubItem(gallery_menu_save);
 //            shareButton.setVisibility(View.GONE);
             shareButton.setVisibility(View.VISIBLE);
+
+        } else if (!imagesArrLocals.isEmpty()) {
+            Object object = imagesArrLocals.get(index);
+            if (index < 0 || index >= imagesArrLocals.size()) {
+                closePhoto(false, false);
+                return;
+            }
+            boolean fromCamera = false;
+            CharSequence caption = null;
+            if (object instanceof MediaController.PhotoEntry) {
+                currentPathObject = ((MediaController.PhotoEntry) object).path;
+                fromCamera = ((MediaController.PhotoEntry) object).bucketId == 0 && ((MediaController.PhotoEntry) object).dateTaken == 0 && imagesArrLocals.size() == 1;
+                caption = ((MediaController.PhotoEntry) object).caption;
+            } else if (object instanceof MediaController.SearchImage) {
+                currentPathObject = ((MediaController.SearchImage) object).imageUrl;
+                caption = ((MediaController.SearchImage) object).caption;
+            }
+            if (fromCamera) {
+                actionBar.setTitle(LocaleController.getString("AttachPhoto", R.string.AttachPhoto));
+            } else {
+                actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, currentIndex + 1, imagesArrLocals.size()));
+            }
+            if (sendPhotoType == 0) {
+                checkImageView.setChecked(placeProvider.isPhotoChecked(currentIndex), false);
+            }
+
+            setCurrentCaption(caption);
+            updateCaptionTextForCurrentPhoto(object);
         }
 
         if (currentPlaceObject != null) {
@@ -1982,8 +1870,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 checkProgress(2, false);
             }
         }
-
-//        createGifForCurrentImage();
     }
 
 
