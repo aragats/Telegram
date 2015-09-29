@@ -34,7 +34,7 @@ public class UserServiceMock {
         Image image = ImageServiceMock.getRandomImage();
         result.setImage(image);
         result.setPreviewImage(image);
-        result.setPhone("+4912131414124");
+        result.setPhone("4912131414124");
         return result;
     }
 
