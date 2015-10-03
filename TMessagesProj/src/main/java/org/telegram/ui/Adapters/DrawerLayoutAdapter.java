@@ -85,7 +85,8 @@ public class DrawerLayoutAdapter extends BaseAdapter {
             DrawerActionCell actionCell = (DrawerActionCell) view;
             if (i == 2) {
                 //TODO-aragats
-                actionCell.setTextAndIcon(LocaleController.getString("AragatsPosts", R.string.AragatsPosts), R.drawable.menu_broadcast);
+//                actionCell.setTextAndIcon(LocaleController.getString("AragatsPosts", R.string.AragatsPosts), R.drawable.menu_broadcast);
+                actionCell.setTextAndIcon("Posts", R.drawable.menu_broadcast);
             } else if (i == 3) {
                 actionCell.setTextAndIcon(LocaleController.getString("InviteFriends", R.string.InviteFriends), R.drawable.menu_invite);
             } else if (i == 5) {

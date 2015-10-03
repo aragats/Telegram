@@ -50,9 +50,6 @@ import org.telegram.android.NotificationCenter;
 import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
-
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.dto.Coordinates;
@@ -64,7 +61,6 @@ import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.BaseFragment;
-import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.Cells.PostMediaCell;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
@@ -74,12 +70,14 @@ import org.telegram.ui.Components.PostCreateActivityEnterView;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
-import org.telegram.ui.Components.WebFrameLayout;
 import org.telegram.utils.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
 
 //TODO-aragats new
 public class PostCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, PhotoViewer.PhotoViewerProvider {
@@ -1507,10 +1505,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     @Override
                     public void needOpenWebView(String url, String title, String originalUrl, int w, int h) {
-                        BottomSheet.Builder builder = new BottomSheet.Builder(mContext);
-                        builder.setCustomView(new WebFrameLayout(mContext, builder.create(), title, originalUrl, url, w, h));
-                        builder.setOverrideTabletWidth(true);
-                        showDialog(builder.create());
+//                        BottomSheet.Builder builder = new BottomSheet.Builder(mContext);
+//                        builder.setCustomView(new WebFrameLayout(mContext, builder.create(), title, originalUrl, url, w, h));
+//                        builder.setOverrideTabletWidth(true);
+//                        showDialog(builder.create());
                     }
 
                     @Override

@@ -33,6 +33,7 @@ import java.util.Locale;
 public class PostMediaCell extends BaseCell implements MediaController.FileDownloadProgressListener {
 
 
+    //TODO delete some methods from delegate
     public interface PostMediaCellDelegate {
 
         //base delegate
