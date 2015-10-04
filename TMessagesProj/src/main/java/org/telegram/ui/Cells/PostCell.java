@@ -578,6 +578,15 @@ public class PostCell extends BaseCell {
             if (post.getPreviewImage() != null) {
                 Image previewImage = this.post.getPreviewImage();
 
+                //TODO could be use in case of over scaling when real photo less then the phone screen.
+//                if (photoWidth > previewImage.getWidth()) {
+//                    photoWidth = previewImage.getWidth();
+//                }
+//                if (photoHeight > previewImage.getHeight()) {
+//                    photoHeight = previewImage.getHeight();
+//                }
+
+
                 float scale = (float) previewImage.getWidth() / (float) photoWidth; // scale calculate
 
                 if (previewImage.getSize() == 0) { // size of the file.
@@ -614,7 +623,7 @@ public class PostCell extends BaseCell {
 //                photoImage.setImageCoords(avatarLeft, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
 //                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
                 // orientation of image in the center of the screen.
-                int x = (getMeasuredWidth() - photoWidth)/2;
+                int x = (getMeasuredWidth() - photoWidth) / 2;
                 photoImage.setImageCoords(x, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
 
 

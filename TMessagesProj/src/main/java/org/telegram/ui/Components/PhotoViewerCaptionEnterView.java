@@ -351,7 +351,7 @@ public class PhotoViewerCaptionEnterView extends FrameLayoutFixed implements Not
     private void showEmojiPopup(boolean show, boolean post) {
         if (show) {
             if (emojiPopup == null) {
-                emojiView = new EmojiView(false, getContext());
+                emojiView = new EmojiView(getContext());
                 emojiView.setListener(new EmojiView.Listener() {
                     public boolean onBackspace() {
                         if (messageEditText.length() == 0) {
