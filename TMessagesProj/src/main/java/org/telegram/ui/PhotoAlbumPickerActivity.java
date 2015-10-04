@@ -92,7 +92,6 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
         loading = true;
         MediaController.loadGalleryPhotosAlbums(classGuid);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.albumsDidLoaded);
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.recentImagesDidLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.closeChats);
         return super.onFragmentCreate();
     }
@@ -100,7 +99,6 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
     @Override
     public void onFragmentDestroy() {
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.albumsDidLoaded);
-        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.recentImagesDidLoaded);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.closeChats);
         super.onFragmentDestroy();
     }
@@ -323,21 +321,6 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
             }
         } else if (id == NotificationCenter.closeChats) {
             removeSelfFromStack();
-        } else if (id == NotificationCenter.recentImagesDidLoaded) {
-            int type = (Integer) args[0];
-            if (type == 0) {
-                recentWebImages = (ArrayList<MediaController.SearchImage>) args[1];
-                recentImagesWebKeys.clear();
-                for (MediaController.SearchImage searchImage : recentWebImages) {
-                    recentImagesWebKeys.put(searchImage.id, searchImage);
-                }
-            } else if (type == 1) {
-                recentGifImages = (ArrayList<MediaController.SearchImage>) args[1];
-                recentImagesGifKeys.clear();
-                for (MediaController.SearchImage searchImage : recentGifImages) {
-                    recentImagesGifKeys.put(searchImage.id, searchImage);
-                }
-            }
         }
     }
 

@@ -45,7 +45,7 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
     private View parentView;
     private Integer tag;
     private Integer thumbTag;
-//    private MessageObject parentMessageObject;
+    //    private MessageObject parentMessageObject;
     private boolean canceledLoading;
 
     private SetImageBackup setImageBackup;
@@ -143,8 +143,8 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
         }
 
 
-
-        String  key = Utilities.MD5(httpUrl);;
+        String key = Utilities.MD5(httpUrl);
+        ;
 
         if (key != null) {
             if (filter != null) {
@@ -261,7 +261,6 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
         recycleBitmap(null, false);
         recycleBitmap(null, true);
         if (needsQualityThumb) {
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.messageThumbGenerated);
             ImageLoader.getInstance().cancelLoadingForImageReceiver(this, 0);
         }
     }
@@ -685,11 +684,6 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
 
     public void setNeedsQualityThumb(boolean value) {
         needsQualityThumb = value;
-        if (needsQualityThumb) {
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.messageThumbGenerated);
-        } else {
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.messageThumbGenerated);
-        }
     }
 
     public boolean isNeedsQualityThumb() {
@@ -828,25 +822,7 @@ public class ImageReceiver implements NotificationCenter.NotificationCenterDeleg
 
     @Override
     public void didReceivedNotification(int id, Object... args) {
-        if (id == NotificationCenter.messageThumbGenerated) {
-            String key = (String) args[1];
-            if (currentThumbKey != null && currentThumbKey.equals(key)) {
-                if (currentThumb == null) {
-                    ImageLoader.getInstance().incrementUseCount(currentThumbKey);
-                }
-                currentThumb = (BitmapDrawable) args[0];
-                if (staticThumb instanceof BitmapDrawable) {
-                    staticThumb = null;
-                }
-                if (parentView != null) {
-                    if (invalidateAll) {
-                        parentView.invalidate();
-                    } else {
-                        parentView.invalidate(imageX, imageY, imageX + imageW, imageY + imageH);
-                    }
-                }
-            }
-        } else if (id == NotificationCenter.didReplacedPhotoInMemCache) {
+        if (id == NotificationCenter.didReplacedPhotoInMemCache) {
             String oldKey = (String) args[0];
             if (currentKey != null && currentKey.equals(oldKey)) {
                 currentKey = (String) args[1];

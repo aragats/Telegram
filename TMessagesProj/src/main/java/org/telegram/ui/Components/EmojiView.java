@@ -32,7 +32,6 @@ import org.telegram.android.Emoji;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.TLRPC;
 
 import java.util.ArrayList;
 
@@ -292,9 +291,7 @@ public class EmojiView extends LinearLayout implements NotificationCenter.Notifi
 
     @Override
     public void didReceivedNotification(int id, Object... args) {
-        if (id == NotificationCenter.stickersDidLoaded) {
-//            stickersGridAdapter.notifyDataSetChanged();
-        }
+
     }
 
 

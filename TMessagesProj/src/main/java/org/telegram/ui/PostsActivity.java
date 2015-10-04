@@ -105,7 +105,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     // Swipe Refresh Layout
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private LocationManager locationManager;
 
 
     //TODO-legacy. update according to new version.
@@ -209,18 +208,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.dialogsNeedReload);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.encryptedChatUpdated);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.contactsDidLoaded);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.appDidLogout);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.openedChatChanged);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.notificationsSettingsUpdated);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.messageReceivedByAck);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.messageReceivedByServer);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.messageSendError);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.didSetPasscode);
         }
 
         LocationManagerHelper.getInstance().runLocationListener();
@@ -240,18 +229,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.dialogsNeedReload);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.encryptedChatUpdated);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.contactsDidLoaded);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.appDidLogout);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.openedChatChanged);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.notificationsSettingsUpdated);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.messageReceivedByAck);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.messageReceivedByServer);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.messageSendError);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.didSetPasscode);
         }
         LocationManagerHelper.getInstance().stopLocationListener();
 
@@ -742,32 +721,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         } else if (id == NotificationCenter.updateInterfaces) {
             updateVisibleRows((Integer) args[0]);
-        } else if (id == NotificationCenter.appDidLogout) {
-            postsLoaded = false;
-        } else if (id == NotificationCenter.encryptedChatUpdated) {
-            updateVisibleRows(0);
-        } else if (id == NotificationCenter.contactsDidLoaded) {
-            updateVisibleRows(0);
-        } else if (id == NotificationCenter.openedChatChanged) {
-//            if (!serverOnly && AndroidUtilities.isTablet()) {
-//                boolean close = (Boolean) args[1];
-//                String dialog_id = (String) args[0];
-//                if (close) {
-//                    if (dialog_id == openedPostId) {
-//                        openedPostId = 0;
-//                    }
-//                } else {
-//                    openedPostId = dialog_id;
-//                }
-//                if (postsAdapter != null) {
-//                    postsAdapter.setOpenedPostId(openedPostId);
-//                }
-//                updateVisibleRows(MessagesController.UPDATE_MASK_SELECT_DIALOG);
-//            }
-        } else if (id == NotificationCenter.notificationsSettingsUpdated) {
-            updateVisibleRows(0);
-        } else if (id == NotificationCenter.messageReceivedByAck || id == NotificationCenter.messageReceivedByServer || id == NotificationCenter.messageSendError) {
-            updateVisibleRows(PostsController.UPDATE_MASK_SEND_STATE);
         }
     }
 

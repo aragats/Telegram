@@ -122,7 +122,6 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     @Override
     public boolean onFragmentCreate() {
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.closeChats);
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.recentImagesDidLoaded);
         if (selectedAlbum == null) {
             requestQueue = Volley.newRequestQueue(ApplicationLoader.applicationContext);
             if (recentImages.isEmpty()) {
@@ -136,7 +135,6 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     @Override
     public void onFragmentDestroy() {
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.closeChats);
-        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.recentImagesDidLoaded);
         if (requestQueue != null) {
             requestQueue.cancelAll("search");
             requestQueue.stop();
@@ -445,12 +443,6 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     public void didReceivedNotification(int id, Object... args) {
         if (id == NotificationCenter.closeChats) {
             removeSelfFromStack();
-        } else if (id == NotificationCenter.recentImagesDidLoaded) {
-            if (selectedAlbum == null && type == (Integer) args[0]) {
-                recentImages = (ArrayList<MediaController.SearchImage>) args[1];
-                loadingRecent = false;
-                updateSearchInterface();
-            }
         }
     }
 

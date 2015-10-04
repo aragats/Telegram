@@ -291,8 +291,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeOtherAppActivities, this);
         currentConnectionState = ConnectionsManager.getInstance().getConnectionState();
 
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.appDidLogout);
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.mainUserInfoChanged);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.closeOtherAppActivities);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.didUpdatedConnectionState);
         if (Build.VERSION.SDK_INT < 14) {
@@ -703,8 +701,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             AndroidUtilities.cancelRunOnUIThread(lockRunnable);
             lockRunnable = null;
         }
-        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.appDidLogout);
-        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.mainUserInfoChanged);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.closeOtherAppActivities);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.didUpdatedConnectionState);
         if (Build.VERSION.SDK_INT < 14) {
@@ -880,29 +876,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     @SuppressWarnings("unchecked")
     public void didReceivedNotification(int id, Object... args) {
-        if (id == NotificationCenter.appDidLogout) {
-            if (drawerLayoutAdapter != null) {
-                drawerLayoutAdapter.notifyDataSetChanged();
-            }
-            for (BaseFragment fragment : actionBarLayout.fragmentsStack) {
-                fragment.onFragmentDestroy();
-            }
-            actionBarLayout.fragmentsStack.clear();
-            if (AndroidUtilities.isTablet()) {
-                for (BaseFragment fragment : layersActionBarLayout.fragmentsStack) {
-                    fragment.onFragmentDestroy();
-                }
-                layersActionBarLayout.fragmentsStack.clear();
-                for (BaseFragment fragment : rightActionBarLayout.fragmentsStack) {
-                    fragment.onFragmentDestroy();
-                }
-                rightActionBarLayout.fragmentsStack.clear();
-            }
-            Intent intent2 = new Intent(this, IntroActivity.class);
-            startActivity(intent2);
-            onFinish();
-            finish();
-        } else if (id == NotificationCenter.closeOtherAppActivities) {
+        if (id == NotificationCenter.closeOtherAppActivities) {
             if (args[0] != this) {
                 onFinish();
                 finish();
@@ -914,8 +888,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                 currentConnectionState = state;
                 updateCurrentConnectionState();
             }
-        } else if (id == NotificationCenter.mainUserInfoChanged) {
-            drawerLayoutAdapter.notifyDataSetChanged();
         } else if (id == NotificationCenter.screenStateChanged) {
             if (!ApplicationLoader.mainInterfacePaused) {
                 if (!ApplicationLoader.isScreenOn) {
@@ -926,7 +898,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             }
         }
     }
-
 
 
     private void updateCurrentConnectionState() {

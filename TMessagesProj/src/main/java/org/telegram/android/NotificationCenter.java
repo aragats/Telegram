@@ -17,87 +17,34 @@ import java.util.HashMap;
 
 public class NotificationCenter {
 
-    public static final int venuesNeedReload = -1;
-    public static final int postsNeedReload = -2;
-    public static final int postRequestFinished = -3;
-    public static final int undefinedLocation = -4;
-    public static final int newPostSaved = -5;
+
 
 
     private static int totalEvents = 1;
 
-    public static final int didReceivedNewMessages = totalEvents++;
-    public static final int updateInterfaces = totalEvents++;
-    public static final int dialogsNeedReload = totalEvents++;
+    public static final int venuesNeedReload = totalEvents++;
+    public static final int postsNeedReload = totalEvents++;
+    public static final int postRequestFinished = totalEvents++;
+    public static final int undefinedLocation = totalEvents++;
+    public static final int newPostSaved = totalEvents++;
+
+    public static final int didReceivedNewPosts = totalEvents++; //TODO
+    public static final int updateInterfaces = totalEvents++; //TODO
     public static final int closeChats = totalEvents++;
-    public static final int messagesDeleted = totalEvents++;
-    public static final int messagesRead = totalEvents++;
-    public static final int messagesDidLoaded = totalEvents++;
-    public static final int messageReceivedByAck = totalEvents++;
-    public static final int messageReceivedByServer = totalEvents++;
-    public static final int messageSendError = totalEvents++;
-    public static final int contactsDidLoaded = totalEvents++;
-    public static final int chatInfoDidLoaded = totalEvents++;
-    public static final int mediaDidLoaded = totalEvents++;
-    public static final int mediaCountDidLoaded = totalEvents++;
-    public static final int encryptedChatUpdated = totalEvents++;
-    public static final int messagesReadEncrypted = totalEvents++;
-    public static final int userPhotosLoaded = totalEvents++;
-    public static final int removeAllMessagesFromDialog = totalEvents++;
-    public static final int notificationsSettingsUpdated = totalEvents++;
-    public static final int pushMessagesUpdated = totalEvents++;
-    public static final int blockedUsersDidLoaded = totalEvents++;
-    public static final int openedChatChanged = totalEvents++;
     public static final int hideEmojiKeyboard = totalEvents++;
-    public static final int didCreatedNewDeleteTask = totalEvents++;
-    public static final int mainUserInfoChanged = totalEvents++;
-    public static final int privacyRulesUpdated = totalEvents++;
-    public static final int updateMessageMedia = totalEvents++;
-    public static final int recentImagesDidLoaded = totalEvents++;
-    public static final int replaceMessagesObjects = totalEvents++;
-    public static final int didSetPasscode = totalEvents++;
     public static final int screenStateChanged = totalEvents++;
-    public static final int didLoadedReplyMessages = totalEvents++;
-    public static final int newSessionReceived = totalEvents++;
-    public static final int didReceivedWebpages = totalEvents++;
-    public static final int didReceivedWebpagesInUpdates = totalEvents++;
-    public static final int stickersDidLoaded = totalEvents++;
     public static final int didReplacedPhotoInMemCache = totalEvents++;
-    public static final int messagesReadContent = totalEvents++;
-
-    public static final int httpFileDidLoaded = totalEvents++;
-    public static final int httpFileDidFailedLoad = totalEvents++;
-
-    public static final int messageThumbGenerated = totalEvents++;
-
-    public static final int wallpapersDidLoaded = totalEvents++;
     public static final int closeOtherAppActivities = totalEvents++;
-    public static final int didUpdatedConnectionState = totalEvents++;
-    public static final int didReceiveSmsCode = totalEvents++;
+    public static final int didUpdatedConnectionState = totalEvents++; // TODO
     public static final int emojiDidLoaded = totalEvents++;
-    public static final int appDidLogout = totalEvents++;
-
-    public static final int FileDidUpload = totalEvents++;
-    public static final int FileDidFailUpload = totalEvents++;
-    public static final int FileUploadProgressChanged = totalEvents++;
-    public static final int FileLoadProgressChanged = totalEvents++;
+    public static final int FileLoadProgressChanged = totalEvents++; //TODO
     public static final int FileDidLoaded = totalEvents++;
     public static final int FileDidFailedLoad = totalEvents++;
-    public static final int FilePreparingStarted = totalEvents++;
-    public static final int FileNewChunkAvailable = totalEvents++;
-    public static final int FilePreparingFailed = totalEvents++;
+    public static final int albumsDidLoaded = totalEvents++; //TODO
 
-    public static final int audioProgressDidChanged = totalEvents++;
-    public static final int audioDidReset = totalEvents++;
-    public static final int recordProgressChanged = totalEvents++;
-    public static final int recordStarted = totalEvents++;
-    public static final int recordStartError = totalEvents++;
-    public static final int recordStopped = totalEvents++;
-    public static final int screenshotTook = totalEvents++;
-    public static final int albumsDidLoaded = totalEvents++;
-    public static final int audioDidSent = totalEvents++;
-    public static final int audioDidStarted = totalEvents++;
-    public static final int audioRouteChanged = totalEvents++;
+
+    public static final int httpFileDidLoaded = totalEvents++; // TODO need receiver
+    public static final int httpFileDidFailedLoad = totalEvents++; // TODO need receiver
 
     private HashMap<Integer, ArrayList<Object>> observers = new HashMap<>();
     private HashMap<Integer, Object> removeAfterBroadcast = new HashMap<>();
@@ -149,7 +96,7 @@ public class NotificationCenter {
 
     public void postNotificationName(int id, Object... args) {
         boolean allowDuringAnimation = false;
-        if (id == dialogsNeedReload || id == closeChats || id == messagesDidLoaded || id == mediaCountDidLoaded || id == mediaDidLoaded) {
+        if (id == closeChats) {
             allowDuringAnimation = true;
         }
         postNotificationNameInternal(id, allowDuringAnimation, args);

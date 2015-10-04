@@ -237,9 +237,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidFailedLoad);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileLoadProgressChanged);
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileUploadProgressChanged);
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.messagesDeleted);
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.removeAllMessagesFromDialog);
 
         BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
             @Override
@@ -523,25 +520,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             }
             listenerInProgress = false;
             processLaterArrays();
-        } else if (id == NotificationCenter.FileUploadProgressChanged) {
-            listenerInProgress = true;
-            String fileName = (String)args[0];
-            ArrayList<WeakReference<FileDownloadProgressListener>> arrayList = loadingFileObservers.get(fileName);
-            if (arrayList != null) {
-                Float progress = (Float)args[1];
-                Boolean enc = (Boolean)args[2];
-                for (WeakReference<FileDownloadProgressListener> reference : arrayList) {
-                    if (reference.get() != null) {
-                        reference.get().onProgressUpload(fileName, progress, enc);
-                    }
-                }
-            }
-            listenerInProgress = false;
-            processLaterArrays();
-            try {
-            } catch (Exception e) {
-                FileLog.e("tmessages", e);
-            }
         }
     }
 
