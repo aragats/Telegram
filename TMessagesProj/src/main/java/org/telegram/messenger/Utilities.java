@@ -90,8 +90,6 @@ public class Utilities {
         }
     }
 
-    public native static long doPQNative(long _what);
-
     public native static void loadBitmap(String path, Bitmap bitmap, int scale, int width, int height, int stride);
 
     public native static int pinBitmap(Bitmap bitmap);
@@ -101,14 +99,6 @@ public class Utilities {
     public native static void calcCDT(ByteBuffer hsvBuffer, int width, int height, ByteBuffer buffer);
 
     public native static Bitmap loadWebpImage(ByteBuffer buffer, int len, BitmapFactory.Options options);
-
-    public native static int convertVideoFrame(ByteBuffer src, ByteBuffer dest, int destFormat, int width, int height, int padding, int swap);
-
-    private native static void aesIgeEncryption(ByteBuffer buffer, byte[] key, byte[] iv, boolean encrypt, int offset, int length);
-
-    public static void aesIgeEncryption(ByteBuffer buffer, byte[] key, byte[] iv, boolean encrypt, boolean changeIv, int offset, int length) {
-        aesIgeEncryption(buffer, key, changeIv ? iv : iv.clone(), encrypt, offset, length);
-    }
 
     public static Integer parseInt(String value) {
         if (value == null) {
@@ -244,30 +234,6 @@ public class Utilities {
         return !(g_a.compareTo(BigInteger.valueOf(1)) != 1 || g_a.compareTo(p.subtract(BigInteger.valueOf(1))) != -1);
     }
 
-    public static TPFactorizedValue getFactorizedValue(long what) {
-        long g = doPQNative(what);
-        if (g > 1 && g < what) {
-            long p1 = g;
-            long p2 = what / g;
-            if (p1 > p2) {
-                long tmp = p1;
-                p1 = p2;
-                p2 = tmp;
-            }
-
-            TPFactorizedValue result = new TPFactorizedValue();
-            result.p = p1;
-            result.q = p2;
-
-            return result;
-        } else {
-            FileLog.e("tmessages", String.format("**** Factorization failed for %d", what));
-            TPFactorizedValue result = new TPFactorizedValue();
-            result.p = 0;
-            result.q = 0;
-            return result;
-        }
-    }
 
     public static boolean arraysEquals(byte[] arr1, int offset1, byte[] arr2, int offset2) {
         if (arr1 == null || arr2 == null || arr1.length - offset1 != arr2.length - offset2 || arr1.length - offset1 < 0) {

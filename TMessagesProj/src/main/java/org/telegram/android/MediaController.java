@@ -45,15 +45,6 @@ import java.util.HashMap;
 
 public class MediaController implements NotificationCenter.NotificationCenterDelegate {
 
-    private native int startRecord(String path);
-    private native int writeFrame(ByteBuffer frame, int len);
-    private native void stopRecord();
-    private native int openOpusFile(String path);
-    private native int seekOpusFile(float position);
-    private native int isOpusFile(String path);
-    private native void closeOpusFile();
-    private native void readOpusFile(ByteBuffer buffer, int capacity, int[] args);
-    private native long getTotalPcmDuration();
 
     public static int[] readArgs = new int[3];
 
