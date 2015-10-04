@@ -16,8 +16,6 @@
     <string name="ClearHistory">Verlauf löschen</string>
     <string name="SearchMessages">NACHRICHTEN</string>
     <string name="Search">Suche</string>
-    <string name="MuteNotifications">Stummschalten</string>
-    <string name="UnmuteNotifications">Stumm aus</string>
     <string name="Hashtags">HASHTAGS</string>
     <!--documents view-->
     <string name="SelectFile">Datei auswählen</string>
@@ -144,9 +142,7 @@
     <!--Alert messages-->
     <string name="Loading">Lädt…</string>
     <string name="AreYouSureDeleteThisChat">Möchtest du wirklich diesen Chat löschen?</string>
-    <string name="AreYouSureUnblockContact">Blockierung für diesen Kontakt wirklich aufheben?</string>
     <string name="AreYouSureClearHistory">Möchtest du wirklich den Verlauf löschen?</string>
-    <string name="AreYouSureDeleteMessages">Sicher, dass du %1$s löschen willst?</string>
     <!--Intro view-->
     <string name="Page1Title">Telegram</string>
     <string name="Page2Title">Schnell</string>

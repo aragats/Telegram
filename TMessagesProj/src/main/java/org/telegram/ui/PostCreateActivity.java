@@ -20,7 +20,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -84,32 +83,20 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
     private ArrayList<PostMediaCell> postMediaCellsCache = new ArrayList<>();
 
-    private FrameLayout progressView;
-    //TODO aragats
     private PostCreateActivityEnterView postCreateActivityEnterView;
     private ActionBarMenuItem menuItem;
-    private ActionBarMenuItem attachItem;
-    private ActionBarMenuItem headerItem;
-    private TextView addContactItem;
-    //TODO list of. aragats
     private RecyclerListView postListView;
     private LinearLayoutManager postLayoutManager;
-    //TODO-aragats
     private PostCreateActivityAdapter postCreateAdapter;
     //TODO BackupImageView contain ImageReceiver. So it more advanced. staff. It surrounds ImageReceiver
     private BackupImageView avatarImageView;
     private FrameLayout emptyViewContainer;
-    private ArrayList<View> actionModeViews = new ArrayList<>();
-    private TextView nameTextView;
-    private TextView onlineTextView;
+    private TextView venueNameTextView;
+    private TextView addressTextView;
     private FrameLayout avatarContainer;
 
     private ProgressDialog progressDialog;
 
-
-    // Send button!
-    private TextView sendTextView;
-    private FrameLayout sendButtonContainer;
 
     private Post selectedObject;
     private boolean wasPaused = false;
@@ -121,8 +108,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     //TODO - here are post for ???
     protected ArrayList<Post> posts = new ArrayList<>();
     protected Venue venue;
-
-    private boolean loading = false;
 
 
     private String currentPicturePath;
@@ -139,7 +124,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         @Override
         public void onItemClick(View view, int position) {
             if (!actionBar.isActionModeShowed()) {
-                createMenu(view, false);
+//                createMenu(view, false);
             }
         }
     };
@@ -150,7 +135,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             if (actionBar.isActionModeShowed()) {
                 return;
             }
-            createMenu(view, true);
+//            createMenu(view, true);
         }
     };
 
@@ -181,8 +166,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.closeChats);
 
         super.onFragmentCreate();
-
-        loading = true;
 
 //        if (AndroidUtilities.isTablet()) {
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.openedChatChanged, dialog_id, false);
@@ -271,12 +254,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         progressDialog.setMessage("Loading");
         progressDialog.setCancelable(false);
 
-//        sendButtonContainer = new FrameLayoutFixed(context);
+        //Send button
+//        FrameLayout sendButtonContainer = new FrameLayoutFixed(context);
 //        sendButtonContainer.setBackgroundResource(R.drawable.bar_selector);
 //        sendButtonContainer.setPadding(AndroidUtilities.dp(8), 0, AndroidUtilities.dp(8), 0);
 //        actionBar.addView(sendButtonContainer, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.RIGHT, 56, 0, 40, 0));
 //
-//        sendTextView = new TextView(context);
+//        TextView sendTextView = new TextView(context);
 //        sendTextView.setTextColor(0xffffffff);
 //        sendTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
 //        sendTextView.setLines(1);
@@ -310,28 +294,28 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         avatarContainer.addView(avatarImageView, LayoutHelper.createFrame(42, 42, Gravity.TOP | Gravity.LEFT, 0, 3, 0, 0));
 
 
-        nameTextView = new TextView(context);
-        nameTextView.setTextColor(0xffffffff);
-        nameTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        nameTextView.setLines(1);
-        nameTextView.setMaxLines(1);
-        nameTextView.setSingleLine(true);
-        nameTextView.setEllipsize(TextUtils.TruncateAt.END);
-        nameTextView.setGravity(Gravity.LEFT);
-        nameTextView.setCompoundDrawablePadding(AndroidUtilities.dp(4));
-        nameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
-        nameTextView.setText("Venue name");
-        avatarContainer.addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 54, 0, 0, 22));
+        venueNameTextView = new TextView(context);
+        venueNameTextView.setTextColor(0xffffffff);
+        venueNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        venueNameTextView.setLines(1);
+        venueNameTextView.setMaxLines(1);
+        venueNameTextView.setSingleLine(true);
+        venueNameTextView.setEllipsize(TextUtils.TruncateAt.END);
+        venueNameTextView.setGravity(Gravity.LEFT);
+        venueNameTextView.setCompoundDrawablePadding(AndroidUtilities.dp(4));
+        venueNameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        venueNameTextView.setText("Venue name");
+        avatarContainer.addView(venueNameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 54, 0, 0, 22));
 
-        onlineTextView = new TextView(context);
-        onlineTextView.setTextColor(0xffd7e8f7);
-        onlineTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        onlineTextView.setLines(1);
-        onlineTextView.setMaxLines(1);
-        onlineTextView.setSingleLine(true);
-        onlineTextView.setEllipsize(TextUtils.TruncateAt.END);
-        onlineTextView.setGravity(Gravity.LEFT);
-        avatarContainer.addView(onlineTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 54, 0, 0, 4));
+        addressTextView = new TextView(context);
+        addressTextView.setTextColor(0xffd7e8f7);
+        addressTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        addressTextView.setLines(1);
+        addressTextView.setMaxLines(1);
+        addressTextView.setSingleLine(true);
+        addressTextView.setEllipsize(TextUtils.TruncateAt.END);
+        addressTextView.setGravity(Gravity.LEFT);
+        avatarContainer.addView(addressTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 54, 0, 0, 4));
 
 
         ActionBarMenu menu = actionBar.createMenu();
@@ -362,10 +346,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         menuItem.setShowFromBottom(true);
         menuItem.setBackgroundDrawable(null);
 
-        actionModeViews.clear();
 
         final ActionBarMenu actionMode = actionBar.createActionMode();
-        actionModeViews.add(actionMode.addItem(-2, R.drawable.ic_ab_back_grey, R.drawable.bar_selector_mode, null, AndroidUtilities.dp(54)));
+        actionMode.addItem(-2, R.drawable.ic_ab_back_grey, R.drawable.bar_selector_mode, null, AndroidUtilities.dp(54));
 
         checkActionBarMenu();
 
@@ -566,26 +549,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             }
         });
 
-        progressView = new FrameLayout(context);
-        progressView.setVisibility(View.INVISIBLE);
-        contentView.addView(progressView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.LEFT, 0, 0, 0, 48));
-
-        View view = new View(context);
-//        view.setBackgroundResource(ApplicationLoader.isCustomTheme() ? R.drawable.system_loader2 : R.drawable.system_loader1);
-        view.setBackgroundResource(R.drawable.system_loader1);
-        progressView.addView(view, LayoutHelper.createFrame(36, 36, Gravity.CENTER));
-
-        ProgressBar progressBar = new ProgressBar(context);
-        try {
-            progressBar.setIndeterminateDrawable(context.getResources().getDrawable(R.drawable.loading_animation));
-        } catch (Exception e) {
-            //don't promt
-        }
-        progressBar.setIndeterminate(true);
-        AndroidUtilities.setProgressBarAnimationDuration(progressBar, 1500);
-        progressView.addView(progressBar, LayoutHelper.createFrame(32, 32, Gravity.CENTER));
-
-        postCreateActivityEnterView = new PostCreateActivityEnterView(getParentActivity(), contentView, this, true);
+        postCreateActivityEnterView = new PostCreateActivityEnterView(getParentActivity(), contentView, this);
 //        postCreateActivityEnterView.setDialogId(dialog_id);
         postCreateActivityEnterView.addToAttachLayout(menuItem);
         postCreateActivityEnterView.setId(id_chat_compose_panel);
@@ -613,22 +577,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
             @Override
             public void onAttachButtonHidden() {
-                if (attachItem != null) {
-                    attachItem.setVisibility(View.VISIBLE);
-                }
-                if (headerItem != null) {
-                    headerItem.setVisibility(View.INVISIBLE);
-                }
+
             }
 
             @Override
             public void onAttachButtonShow() {
-                if (attachItem != null) {
-                    attachItem.setVisibility(View.INVISIBLE);
-                }
-                if (headerItem != null) {
-                    headerItem.setVisibility(View.VISIBLE);
-                }
+
             }
 
             @Override
@@ -656,7 +610,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            progressView.setVisibility(View.VISIBLE);
 //            postListView.setEmptyView(null);
 //        } else {
-        progressView.setVisibility(View.INVISIBLE);
         postListView.setEmptyView(emptyViewContainer);
 //        }
 
@@ -733,7 +686,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     private void updateTitle() {
-        if (nameTextView == null) {
+        if (venueNameTextView == null) {
             return;
         }
         String name = "Current location";
@@ -741,7 +694,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             if (!StringUtils.isEmpty(venue.getName())) {
                 name = venue.getName();
             }
-            nameTextView.setText(name);
+            venueNameTextView.setText(name);
         }
     }
 
@@ -749,12 +702,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         int leftIcon = 0;
 //        int rightIcon = MessagesController.getInstance().isDialogMuted(dialog_id) ? R.drawable.mute_fixed : 0;
         int rightIcon = 0;
-        nameTextView.setCompoundDrawablesWithIntrinsicBounds(leftIcon, 0, rightIcon, 0);
+        venueNameTextView.setCompoundDrawablesWithIntrinsicBounds(leftIcon, 0, rightIcon, 0);
 
     }
 
     private void updateSubtitle() {
-        if (onlineTextView == null) {
+        if (addressTextView == null) {
             return;
         }
 //        CharSequence addressString = "printing";
@@ -763,7 +716,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             addressString = venue.getAddress();
         }
         addressString = TextUtils.replace(addressString, new String[]{"..."}, new String[]{""});
-        onlineTextView.setText(addressString);
+        addressTextView.setText(addressString);
     }
 
     private void checkAndUpdateAvatar() {
@@ -1011,119 +964,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         fixLayout(false);
     }
 
-    public void createMenu(View v, boolean single) {
-        //TODO-MOCK
-        if (true) {
-            return;
-        }
-        if (actionBar.isActionModeShowed()) {
-            return;
-        }
-
-        Post post = null;
-        if (v instanceof PostMediaCell) {
-            post = ((PostMediaCell) v).getPost();
-        }
-        if (post == null) {
-            return;
-        }
-        int type = getPostType(post);
-
-        type = 1;
-        selectedObject = null;
-        actionBar.hideActionMode();
-
-//        if (single || type < 2 || type == 20) {
-//            if (type >= 0) {
-        selectedObject = post;
-        if (getParentActivity() == null) {
-            return;
-        }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-
-        CharSequence[] items = null;
-        int[] options = null;
-
-        if (type == 0) {
-            items = new CharSequence[]{LocaleController.getString("Retry", R.string.Retry), LocaleController.getString("Delete", R.string.Delete)};
-            options = new int[]{0, 1};
-        } else if (type == 1) {
-            items = new CharSequence[]{LocaleController.getString("Delete", R.string.Delete)};
-            options = new int[]{1};
-        } else if (type == 20) {
-            items = new CharSequence[]{LocaleController.getString("Retry", R.string.Retry), LocaleController.getString("Copy", R.string.Copy), LocaleController.getString("Delete", R.string.Delete)};
-            options = new int[]{0, 3, 1};
-        }
-
-        final int[] finalOptions = options;
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (finalOptions == null || selectedObject == null || i < 0 || i >= finalOptions.length) {
-                    return;
-                }
-                processSelectedOption(finalOptions[i]);
-            }
-        });
-
-        builder.setTitle(LocaleController.getString("Message", R.string.Message));
-        showDialog(builder.create());
-//            }
-//            return;
-//        }
-        actionBar.showActionMode();
-
-        if (Build.VERSION.SDK_INT >= 11) {
-            AnimatorSetProxy animatorSet = new AnimatorSetProxy();
-            ArrayList<Object> animators = new ArrayList<>();
-            for (int a = 0; a < actionModeViews.size(); a++) {
-                View view = actionModeViews.get(a);
-                AndroidUtilities.clearDrawableAnimation(view);
-                if (a < 1) {
-                    animators.add(ObjectAnimatorProxy.ofFloat(view, "translationX", -AndroidUtilities.dp(56), 0));
-                } else {
-                    animators.add(ObjectAnimatorProxy.ofFloat(view, "scaleY", 0.1f, 1.0f));
-                }
-            }
-            animatorSet.playTogether(animators);
-            animatorSet.setDuration(250);
-            animatorSet.start();
-        }
-
-        updateActionModeTitle();
-        updateVisibleRows();
-    }
-
-    //
-    private void processSelectedOption(int option) {
-        if (selectedObject == null) {
-            return;
-        }
-        if (option == 1) {
-            final Post finalSelectedObject = selectedObject;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-            builder.setMessage(LocaleController.formatString("AreYouSureDeleteMessages", R.string.AreYouSureDeleteMessages, LocaleController.formatPluralString("messages", 1)));
-            builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-            builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    ArrayList<String> ids = new ArrayList<>();
-                    ids.add(finalSelectedObject.getId());
-                    ArrayList<Long> random_ids = null;
-//                    MessagesController.getInstance().deleteMessages(ids, random_ids, currentEncryptedChat);
-                }
-            });
-            builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-            showDialog(builder.create());
-            //copy text
-        }
-        selectedObject = null;
-    }
-
-//    @Override
-//    public void didSelectDialog(PostsActivity activity, long did, boolean param) {
-//        return;
-//    }
 
     @Override
     public boolean onBackPressed() {
@@ -1339,7 +1179,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     @Override
                     public void didLongPressed(PostMediaCell cell) {
-                        createMenu(cell, false);
+//                        createMenu(cell, false);
                     }
 
                     @Override
@@ -1389,7 +1229,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     @Override
                     public void didPressedOther(PostMediaCell cell) {
-                        createMenu(cell, true);
+//                        createMenu(cell, true);
                     }
                 });
                 ((PostMediaCell) view).setAllowedToSetPhoto(openAnimationEnded);

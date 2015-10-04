@@ -39,6 +39,7 @@ import org.telegram.android.AnimationCompat.ViewProxy;
 import org.telegram.android.Emoji;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
+
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
 
@@ -53,10 +54,15 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
 
     public interface PostCreateActivityEnterViewDelegate {
         void onMessageSend(String message);
+
         void needSendTyping();
+
         void onTextChanged(CharSequence text, boolean bigChange);
+
         void onAttachButtonHidden();
+
         void onAttachButtonShow();
+
         void onWindowSizeChanged(int size);
     }
 
@@ -88,7 +94,6 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
     private boolean sendByEnter;
     private long lastTypingTimeSend;
     private boolean forceShowSendButton;
-    private boolean allowStickers;
 
     private Activity parentActivity;
     private BaseFragment parentFragment;
@@ -101,7 +106,7 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
     private boolean allowShowTopView;
     private AnimatorSetProxy currentTopViewAnimation;
 
-    public PostCreateActivityEnterView(Activity context, View parent, BaseFragment fragment, boolean isChat) {
+    public PostCreateActivityEnterView(Activity context, View parent, BaseFragment fragment) {
         super(context);
         setBackgroundResource(R.drawable.compose_panel);
         setFocusable(true);
@@ -210,7 +215,7 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
         layoutParams1.height = LayoutHelper.WRAP_CONTENT;
         layoutParams1.gravity = Gravity.BOTTOM;
         layoutParams1.leftMargin = AndroidUtilities.dp(52);
-        layoutParams1.rightMargin = AndroidUtilities.dp(isChat ? 50 : 2);
+        layoutParams1.rightMargin = AndroidUtilities.dp(50);
         messageEditText.setLayoutParams(layoutParams1);
         messageEditText.setOnKeyListener(new OnKeyListener() {
             @Override
@@ -322,7 +327,6 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
         charCounter.setGravity(Gravity.CENTER);
 
 
-
         FrameLayout frameLayout1 = new FrameLayout(context);
         textFieldContainer.addView(frameLayout1);
         layoutParams = (LinearLayout.LayoutParams) frameLayout1.getLayoutParams();
@@ -353,20 +357,17 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
         });
 
 
-
-        if (isChat) {
-            attachButton = new FrameLayout(context);
-            attachButton.setEnabled(false);
-            ViewProxy.setPivotX(attachButton, AndroidUtilities.dp(48));
-            //TODO it change the position of attachButton. Actually I had two frameLayout (frameLayout) in textFieldContainer. They affect on layout
-            //TODO. I chnaged the frameLayout where to add. from  frameLayout to frameLayout1
-            frameLayout1.addView(attachButton);
-            layoutParams1 = (LayoutParams) attachButton.getLayoutParams();
-            layoutParams1.width = AndroidUtilities.dp(48);
-            layoutParams1.height = AndroidUtilities.dp(48);
-            layoutParams1.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-            attachButton.setLayoutParams(layoutParams1);
-        }
+        attachButton = new FrameLayout(context);
+        attachButton.setEnabled(false);
+        ViewProxy.setPivotX(attachButton, AndroidUtilities.dp(48));
+        //TODO it change the position of attachButton. Actually I had two frameLayout (frameLayout) in textFieldContainer. They affect on layout
+        //TODO. I chnaged the frameLayout where to add. from  frameLayout to frameLayout1
+        frameLayout1.addView(attachButton);
+        layoutParams1 = (LayoutParams) attachButton.getLayoutParams();
+        layoutParams1.width = AndroidUtilities.dp(48);
+        layoutParams1.height = AndroidUtilities.dp(48);
+        layoutParams1.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        attachButton.setLayoutParams(layoutParams1);
 
 
         checkSendButton(false);
@@ -427,9 +428,6 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
         checkSendButton(animated);
     }
 
-    public void setAllowStickers(boolean value) {
-        allowStickers = value;
-    }
 
     public void showTopView(boolean animated) {
         if (topView == null || topViewShowed) {
@@ -617,7 +615,7 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
     private void updateCharCounter(String message) {
         //TODO when pass int to setText then you run setText(int) method that search resource with id.
         this.charCounter.setText("" + (140 - message.length()));
-        if(message.length()>140) {
+        if (message.length() > 140) {
             this.charCounter.setTextColor(Color.RED);
         } else {
             this.charCounter.setTextColor(Color.parseColor("#b2b2b2"));
@@ -629,7 +627,7 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
     //TODO method to change sendButton to attachButton
     private void checkSendButton(final boolean animated) {
         //TODO mock because I do not change the button.
-        if(true) {
+        if (true) {
             sendButton.setVisibility(View.INVISIBLE);
             attachButton.setVisibility(View.VISIBLE);
             return;
@@ -793,14 +791,13 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
     }
 
 
-
     private void showEmojiPopup(boolean show, boolean post) {
         if (show) {
             if (emojiPopup == null) {
                 if (parentActivity == null) {
                     return;
                 }
-                emojiView = new EmojiView(allowStickers, parentActivity);
+                emojiView = new EmojiView(parentActivity);
                 emojiView.setListener(new EmojiView.Listener() {
                     public boolean onBackspace() {
                         if (messageEditText.length() == 0) {

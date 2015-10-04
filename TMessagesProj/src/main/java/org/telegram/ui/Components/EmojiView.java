@@ -66,7 +66,7 @@ public class EmojiView extends LinearLayout implements NotificationCenter.Notifi
     private boolean backspacePressed;
     private boolean backspaceOnce;
 
-    public EmojiView(boolean needStickers, Context context) {
+    public EmojiView(Context context) {
         super(context);
 
 
