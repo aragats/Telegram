@@ -30,7 +30,7 @@ public class NotificationCenter {
 
     public static final int didReceivedNewPosts = totalEvents++; //TODO
     public static final int updateInterfaces = totalEvents++; //TODO
-    public static final int closeChats = totalEvents++;
+    public static final int closeChats = totalEvents++; //TODO important. force selfClose other activities when open some particular.
     public static final int hideEmojiKeyboard = totalEvents++;
     public static final int screenStateChanged = totalEvents++;
     public static final int didReplacedPhotoInMemCache = totalEvents++;

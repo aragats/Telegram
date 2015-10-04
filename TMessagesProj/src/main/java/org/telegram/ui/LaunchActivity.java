@@ -352,8 +352,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         int flags = intent.getFlags();
         boolean pushOpened = false;
 
-        boolean showDialogsList = false;
-
         photoPathsArray = null;
         sendingText = null;
 
@@ -403,21 +401,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             }
         }
 
-        if (showDialogsList) { // false
-            if (!AndroidUtilities.isTablet()) {
-                actionBarLayout.removeAllFragments();
-            } else {
-                if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
-                    for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
-                        layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
-                        a--;
-                    }
-                    layersActionBarLayout.closeLastFragment(false);
-                }
-            }
-            pushOpened = false;
-            isNew = false;
-        } else if (photoPathsArray != null || sendingText != null) {
+        if (photoPathsArray != null || sendingText != null) {
             if (!AndroidUtilities.isTablet()) {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
             }
@@ -426,7 +410,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             args.putString("image", CollectionUtils.isEmpty(photoPathsArray) ? null : AndroidUtilities.getPath(photoPathsArray.get(0)));
             PostCreateActivity fragment = new PostCreateActivity(args);
 //            fragment.setDelegate(this);
-            boolean removeLast = false;
+            boolean removeLast;
             if (AndroidUtilities.isTablet()) {
                 removeLast = layersActionBarLayout.fragmentsStack.size() > 0 && layersActionBarLayout.fragmentsStack.get(layersActionBarLayout.fragmentsStack.size() - 1) instanceof PostCreateActivity;
             } else {
