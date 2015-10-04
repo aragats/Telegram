@@ -63,3 +63,9 @@ if there is not correct HOCKEY_APP_ID
 TODO before release:
 Remove all telegram reference and configs. Image folder, Video and so on.!!!
 Rename packages and app ids - Not to interfere with Telegram App
+
+
+Notes:
+
+1. LaunchActivity.handleIntent for accept sharing files (photo). Different types and actions. Look at original code.
+Temporally delete some function from the method. and <intent-filter> action.view  SEND_MULTIPLE in AndroidManifest.xml
