@@ -69,4 +69,4 @@ Notes:
 
 1. LaunchActivity.handleIntent for accept sharing files (photo). Different types and actions. Look at original code.
 Temporally delete some function from the method. and <intent-filter> action.view  SEND_MULTIPLE in AndroidManifest.xml
-2. //TODO-mock  temp mock which I should redesign.
+2. //TODO-mock  or TODO-temp. temp mock which I should redesign.

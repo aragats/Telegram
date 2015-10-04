@@ -85,7 +85,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private ArrayList<PostMediaCell> postMediaCellsCache = new ArrayList<>();
 
     private FrameLayout progressView;
-    private FrameLayout bottomOverlay;
     //TODO aragats
     private PostCreateActivityEnterView postCreateActivityEnterView;
     private ActionBarMenuItem menuItem;
@@ -99,15 +98,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private PostCreateActivityAdapter postCreateAdapter;
     //TODO BackupImageView contain ImageReceiver. So it more advanced. staff. It surrounds ImageReceiver
     private BackupImageView avatarImageView;
-    private TextView bottomOverlayChatText;
-    private FrameLayout bottomOverlayChat;
     private FrameLayout emptyViewContainer;
     private ArrayList<View> actionModeViews = new ArrayList<>();
     private TextView nameTextView;
     private TextView onlineTextView;
     private FrameLayout avatarContainer;
-    private TextView bottomOverlayText;
-    private TextView muteItem;
 
     private ProgressDialog progressDialog;
 
@@ -132,14 +127,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
     private String currentPicturePath;
 
-    private Rect scrollRect = new Rect();
-
     private final static int done_button = 1;
-    private final static int chat_menu_attach = 5;
-    private final static int attach_photo = 6;
-    private final static int attach_gallery = 7;
-    private final static int attach_location = 10;
-    private final static int mute = 14;
+    private final static int chat_menu_attach = 2;
+    private final static int attach_photo = 3;
+    private final static int attach_gallery = 4;
+    private final static int attach_location = 5;
 
     private final static int id_chat_compose_panel = 1000;
 
@@ -182,10 +174,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //        }
         //
 
-        //TODO notification
-        //my
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.newPostSaved);
-        //
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.didReceivedNewPosts);
@@ -208,10 +197,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (postCreateActivityEnterView != null) {
             postCreateActivityEnterView.onDestroy();
         }
-        //TODO notification
-        //my
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.newPostSaved);
-        //
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.didReceivedNewPosts);
@@ -238,18 +224,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(final int id) {
-                if (id == attach_photo || id == attach_gallery) {
-//                    String action;
-//                    if (id == attach_photo || id == attach_gallery) {
-//                        action = "pm_upload_photo";
-//                    } else {
-//                        action = "pm_upload_document";
-//                    }
-//
-//                    if (!MessagesController.isFeatureEnabled(action, PostCreateActivity.this)) {
-//                        return;
-//                    }
-                }
                 if (id == -1) {
                     if (postCreateActivityEnterView != null) {
                         postCreateActivityEnterView.hideEmojiPopup();
@@ -262,7 +236,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                         post = posts.get(0);
                         post.setVenue(venue);
 
-//                        //TODO invent better way. save prefix and saffux also ??  to build my custom utl instead of replacing from existing.
+//                        //TODO invent better way. save prefix and suffix also ??  to build my custom utl instead of replacing from existing.
 //                        Image image = post.getVenue().getImage();
 //                        if(image != null && !StringUtils.isEmpty(image.getUrl())) {
 //                            image.setUrl(image.getUrl().replace("_64", "_bg_64"));
@@ -678,49 +652,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //        TODO allow stickers.
 //        postCreateActivityEnterView.setAllowStickers(true);
 
-
-        bottomOverlay = new FrameLayout(context);
-        bottomOverlay.setBackgroundColor(0xffffffff);
-        bottomOverlay.setVisibility(View.INVISIBLE);
-        bottomOverlay.setFocusable(true);
-        bottomOverlay.setFocusableInTouchMode(true);
-        bottomOverlay.setClickable(true);
-        contentView.addView(bottomOverlay, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.BOTTOM));
-
-        bottomOverlayText = new TextView(context);
-        bottomOverlayText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
-        bottomOverlayText.setTextColor(0xff7f7f7f);
-        bottomOverlay.addView(bottomOverlayText, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER));
-
-        bottomOverlayChat = new FrameLayout(context);
-        bottomOverlayChat.setBackgroundColor(0xfffbfcfd);
-        bottomOverlayChat.setVisibility(View.INVISIBLE);
-        contentView.addView(bottomOverlayChat, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.BOTTOM));
-        bottomOverlayChat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (getParentActivity() == null) {
-                    return;
-                }
-                AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-                builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
-                builder.setMessage(LocaleController.getString("AreYouSureUnblockContact", R.string.AreYouSureUnblockContact));
-                builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-//                    MessagesController.getInstance().unblockUser(currentUser.id);
-                    }
-                });
-                builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                showDialog(builder.create());
-            }
-        });
-
-        bottomOverlayChatText = new TextView(context);
-        bottomOverlayChatText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        bottomOverlayChatText.setTextColor(0xff3e6fa1);
-        bottomOverlayChat.addView(bottomOverlayChatText, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER));
-
 //        if (loading && posts.isEmpty()) {
 //            progressView.setVisibility(View.VISIBLE);
 //            postListView.setEmptyView(null);
@@ -777,12 +708,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (menuItem != null) {
             menuItem.setVisibility(View.VISIBLE);
         }
-//        if (timeItem != null) {
-//            timeItem.setVisibility(View.VISIBLE);
-//        }
-//        if (timeItem2 != null) {
-//            timeItem2.setVisibility(View.VISIBLE);
-//        }
 
         checkAndUpdateAvatar();
     }
@@ -826,13 +751,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         int rightIcon = 0;
         nameTextView.setCompoundDrawablesWithIntrinsicBounds(leftIcon, 0, rightIcon, 0);
 
-        if (muteItem != null) {
-            if (rightIcon != 0) {
-                muteItem.setText(LocaleController.getString("UnmuteNotifications", R.string.UnmuteNotifications));
-            } else {
-                muteItem.setText(LocaleController.getString("MuteNotifications", R.string.MuteNotifications));
-            }
-        }
     }
 
     private void updateSubtitle() {
@@ -971,16 +889,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     private void updateBottomOverlay() {
-        if (bottomOverlayChatText != null) {
-            bottomOverlayChatText.setText(LocaleController.getString("DeleteThisChat", R.string.DeleteThisChat));
-        }
-
-        if (bottomOverlayChat != null) {
-            bottomOverlayChat.setVisibility(View.INVISIBLE);
-        }
-        if (muteItem != null) {
-            muteItem.setVisibility(View.VISIBLE);
-        }
 //        postCreateActivityEnterView.setFieldFocused(false);
 
     }
@@ -1023,10 +931,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //        PostsController.getInstance().setCurrentVenue(null);
         updateVenue();
 
-
-        if (bottomOverlayChat.getVisibility() != View.VISIBLE) {
-            postCreateActivityEnterView.setFieldFocused(true);
-        }
 
         postListView.setOnItemLongClickListener(onItemLongClickListener);
         postListView.setOnItemClickListener(onItemClickListener);
@@ -1108,7 +1012,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     public void createMenu(View v, boolean single) {
-        //TODO MOCK
+        //TODO-MOCK
         if (true) {
             return;
         }
@@ -1190,6 +1094,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         updateVisibleRows();
     }
 
+    //
     private void processSelectedOption(int option) {
         if (selectedObject == null) {
             return;

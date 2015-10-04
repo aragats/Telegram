@@ -843,7 +843,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 //            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
             drawerLayoutContainer.setAllowOpenDrawer(true, true);
             if (fragment instanceof PostsActivity) {
-                PostsActivity postsActivity = (PostsActivity) fragment;
+//                PostsActivity postsActivity = (PostsActivity) fragment;
 //                if (postsActivity.isMainDialogList() && layout != actionBarLayout) {
                 if (layout != actionBarLayout) {
                     actionBarLayout.removeAllFragments();
@@ -874,7 +874,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 //            drawerLayoutContainer.setAllowOpenDrawer(!(fragment instanceof LoginActivity) && layersActionBarLayout.getVisibility() != View.VISIBLE, true);
             drawerLayoutContainer.setAllowOpenDrawer(true, true);
             if (fragment instanceof PostsActivity) {
-                PostsActivity postsActivity = (PostsActivity) fragment;
+//                PostsActivity postsActivity = (PostsActivity) fragment;
 //                if (postsActivity.isMainDialogList() && layout != actionBarLayout) {
                 if (layout != actionBarLayout) {
                     actionBarLayout.removeAllFragments();

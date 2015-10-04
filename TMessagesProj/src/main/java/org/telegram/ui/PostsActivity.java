@@ -781,8 +781,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     }
 
 
+    @Deprecated //temporally
     private void onItemLongClickHandle(View view, int position) {
-        //TODO-temp mock
+        //TODO-mock mock
         if (true) {
             return;
         }
