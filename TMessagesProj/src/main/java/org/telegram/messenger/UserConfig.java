@@ -72,6 +72,7 @@ public class UserConfig {
 
     //TODO activated user.
     public static boolean isClientActivated() {
+        //TODO-mock
         if(true){
             return true;
         }

@@ -10,18 +10,15 @@ package org.telegram.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.provider.ContactsContract;
 import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -38,7 +35,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.ContactsController;
 import org.telegram.android.LocaleController;
@@ -46,7 +42,6 @@ import org.telegram.android.NotificationCenter;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.UserConfig;
-import org.telegram.messenger.Utilities;
 import org.telegram.ui.ActionBar.ActionBarLayout;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.DrawerLayoutContainer;
@@ -54,11 +49,7 @@ import org.telegram.ui.Adapters.DrawerLayoutAdapter;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.utils.CollectionUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 
 import ru.aragats.wgo.ApplicationLoader;
@@ -66,8 +57,6 @@ import ru.aragats.wgo.R;
 
 public class LaunchActivity extends Activity implements ActionBarLayout.ActionBarLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
     private boolean finished;
-    private String sendingText;
-    private ArrayList<Uri> photoPathsArray; //TODO for share images.
     private int currentConnectionState;
     private static ArrayList<BaseFragment> mainFragmentsStack = new ArrayList<>();
     private static ArrayList<BaseFragment> layerFragmentsStack = new ArrayList<>();
@@ -352,8 +341,9 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         int flags = intent.getFlags();
         boolean pushOpened = false;
 
-        photoPathsArray = null;
-        sendingText = null;
+        //Photo and String to share.
+        ArrayList<Uri> photoPathsArray = null; // TODO for sharing photos/images
+        String sendingText = null;
 
         if (UserConfig.isClientActivated() && (flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
             if (intent != null && intent.getAction() != null && !restore) {
@@ -385,9 +375,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                         Uri uri = (Uri) parcelable;
                         if (uri != null && (type != null && type.startsWith("image/") || uri.toString().toLowerCase().endsWith(".jpg"))) {
                             String tempPath = AndroidUtilities.getPath(uri);
-                            if (photoPathsArray == null) {
-                                photoPathsArray = new ArrayList<>();
-                            }
+                            photoPathsArray = new ArrayList<>();
                             photoPathsArray.add(uri); //for image
                         }
                     } else if (sendingText == null) {
@@ -712,6 +700,9 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
     private void updateCurrentConnectionState() {
         String text = null;
+        //TODO-mock. temp
+        currentConnectionState = 0;
+        //
         if (currentConnectionState == 1) {
             text = LocaleController.getString("WaitingForNetwork", R.string.WaitingForNetwork);
         } else if (currentConnectionState == 2) {
