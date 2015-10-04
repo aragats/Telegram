@@ -51,7 +51,6 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.DrawerLayoutContainer;
 import org.telegram.ui.Adapters.DrawerLayoutAdapter;
 import org.telegram.ui.Components.LayoutHelper;
-import org.telegram.ui.Components.PasscodeView;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -64,14 +63,8 @@ import ru.aragats.wgo.R;
 
 public class LaunchActivity extends Activity implements ActionBarLayout.ActionBarLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
     private boolean finished;
-    private String videoPath;
     private String sendingText;
     private ArrayList<Uri> photoPathsArray;
-    private ArrayList<String> documentsPathsArray;
-    private ArrayList<Uri> documentsUrisArray;
-    private String documentsMimeType;
-    private ArrayList<String> documentsOriginalPathsArray;
-//    private ArrayList<TLRPC.User> contactsToSend;
     private int currentConnectionState;
     private static ArrayList<BaseFragment> mainFragmentsStack = new ArrayList<>();
     private static ArrayList<BaseFragment> layerFragmentsStack = new ArrayList<>();
@@ -85,12 +78,8 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     private ImageView backgroundTablet;
     protected DrawerLayoutContainer drawerLayoutContainer;
     private DrawerLayoutAdapter drawerLayoutAdapter;
-    private PasscodeView passcodeView;
     private AlertDialog visibleDialog;
 
-    private Intent passcodeSaveIntent;
-    private boolean passcodeSaveIntentIsNew;
-    private boolean passcodeSaveIntentIsRestore;
 
     private boolean tabletFullSize;
 
@@ -127,9 +116,9 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
         super.onCreate(savedInstanceState);
 
-        if (UserConfig.passcodeHash.length() != 0 && UserConfig.appLocked) {
-            UserConfig.lastPauseTime = ConnectionsManager.getInstance().getCurrentTime();
-        }
+//        if (UserConfig.appLocked) {
+//            UserConfig.lastPauseTime = ConnectionsManager.getInstance().getCurrentTime();
+//        }
 
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
@@ -299,13 +288,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
         ApplicationLoader.loadWallpaper();
 
-        passcodeView = new PasscodeView(this);
-        drawerLayoutContainer.addView(passcodeView);
-        FrameLayout.LayoutParams layoutParams1 = (FrameLayout.LayoutParams) passcodeView.getLayoutParams();
-        layoutParams1.width = LayoutHelper.MATCH_PARENT;
-        layoutParams1.height = LayoutHelper.MATCH_PARENT;
-        passcodeView.setLayoutParams(layoutParams1);
-
         NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeOtherAppActivities, this);
         currentConnectionState = ConnectionsManager.getInstance().getConnectionState();
 
@@ -360,133 +342,92 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             drawerLayoutContainer.setAllowOpenDrawer(allowOpen, false);
         }
 
-        handleIntent(getIntent(), false, savedInstanceState != null, false);
+        handleIntent(getIntent(), false, savedInstanceState != null);
         needLayout();
     }
 
-    private void showPasscodeActivity() {
-        if (passcodeView == null) {
-            return;
-        }
-        UserConfig.appLocked = true;
-        if (PhotoViewer.getInstance().isVisible()) {
-            PhotoViewer.getInstance().closePhoto(false, true);
-        }
-        passcodeView.onShow();
-        UserConfig.isWaitingForPasscodeEnter = true;
-        drawerLayoutContainer.setAllowOpenDrawer(false, false);
-        passcodeView.setDelegate(new PasscodeView.PasscodeViewDelegate() {
-            @Override
-            public void didAcceptedPassword() {
-                UserConfig.isWaitingForPasscodeEnter = false;
-                if (passcodeSaveIntent != null) {
-                    handleIntent(passcodeSaveIntent, passcodeSaveIntentIsNew, passcodeSaveIntentIsRestore, true);
-                    passcodeSaveIntent = null;
-                }
-                drawerLayoutContainer.setAllowOpenDrawer(true, false);
-                actionBarLayout.showLastFragment();
-                if (AndroidUtilities.isTablet()) {
-                    layersActionBarLayout.showLastFragment();
-                    rightActionBarLayout.showLastFragment();
-                }
-            }
-        });
-    }
 
-    private boolean handleIntent(Intent intent, boolean isNew, boolean restore, boolean fromPassword) {
+    private boolean handleIntent(Intent intent, boolean isNew, boolean restore) {
         int flags = intent.getFlags();
-        if (!fromPassword && (AndroidUtilities.needShowPasscode(true) || UserConfig.isWaitingForPasscodeEnter)) {
-            showPasscodeActivity();
-            passcodeSaveIntent = intent;
-            passcodeSaveIntentIsNew = isNew;
-            passcodeSaveIntentIsRestore = restore;
-            UserConfig.saveConfig(false);
-        } else {
-            boolean pushOpened = false;
+        boolean pushOpened = false;
 
-            Integer push_user_id = 0;
-            Integer push_chat_id = 0;
-            Integer push_enc_id = 0;
-            Integer open_settings = 0;
-            boolean showDialogsList = false;
+        Integer push_user_id = 0;
+        Integer push_chat_id = 0;
+        Integer push_enc_id = 0;
+        Integer open_settings = 0;
+        boolean showDialogsList = false;
 
-            photoPathsArray = null;
-            videoPath = null;
-            sendingText = null;
-            documentsPathsArray = null;
-            documentsOriginalPathsArray = null;
-            documentsMimeType = null;
-            documentsUrisArray = null;
-//            contactsToSend = null;
+        photoPathsArray = null;
+        sendingText = null;
 
-            if (UserConfig.isClientActivated() && (flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
-                if (intent != null && intent.getAction() != null && !restore) {
-                    if (Intent.ACTION_SEND.equals(intent.getAction())) {
-                        boolean error = false;
-                        String type = intent.getType();
-                        if (type != null && type.equals(ContactsContract.Contacts.CONTENT_VCARD_TYPE)) {
-                            try {
-                                Uri uri = (Uri) intent.getExtras().get(Intent.EXTRA_STREAM);
-                                if (uri != null) {
-                                    ContentResolver cr = getContentResolver();
-                                    InputStream stream = cr.openInputStream(uri);
+        if (UserConfig.isClientActivated() && (flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
+            if (intent != null && intent.getAction() != null && !restore) {
+                if (Intent.ACTION_SEND.equals(intent.getAction())) {
+                    boolean error = false;
+                    String type = intent.getType();
+                    if (type != null && type.equals(ContactsContract.Contacts.CONTENT_VCARD_TYPE)) {
+                        try {
+                            Uri uri = (Uri) intent.getExtras().get(Intent.EXTRA_STREAM);
+                            if (uri != null) {
+                                ContentResolver cr = getContentResolver();
+                                InputStream stream = cr.openInputStream(uri);
 
-                                    String name = null;
-                                    String nameEncoding = null;
-                                    String nameCharset = null;
-                                    ArrayList<String> phones = new ArrayList<>();
-                                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-                                    String line;
-                                    while ((line = bufferedReader.readLine()) != null) {
-                                        String[] args = line.split(":");
-                                        if (args.length != 2) {
-                                            continue;
-                                        }
-                                        if (args[0].startsWith("FN")) {
-                                            String[] params = args[0].split(";");
-                                            for (String param : params) {
-                                                String[] args2 = param.split("=");
-                                                if (args2.length != 2) {
-                                                    continue;
-                                                }
-                                                if (args2[0].equals("CHARSET")) {
-                                                    nameCharset = args2[1];
-                                                } else if (args2[0].equals("ENCODING")) {
-                                                    nameEncoding = args2[1];
-                                                }
+                                String name = null;
+                                String nameEncoding = null;
+                                String nameCharset = null;
+                                ArrayList<String> phones = new ArrayList<>();
+                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+                                String line;
+                                while ((line = bufferedReader.readLine()) != null) {
+                                    String[] args = line.split(":");
+                                    if (args.length != 2) {
+                                        continue;
+                                    }
+                                    if (args[0].startsWith("FN")) {
+                                        String[] params = args[0].split(";");
+                                        for (String param : params) {
+                                            String[] args2 = param.split("=");
+                                            if (args2.length != 2) {
+                                                continue;
                                             }
-                                            name = args[1];
-                                            if (nameEncoding != null && nameEncoding.equalsIgnoreCase("QUOTED-PRINTABLE")) {
-                                                while (name.endsWith("=") && nameEncoding != null) {
-                                                    name = name.substring(0, name.length() - 1);
-                                                    line = bufferedReader.readLine();
-                                                    if (line == null) {
-                                                        break;
-                                                    }
-                                                    name += line;
-                                                }
-                                                byte[] bytes = AndroidUtilities.decodeQuotedPrintable(name.getBytes());
-                                                if (bytes != null && bytes.length != 0) {
-                                                    String decodedName = new String(bytes, nameCharset);
-                                                    if (decodedName != null) {
-                                                        name = decodedName;
-                                                    }
-                                                }
-                                            }
-                                        } else if (args[0].startsWith("TEL")) {
-                                            String phone = PhoneFormat.stripExceptNumbers(args[1], true);
-                                            if (phone.length() > 0) {
-                                                phones.add(phone);
+                                            if (args2[0].equals("CHARSET")) {
+                                                nameCharset = args2[1];
+                                            } else if (args2[0].equals("ENCODING")) {
+                                                nameEncoding = args2[1];
                                             }
                                         }
+                                        name = args[1];
+                                        if (nameEncoding != null && nameEncoding.equalsIgnoreCase("QUOTED-PRINTABLE")) {
+                                            while (name.endsWith("=") && nameEncoding != null) {
+                                                name = name.substring(0, name.length() - 1);
+                                                line = bufferedReader.readLine();
+                                                if (line == null) {
+                                                    break;
+                                                }
+                                                name += line;
+                                            }
+                                            byte[] bytes = AndroidUtilities.decodeQuotedPrintable(name.getBytes());
+                                            if (bytes != null && bytes.length != 0) {
+                                                String decodedName = new String(bytes, nameCharset);
+                                                if (decodedName != null) {
+                                                    name = decodedName;
+                                                }
+                                            }
+                                        }
+                                    } else if (args[0].startsWith("TEL")) {
+                                        String phone = PhoneFormat.stripExceptNumbers(args[1], true);
+                                        if (phone.length() > 0) {
+                                            phones.add(phone);
+                                        }
                                     }
-                                    try {
-                                        bufferedReader.close();
-                                        stream.close();
-                                    } catch (Exception e) {
-                                        FileLog.e("tmessages", e);
-                                    }
-                                    if (name != null && !phones.isEmpty()) {
+                                }
+                                try {
+                                    bufferedReader.close();
+                                    stream.close();
+                                } catch (Exception e) {
+                                    FileLog.e("tmessages", e);
+                                }
+                                if (name != null && !phones.isEmpty()) {
 //                                        contactsToSend = new ArrayList<>();
 //                                        for (String phone : phones) {
 //                                            TLRPC.User user = new TLRPC.TL_userContact();
@@ -496,117 +437,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 //                                            user.id = 0;
 //                                            contactsToSend.add(user);
 //                                        }
-                                    }
-                                } else {
-                                    error = true;
-                                }
-                            } catch (Exception e) {
-                                FileLog.e("tmessages", e);
-                                error = true;
-                            }
-                        } else {
-                            if (type != null && (type.equals("text/plain") || type.equals("message/rfc822")) && (intent.getStringExtra(Intent.EXTRA_TEXT) != null || intent.getCharSequenceExtra(Intent.EXTRA_TEXT) != null)) {
-                                String text = intent.getStringExtra(Intent.EXTRA_TEXT);
-                                if (text == null) {
-                                    text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT).toString();
-                                }
-                                String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-
-                                if (text != null && text.length() != 0) {
-                                    if ((text.startsWith("http://") || text.startsWith("https://")) && subject != null && subject.length() != 0) {
-                                        text = subject + "\n" + text;
-                                    }
-                                    sendingText = text;
-                                    if (sendingText.contains("WhatsApp")) { //who needs this sent from ...?
-                                        sendingText = null;
-                                    }
-                                } else {
-                                    error = true;
-                                }
-                            }
-                            Parcelable parcelable = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                            if (parcelable != null) {
-                                String path;
-                                if (!(parcelable instanceof Uri)) {
-                                    parcelable = Uri.parse(parcelable.toString());
-                                }
-                                Uri uri = (Uri) parcelable;
-                                if (uri != null && (type != null && type.startsWith("image/") || uri.toString().toLowerCase().endsWith(".jpg"))) {
-                                    String tempPath = AndroidUtilities.getPath(uri);
-                                    if (photoPathsArray == null) {
-                                        photoPathsArray = new ArrayList<>();
-                                    }
-                                    photoPathsArray.add(uri);
-                                } else {
-                                    path = AndroidUtilities.getPath(uri);
-                                    if (path != null) {
-                                        if (path.startsWith("file:")) {
-                                            path = path.replace("file://", "");
-                                        }
-                                        if (type != null && type.startsWith("video/")) {
-                                            videoPath = path;
-                                        } else {
-                                            if (documentsPathsArray == null) {
-                                                documentsPathsArray = new ArrayList<>();
-                                                documentsOriginalPathsArray = new ArrayList<>();
-                                            }
-                                            documentsPathsArray.add(path);
-                                            documentsOriginalPathsArray.add(uri.toString());
-                                        }
-                                    } else {
-                                        if (documentsUrisArray == null) {
-                                            documentsUrisArray = new ArrayList<>();
-                                        }
-                                        documentsUrisArray.add(uri);
-                                        documentsMimeType = type;
-                                    }
-                                }
-                            } else if (sendingText == null) {
-                                error = true;
-                            }
-                        }
-                        if (error) {
-                            Toast.makeText(this, "Unsupported content", Toast.LENGTH_SHORT).show();
-                        }
-                    } else if (intent.getAction().equals(Intent.ACTION_SEND_MULTIPLE)) {
-                        boolean error = false;
-                        try {
-                            ArrayList<Parcelable> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                            String type = intent.getType();
-                            if (uris != null) {
-                                if (type != null && type.startsWith("image/")) {
-                                    for (Parcelable parcelable : uris) {
-                                        if (!(parcelable instanceof Uri)) {
-                                            parcelable = Uri.parse(parcelable.toString());
-                                        }
-                                        Uri uri = (Uri) parcelable;
-                                        if (photoPathsArray == null) {
-                                            photoPathsArray = new ArrayList<>();
-                                        }
-                                        photoPathsArray.add(uri);
-                                    }
-                                } else {
-                                    for (Parcelable parcelable : uris) {
-                                        if (!(parcelable instanceof Uri)) {
-                                            parcelable = Uri.parse(parcelable.toString());
-                                        }
-                                        String path = AndroidUtilities.getPath((Uri) parcelable);
-                                        String originalPath = parcelable.toString();
-                                        if (originalPath == null) {
-                                            originalPath = path;
-                                        }
-                                        if (path != null) {
-                                            if (path.startsWith("file:")) {
-                                                path = path.replace("file://", "");
-                                            }
-                                            if (documentsPathsArray == null) {
-                                                documentsPathsArray = new ArrayList<>();
-                                                documentsOriginalPathsArray = new ArrayList<>();
-                                            }
-                                            documentsPathsArray.add(path);
-                                            documentsOriginalPathsArray.add(originalPath);
-                                        }
-                                    }
                                 }
                             } else {
                                 error = true;
@@ -615,141 +445,217 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                             FileLog.e("tmessages", e);
                             error = true;
                         }
-                        if (error) {
-                            Toast.makeText(this, "Unsupported content", Toast.LENGTH_SHORT).show();
-                        }
-                    } else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-                        Uri data = intent.getData();
-                        if (data != null) {
-                            String username = null;
-                            String group = null;
-                            String sticker = null;
-                            String scheme = data.getScheme();
-                            if (scheme != null) {
-                                if ((scheme.equals("http") || scheme.equals("https"))) {
-                                    String host = data.getHost().toLowerCase();
-                                    if (host.equals("telegram.me")) {
-                                        String path = data.getPath();
-                                        if (path != null && path.length() >= 6) {
-                                            path = path.substring(1);
-                                            if (path.startsWith("joinchat/")) {
-                                                group = path.replace("joinchat/", "");
-                                            } else if (path.startsWith("addstickers/")) {
-                                                sticker = path.replace("addstickers/", "");
-                                            } else {
-                                                username = path;
-                                            }
-                                        }
-                                    }
-                                } else if (scheme.equals("tg")) {
-                                    String url = data.toString();
-                                    if (url.startsWith("tg:resolve") || url.startsWith("tg://resolve")) {
-                                        url = url.replace("tg:resolve", "tg://telegram.org").replace("tg://resolve", "tg://telegram.org");
-                                        data = Uri.parse(url);
-                                        username = data.getQueryParameter("domain");
-                                    } else if (url.startsWith("tg:join") || url.startsWith("tg://join")) {
-                                        url = url.replace("tg:join", "tg://telegram.org").replace("tg://join", "tg://telegram.org");
-                                        data = Uri.parse(url);
-                                        group = data.getQueryParameter("invite");
-                                    } else if (url.startsWith("tg:addstickers") || url.startsWith("tg://addstickers")) {
-                                        url = url.replace("tg:addstickers", "tg://telegram.org").replace("tg://addstickers", "tg://telegram.org");
-                                        data = Uri.parse(url);
-                                        sticker = data.getQueryParameter("set");
-                                    }
-                                }
+                    } else {
+                        if (type != null && (type.equals("text/plain") || type.equals("message/rfc822")) && (intent.getStringExtra(Intent.EXTRA_TEXT) != null || intent.getCharSequenceExtra(Intent.EXTRA_TEXT) != null)) {
+                            String text = intent.getStringExtra(Intent.EXTRA_TEXT);
+                            if (text == null) {
+                                text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT).toString();
                             }
-                            if (username != null || group != null || sticker != null) {
-//                                runLinkRequest(username, group, sticker, 0);
-                            } else {
-                                try {
-                                    Cursor cursor = getContentResolver().query(intent.getData(), null, null, null, null);
-                                    if (cursor != null) {
-                                        if (cursor.moveToFirst()) {
-                                            int userId = cursor.getInt(cursor.getColumnIndex("DATA4"));
-                                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                                            push_user_id = userId;
-                                        }
-                                        cursor.close();
-                                    }
-                                } catch (Exception e) {
-                                    FileLog.e("tmessages", e);
-                                }
-                            }
-                        }
-                    } else if (intent.getAction().equals("org.telegram.messenger.OPEN_ACCOUNT")) {
-                        open_settings = 1;
-                    } else if (intent.getAction().startsWith("com.tmessages.openchat")) {
-                        int chatId = intent.getIntExtra("chatId", 0);
-                        int userId = intent.getIntExtra("userId", 0);
-                        int encId = intent.getIntExtra("encId", 0);
-                        if (chatId != 0) {
-                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                            push_chat_id = chatId;
-                        } else if (userId != 0) {
-                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                            push_user_id = userId;
-                        } else if (encId != 0) {
-                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
-                            push_enc_id = encId;
-                        } else {
-                            showDialogsList = true;
-                        }
-                    }
-                }
-            }
+                            String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
 
-            if (showDialogsList) {
-                if (!AndroidUtilities.isTablet()) {
-                    actionBarLayout.removeAllFragments();
-                } else {
-                    if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
-                        for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
-                            layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
-                            a--;
+                            if (text != null && text.length() != 0) {
+                                if ((text.startsWith("http://") || text.startsWith("https://")) && subject != null && subject.length() != 0) {
+                                    text = subject + "\n" + text;
+                                }
+                                sendingText = text;
+                                if (sendingText.contains("WhatsApp")) { //who needs this sent from ...?
+                                    sendingText = null;
+                                }
+                            } else {
+                                error = true;
+                            }
                         }
-                        layersActionBarLayout.closeLastFragment(false);
+                        Parcelable parcelable = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                        if (parcelable != null) {
+                            String path;
+                            if (!(parcelable instanceof Uri)) {
+                                parcelable = Uri.parse(parcelable.toString());
+                            }
+                            Uri uri = (Uri) parcelable;
+                            if (uri != null && (type != null && type.startsWith("image/") || uri.toString().toLowerCase().endsWith(".jpg"))) {
+                                String tempPath = AndroidUtilities.getPath(uri);
+                                if (photoPathsArray == null) {
+                                    photoPathsArray = new ArrayList<>();
+                                }
+                                photoPathsArray.add(uri);
+                            } else {
+                                path = AndroidUtilities.getPath(uri);
+                            }
+                        } else if (sendingText == null) {
+                            error = true;
+                        }
+                    }
+                    if (error) {
+                        Toast.makeText(this, "Unsupported content", Toast.LENGTH_SHORT).show();
+                    }
+                } else if (intent.getAction().equals(Intent.ACTION_SEND_MULTIPLE)) {
+                    boolean error = false;
+                    try {
+                        ArrayList<Parcelable> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                        String type = intent.getType();
+                        if (uris != null) {
+                            if (type != null && type.startsWith("image/")) {
+                                for (Parcelable parcelable : uris) {
+                                    if (!(parcelable instanceof Uri)) {
+                                        parcelable = Uri.parse(parcelable.toString());
+                                    }
+                                    Uri uri = (Uri) parcelable;
+                                    if (photoPathsArray == null) {
+                                        photoPathsArray = new ArrayList<>();
+                                    }
+                                    photoPathsArray.add(uri);
+                                }
+                            } else {
+                                for (Parcelable parcelable : uris) {
+                                    if (!(parcelable instanceof Uri)) {
+                                        parcelable = Uri.parse(parcelable.toString());
+                                    }
+                                    String path = AndroidUtilities.getPath((Uri) parcelable);
+                                    String originalPath = parcelable.toString();
+                                    if (originalPath == null) {
+                                        originalPath = path;
+                                    }
+                                }
+                            }
+                        } else {
+                            error = true;
+                        }
+                    } catch (Exception e) {
+                        FileLog.e("tmessages", e);
+                        error = true;
+                    }
+                    if (error) {
+                        Toast.makeText(this, "Unsupported content", Toast.LENGTH_SHORT).show();
+                    }
+                } else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+                    Uri data = intent.getData();
+                    if (data != null) {
+                        String username = null;
+                        String group = null;
+                        String sticker = null;
+                        String scheme = data.getScheme();
+                        if (scheme != null) {
+                            if ((scheme.equals("http") || scheme.equals("https"))) {
+                                String host = data.getHost().toLowerCase();
+                                if (host.equals("telegram.me")) {
+                                    String path = data.getPath();
+                                    if (path != null && path.length() >= 6) {
+                                        path = path.substring(1);
+                                        if (path.startsWith("joinchat/")) {
+                                            group = path.replace("joinchat/", "");
+                                        } else if (path.startsWith("addstickers/")) {
+                                            sticker = path.replace("addstickers/", "");
+                                        } else {
+                                            username = path;
+                                        }
+                                    }
+                                }
+                            } else if (scheme.equals("tg")) {
+                                String url = data.toString();
+                                if (url.startsWith("tg:resolve") || url.startsWith("tg://resolve")) {
+                                    url = url.replace("tg:resolve", "tg://telegram.org").replace("tg://resolve", "tg://telegram.org");
+                                    data = Uri.parse(url);
+                                    username = data.getQueryParameter("domain");
+                                } else if (url.startsWith("tg:join") || url.startsWith("tg://join")) {
+                                    url = url.replace("tg:join", "tg://telegram.org").replace("tg://join", "tg://telegram.org");
+                                    data = Uri.parse(url);
+                                    group = data.getQueryParameter("invite");
+                                } else if (url.startsWith("tg:addstickers") || url.startsWith("tg://addstickers")) {
+                                    url = url.replace("tg:addstickers", "tg://telegram.org").replace("tg://addstickers", "tg://telegram.org");
+                                    data = Uri.parse(url);
+                                    sticker = data.getQueryParameter("set");
+                                }
+                            }
+                        }
+                        if (username != null || group != null || sticker != null) {
+//                                runLinkRequest(username, group, sticker, 0);
+                        } else {
+                            try {
+                                Cursor cursor = getContentResolver().query(intent.getData(), null, null, null, null);
+                                if (cursor != null) {
+                                    if (cursor.moveToFirst()) {
+                                        int userId = cursor.getInt(cursor.getColumnIndex("DATA4"));
+                                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
+                                        push_user_id = userId;
+                                    }
+                                    cursor.close();
+                                }
+                            } catch (Exception e) {
+                                FileLog.e("tmessages", e);
+                            }
+                        }
+                    }
+                } else if (intent.getAction().equals("org.telegram.messenger.OPEN_ACCOUNT")) {
+                    open_settings = 1;
+                } else if (intent.getAction().startsWith("com.tmessages.openchat")) {
+                    int chatId = intent.getIntExtra("chatId", 0);
+                    int userId = intent.getIntExtra("userId", 0);
+                    int encId = intent.getIntExtra("encId", 0);
+                    if (chatId != 0) {
+                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
+                        push_chat_id = chatId;
+                    } else if (userId != 0) {
+                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
+                        push_user_id = userId;
+                    } else if (encId != 0) {
+                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.closeChats);
+                        push_enc_id = encId;
+                    } else {
+                        showDialogsList = true;
                     }
                 }
-                pushOpened = false;
-                isNew = false;
             }
-            if (!pushOpened && !isNew) {
-                if (AndroidUtilities.isTablet()) {
-                    if (!UserConfig.isClientActivated()) {
-                        if (layersActionBarLayout.fragmentsStack.isEmpty()) {
+        }
+
+        if (showDialogsList) {
+            if (!AndroidUtilities.isTablet()) {
+                actionBarLayout.removeAllFragments();
+            } else {
+                if (!layersActionBarLayout.fragmentsStack.isEmpty()) {
+                    for (int a = 0; a < layersActionBarLayout.fragmentsStack.size() - 1; a++) {
+                        layersActionBarLayout.removeFragmentFromStack(layersActionBarLayout.fragmentsStack.get(0));
+                        a--;
+                    }
+                    layersActionBarLayout.closeLastFragment(false);
+                }
+            }
+            pushOpened = false;
+            isNew = false;
+        }
+        if (!pushOpened && !isNew) {
+            if (AndroidUtilities.isTablet()) {
+                if (!UserConfig.isClientActivated()) {
+                    if (layersActionBarLayout.fragmentsStack.isEmpty()) {
 //                            layersActionBarLayout.addFragmentToStack(new LoginActivity());
 //                            drawerLayoutContainer.setAllowOpenDrawer(false, false);
-                        }
-                    } else {
-                        if (actionBarLayout.fragmentsStack.isEmpty()) {
-                            actionBarLayout.addFragmentToStack(new PostsActivity(null));
-                            drawerLayoutContainer.setAllowOpenDrawer(true, false);
-                        }
                     }
                 } else {
                     if (actionBarLayout.fragmentsStack.isEmpty()) {
-                        if (!UserConfig.isClientActivated()) {
-//                            actionBarLayout.addFragmentToStack(new LoginActivity());
-//                            drawerLayoutContainer.setAllowOpenDrawer(false, false);
-                        } else {
-                            actionBarLayout.addFragmentToStack(new PostsActivity(null));
-                            drawerLayoutContainer.setAllowOpenDrawer(true, false);
-                        }
+                        actionBarLayout.addFragmentToStack(new PostsActivity(null));
+                        drawerLayoutContainer.setAllowOpenDrawer(true, false);
                     }
                 }
-                actionBarLayout.showLastFragment();
-                if (AndroidUtilities.isTablet()) {
-                    layersActionBarLayout.showLastFragment();
-                    rightActionBarLayout.showLastFragment();
+            } else {
+                if (actionBarLayout.fragmentsStack.isEmpty()) {
+                    if (!UserConfig.isClientActivated()) {
+//                            actionBarLayout.addFragmentToStack(new LoginActivity());
+//                            drawerLayoutContainer.setAllowOpenDrawer(false, false);
+                    } else {
+                        actionBarLayout.addFragmentToStack(new PostsActivity(null));
+                        drawerLayoutContainer.setAllowOpenDrawer(true, false);
+                    }
                 }
             }
-
-            intent.setAction(null);
-            return pushOpened;
+            actionBarLayout.showLastFragment();
+            if (AndroidUtilities.isTablet()) {
+                layersActionBarLayout.showLastFragment();
+                rightActionBarLayout.showLastFragment();
+            }
         }
-        return false;
-    }
 
+        intent.setAction(null);
+        return pushOpened;
+    }
 
 
     public AlertDialog showAlertDialog(AlertDialog.Builder builder) {
@@ -780,7 +686,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        handleIntent(intent, true, false, false);
+        handleIntent(intent, true, false);
     }
 
 //    @Override
@@ -850,10 +756,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     chatFragment.onPause();
                     actionBarLayout.fragmentsStack.remove(1);
                     rightActionBarLayout.fragmentsStack.add(chatFragment);
-                    if (passcodeView.getVisibility() != View.VISIBLE) {
-                        actionBarLayout.showLastFragment();
-                        rightActionBarLayout.showLastFragment();
-                    }
                 }
 
                 rightActionBarLayout.setVisibility(rightActionBarLayout.fragmentsStack.isEmpty() ? View.GONE : View.VISIBLE);
@@ -876,9 +778,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     chatFragment.onPause();
                     rightActionBarLayout.fragmentsStack.remove(0);
                     actionBarLayout.addFragmentToStack(chatFragment);
-                    if (passcodeView.getVisibility() != View.VISIBLE) {
-                        actionBarLayout.showLastFragment();
-                    }
                 }
             }
         }
@@ -907,10 +806,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (UserConfig.passcodeHash.length() != 0 && UserConfig.lastPauseTime != 0) {
-            UserConfig.lastPauseTime = 0;
-            UserConfig.saveConfig(false);
-        }
         super.onActivityResult(requestCode, resultCode, data);
         if (actionBarLayout.fragmentsStack.size() != 0) {
             BaseFragment fragment = actionBarLayout.fragmentsStack.get(actionBarLayout.fragmentsStack.size() - 1);
@@ -931,7 +826,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     protected void onPause() {
         super.onPause();
-        onPasscodePause();
         actionBarLayout.onPause();
         if (AndroidUtilities.isTablet()) {
             rightActionBarLayout.onPause();
@@ -960,15 +854,10 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     protected void onResume() {
         super.onResume();
-        onPasscodeResume();
-        if (passcodeView.getVisibility() != View.VISIBLE) {
-            actionBarLayout.onResume();
-            if (AndroidUtilities.isTablet()) {
-                rightActionBarLayout.onResume();
-                layersActionBarLayout.onResume();
-            }
-        } else {
-            passcodeView.onResume();
+        actionBarLayout.onResume();
+        if (AndroidUtilities.isTablet()) {
+            rightActionBarLayout.onResume();
+            layersActionBarLayout.onResume();
         }
         //TODO-CONFIG HOCKEY_APP_HASH
         AndroidUtilities.checkForCrashes(this);
@@ -1030,59 +919,15 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         } else if (id == NotificationCenter.screenStateChanged) {
             if (!ApplicationLoader.mainInterfacePaused) {
                 if (!ApplicationLoader.isScreenOn) {
-                    onPasscodePause();
+//                    onPasscodePause();
                 } else {
-                    onPasscodeResume();
+//                    onPasscodeResume();
                 }
             }
         }
     }
 
-    private void onPasscodePause() {
-        if (lockRunnable != null) {
-            AndroidUtilities.cancelRunOnUIThread(lockRunnable);
-            lockRunnable = null;
-        }
-        if (UserConfig.passcodeHash.length() != 0) {
-            UserConfig.lastPauseTime = ConnectionsManager.getInstance().getCurrentTime();
-            lockRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (lockRunnable == this) {
-                        if (AndroidUtilities.needShowPasscode(true)) {
-                            FileLog.e("tmessages", "lock app");
-                            showPasscodeActivity();
-                        } else {
-                            FileLog.e("tmessages", "didn't pass lock check");
-                        }
-                        lockRunnable = null;
-                    }
-                }
-            };
-            if (UserConfig.appLocked) {
-                AndroidUtilities.runOnUIThread(lockRunnable, 1000);
-            } else if (UserConfig.autoLockIn != 0) {
-                AndroidUtilities.runOnUIThread(lockRunnable, (long) UserConfig.autoLockIn * 1000 + 1000);
-            }
-        } else {
-            UserConfig.lastPauseTime = 0;
-        }
-        UserConfig.saveConfig(false);
-    }
 
-    private void onPasscodeResume() {
-        if (lockRunnable != null) {
-            AndroidUtilities.cancelRunOnUIThread(lockRunnable);
-            lockRunnable = null;
-        }
-        if (AndroidUtilities.needShowPasscode(true)) {
-            showPasscodeActivity();
-        }
-        if (UserConfig.lastPauseTime != 0) {
-            UserConfig.lastPauseTime = 0;
-            UserConfig.saveConfig(false);
-        }
-    }
 
     private void updateCurrentConnectionState() {
         String text = null;
@@ -1130,10 +975,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
     @Override
     public void onBackPressed() {
-        if (passcodeView.getVisibility() == View.VISIBLE) {
-            finish();
-            return;
-        }
         if (PhotoViewer.getInstance().isVisible()) {
             PhotoViewer.getInstance().closePhoto(true, false);
         } else if (drawerLayoutContainer.isDrawerOpened()) {
