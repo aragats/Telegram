@@ -125,6 +125,17 @@ public class PostsAdapter extends RecyclerView.Adapter {
                 }
 
                 @Override
+                public void didPressUrl(String url) {
+//                    if (url.startsWith("@")) {
+//                        openProfileWithUsername(url.substring(1));
+//                    } else if (url.startsWith("#")) {
+//                        MessagesActivity fragment = new MessagesActivity(null);
+//                        fragment.setSearchString(url);
+//                        presentFragment(fragment);
+//                    }
+                }
+
+                @Override
                 public void didPressedOther(PostCell cell) {
 
                 }

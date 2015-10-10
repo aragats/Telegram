@@ -230,6 +230,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                         post.setCoordinates(venue.getCoordinates());
                         String text = postCreateActivityEnterView.getFieldText();
+                        if (!StringUtils.isEmpty(text)) {
+                            text = text.trim();
+                        }
                         post.setMessage(text);
                     }
 
@@ -240,7 +243,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                        AndroidUtilities.runOnUIThread(new Runnable() {
 //                            @Override
 //                            public void run() {
-                                PostsController.getInstance().addPost(finalPost);
+                        PostsController.getInstance().addPost(finalPost);
 //                                progressDialog.dismiss();
 //                                if (postCreateActivityEnterView != null) {
 //                                    postCreateActivityEnterView.hideEmojiPopup();

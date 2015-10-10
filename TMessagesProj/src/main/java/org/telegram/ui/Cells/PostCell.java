@@ -19,6 +19,7 @@ import android.text.Spannable;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.style.ClickableSpan;
 import android.text.util.Linkify;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
@@ -34,6 +35,7 @@ import org.telegram.messenger.dto.Image;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
+import org.telegram.ui.Components.URLSpanNoUnderline;
 import org.telegram.utils.StringUtils;
 
 import ru.aragats.wgo.R;
@@ -45,6 +47,8 @@ public class PostCell extends BaseCell {
         public abstract void didClickedImage(PostCell cell);
 
         public abstract void didClickedVenue(PostCell cell);
+
+        void didPressUrl(String url);
 
 
         public abstract void didPressedOther(PostCell cell);
@@ -60,6 +64,7 @@ public class PostCell extends BaseCell {
 
     private boolean imagePressed;
     private boolean venuePressed;
+    private boolean textPressed;
     //Paint. set fond size for them
     private static TextPaint namePaint;
     private static TextPaint addressPaint;
@@ -68,6 +73,7 @@ public class PostCell extends BaseCell {
 
     //Text
 
+    //TODO delete since I have             textLayoutBlock.textXOffset = textLeft;
     private int textTop = AndroidUtilities.dp(65);
     private int textLeft;
 
@@ -77,7 +83,7 @@ public class PostCell extends BaseCell {
     private static int fontSize = AndroidUtilities.dp(14);
 //    private static int fontSize = AndroidUtilities.dp(16);
 
-    private TextLayoutBlock block;
+    private TextLayoutBlock textLayoutBlock;
 
     //Text
     private static Drawable errorDrawable;
@@ -132,6 +138,15 @@ public class PostCell extends BaseCell {
     private int avatarSize = AndroidUtilities.dp(46);
 
     private boolean isSelected;
+
+
+    private boolean isPressed = false;
+    private ClickableSpan pressedLink;
+    //    private boolean linkPreviewPressed;
+    protected MyPath urlPath = new MyPath();
+    protected static Paint urlPaint;
+    private int linkBlockNum;
+
 
     //Photo
     private PostCellDelegate delegate;
@@ -243,8 +258,8 @@ public class PostCell extends BaseCell {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), AndroidUtilities.dp(72) + (useSeparator ? 1 : 0));
         int textHeight = 0;
-        if (this.block != null && this.block.textLayout != null) {
-            textHeight = this.block.textLayout.getHeight();
+        if (this.textLayoutBlock != null && this.textLayoutBlock.textLayout != null) {
+            textHeight = this.textLayoutBlock.textLayout.getHeight();
         }
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + AndroidUtilities.dp(82) + textHeight + (useSeparator ? 1 : 0));
 
@@ -263,6 +278,7 @@ public class PostCell extends BaseCell {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+//        onTouchEventMessage(event);
         //TODO use  backgroundWidth to detect press event
         if (Build.VERSION.SDK_INT >= 21 && getBackground() != null) {
             if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
@@ -280,12 +296,19 @@ public class PostCell extends BaseCell {
                 if (x >= photoImage.getImageX() && x <= photoImage.getImageX() + backgroundWidth && y >= photoImage.getImageY() && y <= photoImage.getImageY() + photoImage.getImageHeight()) {
                     imagePressed = true;
                     venuePressed = false;
+                    textPressed = false;
                     result = true;
                     // click on part upper to image // address, name of the place and venue photo.
                 } else if (x >= 0 && x <= getMeasuredWidth() && y >= 0 && y < photoImage.getImageY()) {
                     venuePressed = true;
                     imagePressed = false;
+                    textPressed = false;
                     result = true;
+                } else {
+                    // press link in text
+                    venuePressed = false;
+                    imagePressed = false;
+                    result = handleTextDownClick(x, y);
                 }
 //                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
 
@@ -315,8 +338,13 @@ public class PostCell extends BaseCell {
             } else if (venuePressed) {
                 venuePressed = false;
                 didClickedVenue();
+            } else if (textPressed) {
+                textPressed = false;
+                didClickedText();
             }
             invalidate();
+        } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+            resetPressedLink();
         }
 
         if (!result) {
@@ -620,8 +648,8 @@ public class PostCell extends BaseCell {
                 photoHeight = h;
                 backgroundWidth = w + AndroidUtilities.dp(12);
 
-//                photoImage.setImageCoords(avatarLeft, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
-//                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62) + this.block.textLayout.getHeight(), photoWidth, photoHeight);
+//                photoImage.setImageCoords(avatarLeft, avatarTop + AndroidUtilities.dp(62) + this.textLayoutBlock.textLayout.getHeight(), photoWidth, photoHeight);
+//                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62) + this.textLayoutBlock.textLayout.getHeight(), photoWidth, photoHeight);
                 // orientation of image in the center of the screen.
                 int x = (getMeasuredWidth() - photoWidth) / 2;
                 photoImage.setImageCoords(x, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
@@ -792,7 +820,7 @@ public class PostCell extends BaseCell {
         canvas.translate(textLeft, textTop);
         try {
             //TODO draw text message
-            this.block.textLayout.draw(canvas);
+            this.textLayoutBlock.textLayout.draw(canvas);
         } catch (Exception e) {
             FileLog.e("tmessages", e);
         }
@@ -846,11 +874,11 @@ public class PostCell extends BaseCell {
             FileLog.e("tmessages", e);
             return;
         }
-        this.block = new TextLayoutBlock();
 
-        this.block.textLayout = textLayout;
-        this.block.textYOffset = 0;
-        this.block.charactersOffset = 0;
+        this.textLayoutBlock = new TextLayoutBlock();
+        this.textLayoutBlock.textLayout = textLayout;
+        this.textLayoutBlock.textYOffset = 0;
+        this.textLayoutBlock.charactersOffset = 0;
 
 
     }
@@ -924,6 +952,88 @@ public class PostCell extends BaseCell {
         }
     }
 
+    private boolean didClickedText() {
+        boolean result = false;
+        if (pressedLink != null) {
+            try {
+                if (pressedLink instanceof URLSpanNoUnderline) {
+                    String url = ((URLSpanNoUnderline) pressedLink).getURL();
+                    if (url.startsWith("@") || url.startsWith("#")) {
+                        if (delegate != null) {
+                            delegate.didPressUrl(url);
+                        }
+                    }
+                } else {
+                    pressedLink.onClick(this);
+                }
+            } catch (Exception e) {
+                FileLog.e("tmessages", e);
+            }
+            resetPressedLink();
+            result = true;
+        }
+        return result;
+    }
+
+    private boolean handleTextDownClick(float x, float y) {
+        boolean result = false;
+        if (textLayoutBlock != null && textLayoutBlock.textLayout != null && textLayoutBlock.textLayout.getText() != null) {
+
+            StaticLayout textLayout = textLayoutBlock.textLayout;
+            CharSequence messageText = textLayoutBlock.textLayout.getText();
+
+            float textX = textLeft;
+            float textY = textTop;
+            float textWidth = textLayout.getWidth();
+            float textHeight = textLayout.getHeight();
+            if (x >= textX && y >= textY && x <= textX + textWidth && y <= textY + textHeight) {
+                y -= textY;
+                try {
+                    TextLayoutBlock block = textLayoutBlock;
+                    x -= textX - (int) Math.ceil(block.textXOffset);
+                    y -= block.textYOffset;
+                    final int line = block.textLayout.getLineForVertical((int) y);
+                    final int off = block.textLayout.getOffsetForHorizontal(line, x) + block.charactersOffset;
+                    Spannable buffer = (Spannable) messageText;
+                    ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+                    if (link.length != 0) {
+                        resetPressedLink();
+                        pressedLink = link[0];
+                        linkBlockNum = 1; // TODO: 10/10/15
+                        try {
+                            int start = buffer.getSpanStart(pressedLink) - block.charactersOffset;
+                            urlPath.setCurrentLayout(block.textLayout, start);
+                            block.textLayout.getSelectionPath(start, buffer.getSpanEnd(pressedLink) - block.charactersOffset, urlPath);
+                        } catch (Exception e) {
+                            FileLog.e("tmessages", e);
+                        }
+                        textPressed = true;
+                        result = true;
+
+                    } else {
+                        resetPressedLink();
+                    }
+                } catch (Exception e) {
+                    resetPressedLink();
+                    FileLog.e("tmessages", e);
+                }
+            }
+        } else {
+            resetPressedLink();
+        }
+        return result;
+    }
+
+
+    protected void resetPressedLink() {
+        if (pressedLink != null) {
+            pressedLink = null;
+        }
+//        linkPreviewPressed = false;
+        invalidate();
+    }
+
+
     public void setDelegate(PostCellDelegate delegate) {
         this.delegate = delegate;
     }
@@ -938,3 +1048,95 @@ public class PostCell extends BaseCell {
         return index;
     }
 }
+
+
+//
+// Backup press URL method.
+//    public boolean onTouchEventMessage(MotionEvent event) {
+//        boolean result = false;
+//        if (textLayoutBlock != null && post.getMessage() != null && !isPressed && textLayoutBlock.textLayout != null) {
+//
+////            CharSequence messageText = textLayoutBlock.messageText;
+//            CharSequence messageText = textLayoutBlock.textLayout.getText();
+//
+//            if (event.getAction() == MotionEvent.ACTION_DOWN || (pressedLink != null && event.getAction() == MotionEvent.ACTION_UP)) {
+//                int x = (int) event.getX();
+//                int y = (int) event.getY();
+//                StaticLayout textLayout = textLayoutBlock.textLayout;
+////                textLayoutBlock.textXOffset = textLeft;
+////                textLayoutBlock.textYOffset = textTop;
+//
+//
+//                float textX = textLeft;
+//                float textY = textTop;
+//                float textWidth = textLayout.getWidth();
+//                float textHeight = textLayout.getHeight();
+//                if (x >= textX && y >= textY && x <= textX + textWidth && y <= textY + textHeight) {
+//                    y -= textY;
+//                    try {
+////                            MessageObject.TextLayoutBlock block = currentMessageObject.textLayoutBlocks.get(blockNum);
+//                        TextLayoutBlock block = textLayoutBlock;
+//                        x -= textX - (int) Math.ceil(block.textXOffset);
+//                        y -= block.textYOffset;
+//                        final int line = block.textLayout.getLineForVertical(y);
+//                        final int off = block.textLayout.getOffsetForHorizontal(line, x) + block.charactersOffset;
+//
+//                        final float left = block.textLayout.getLineLeft(line);
+//                        Spannable buffer = (Spannable) messageText;
+////                        Spannable buffer = messageText;
+//                        ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+//                        if (link.length != 0) {
+//                            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                                resetPressedLink();
+//                                pressedLink = link[0];
+//                                linkBlockNum = 1; // TODO: 10/10/15
+//                                try {
+//                                    int start = buffer.getSpanStart(pressedLink) - block.charactersOffset;
+//                                    urlPath.setCurrentLayout(block.textLayout, start);
+//                                    block.textLayout.getSelectionPath(start, buffer.getSpanEnd(pressedLink) - block.charactersOffset, urlPath);
+//                                } catch (Exception e) {
+//                                    FileLog.e("tmessages", e);
+//                                }
+//                                result = true;
+//                            } else {
+//                                if (link[0] == pressedLink) {
+//                                    try {
+//                                        if (pressedLink instanceof URLSpanNoUnderline) {
+//                                            String url = ((URLSpanNoUnderline) pressedLink).getURL();
+//                                            if (url.startsWith("@") || url.startsWith("#")) {
+//                                                if (delegate != null) {
+//                                                    delegate.didPressUrl(url);
+//                                                }
+//                                            }
+//                                        } else {
+//                                            pressedLink.onClick(this);
+//                                        }
+//                                    } catch (Exception e) {
+//                                        FileLog.e("tmessages", e);
+//                                    }
+//                                    resetPressedLink();
+//                                    result = true;
+//                                }
+//                            }
+//                        } else {
+//                            resetPressedLink();
+//                        }
+//                    } catch (Exception e) {
+//                        resetPressedLink();
+//                        FileLog.e("tmessages", e);
+//                    }
+//                }
+//            } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+//                resetPressedLink();
+//            }
+//        } else {
+//            resetPressedLink();
+//        }
+//        if (result && event.getAction() == MotionEvent.ACTION_DOWN) {
+//            startCheckLongPress();
+//        }
+//        if (event.getAction() != MotionEvent.ACTION_DOWN && event.getAction() != MotionEvent.ACTION_MOVE) {
+//            cancelCheckLongPress();
+//        }
+//        return result || super.onTouchEvent(event);
+//    }

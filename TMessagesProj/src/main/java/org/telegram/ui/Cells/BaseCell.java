@@ -9,13 +9,50 @@
 package org.telegram.ui.Cells;
 
 import android.content.Context;
+import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.text.StaticLayout;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
 public class BaseCell extends View {
+
+    protected class MyPath extends Path {
+
+        private StaticLayout currentLayout;
+        private int currentLine;
+        private float lastTop = -1;
+
+        public void setCurrentLayout(StaticLayout layout, int start) {
+            currentLayout = layout;
+            currentLine = layout.getLineForOffset(start);
+            lastTop = -1;
+        }
+
+        @Override
+        public void addRect(float left, float top, float right, float bottom, Direction dir) {
+            if (lastTop == -1) {
+                lastTop = top;
+            } else if (lastTop != top) {
+                lastTop = top;
+                currentLine++;
+            }
+            float lineRight = currentLayout.getLineRight(currentLine);
+            float lineLeft = currentLayout.getLineLeft(currentLine);
+            if (left >= lineRight) {
+                return;
+            }
+            if (right > lineRight) {
+                right = lineRight;
+            }
+            if (left < lineLeft) {
+                left = lineLeft;
+            }
+            super.addRect(left, top, right, bottom, dir);
+        }
+    }
 
     private final class CheckForTap implements Runnable {
         public void run() {
