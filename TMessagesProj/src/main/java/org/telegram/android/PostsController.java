@@ -13,7 +13,9 @@ import android.content.SharedPreferences;
 import android.location.Location;
 
 import org.telegram.android.location.LocationManagerHelper;
+
 import ru.aragats.wgo.ApplicationLoader;
+
 import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Post;
 import org.telegram.messenger.dto.PostResponse;
@@ -118,18 +120,18 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public void addPost(Post post) {
         PostServiceMock.addPost(post);
         //TODO mock loading
-        new Thread(new Runnable() {
+        AndroidUtilities.runOnUIThread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
-                }
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
+//                }
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
             }
-        }).start();
+        }, 2000);
 
 //        NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
 
@@ -162,7 +164,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     }
 
-    public Location getCurrentLocation(){
+    public Location getCurrentLocation() {
         return currentLocation;
     }
 
@@ -190,7 +192,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     public void loadCurrentVenue(String loc) {
         Location location = LocationManagerHelper.getInstance().getLastLocation();
-        if(location == null) {
+        if (location == null) {
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             return;
         }

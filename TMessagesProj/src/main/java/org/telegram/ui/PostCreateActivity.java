@@ -208,6 +208,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             @Override
             public void onItemClick(final int id) {
                 if (id == -1) {
+                    //back button
                     if (postCreateActivityEnterView != null) {
                         postCreateActivityEnterView.hideEmojiPopup();
                     }
@@ -234,8 +235,21 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     //TODO many check text, venue, coordinates and so on.
                     if (post != null && venue != null) {
+                        final Post finalPost = post;
                         progressDialog.show();
-                        PostsController.getInstance().addPost(post);
+//                        AndroidUtilities.runOnUIThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+                                PostsController.getInstance().addPost(finalPost);
+//                                progressDialog.dismiss();
+//                                if (postCreateActivityEnterView != null) {
+//                                    postCreateActivityEnterView.hideEmojiPopup();
+//                                }
+//                                finishFragment();
+
+//                            }
+//                        }, 2000);
+
                     }
 
 
@@ -816,7 +830,19 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             }
         } else if (id == NotificationCenter.newPostSaved) {
 //            progressDialog.hide();
+            //clear
+//            venue = null;
+//            if (posts != null) {
+//                posts.clear();
+//            }
+//            if (postCreateActivityEnterView != null) {
+//                postCreateActivityEnterView.setFieldText("");
+//            }
             progressDialog.dismiss();
+            if (postCreateActivityEnterView != null) {
+                postCreateActivityEnterView.hideEmojiPopup();
+            }
+            finishFragment();
 
         }
     }
