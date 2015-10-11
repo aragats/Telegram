@@ -787,7 +787,8 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
                 url = nextSearchBingString;
             } else {
                 boolean adult;
-                String phone = UserConfig.getCurrentUser().getPhone();
+//                String phone = UserConfig.getCurrentUser().getPhone();
+                String phone = "";
                 adult = phone.startsWith("44") || phone.startsWith("49") || phone.startsWith("43") || phone.startsWith("31") || phone.startsWith("1");
                 url = String.format(Locale.US, "https://api.datamarket.azure.com/Bing/Search/v1/Image?Query='%s'&$skip=%d&$top=%d&$format=json%s", URLEncoder.encode(query, "UTF-8"), offset, count, adult ? "" : "&Adult='Off'");
             }

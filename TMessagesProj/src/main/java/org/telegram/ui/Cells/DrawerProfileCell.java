@@ -53,7 +53,8 @@ public class DrawerProfileCell extends FrameLayout {
 
         avatarImageView = new BackupImageView(context);
         avatarImageView.getImageReceiver().setRoundRadius(AndroidUtilities.dp(32));
-        addView(avatarImageView, LayoutHelper.createFrame(64, 64, Gravity.LEFT | Gravity.BOTTOM, 16, 0, 0, 67));
+        addView(avatarImageView, LayoutHelper.createFrame(44, 44, Gravity.LEFT | Gravity.BOTTOM, 16, 0, 0, 67));
+//        addView(avatarImageView, LayoutHelper.createFrame(64, 64, Gravity.LEFT | Gravity.BOTTOM, 16, 0, 0, 67));
 
         nameTextView = new TextView(context);
         nameTextView.setTextColor(0xffffffff);
@@ -95,6 +96,16 @@ public class DrawerProfileCell extends FrameLayout {
         super.onDraw(canvas);
     }
 
+    public void setUser() {
+        nameTextView.setText("What is going on?");
+        phoneTextView.setText("Really, What is going on around you?");
+        AvatarDrawable avatarDrawable = new AvatarDrawable();
+        avatarDrawable.setColor(0xff5c98cd);
+//        avatarImageView.setImage(photo, "50_50", avatarDrawable);
+        avatarImageView.setImageResource(R.drawable.pin);
+    }
+
+
     public void setUser(User user) {
         if (user == null) {
             return;
@@ -103,10 +114,13 @@ public class DrawerProfileCell extends FrameLayout {
         if (user.getImage() != null) {
             photo = user.getImage().getUrl();
         }
-        nameTextView.setText(ContactsController.formatName(user.getFirstName(), user.getLastName()));
-        phoneTextView.setText(PhoneFormat.getInstance().format("+" + user.getPhone()));
+//        nameTextView.setText(ContactsController.formatName(user.getFirstName(), user.getLastName()));
+//        phoneTextView.setText(PhoneFormat.getInstance().format("+" + user.getPhone()));
+        nameTextView.setText("What is going on?");
+        phoneTextView.setText("Really, What is going on around you?");
         AvatarDrawable avatarDrawable = new AvatarDrawable();
         avatarDrawable.setColor(0xff5c98cd);
-        avatarImageView.setImage(photo, "50_50", avatarDrawable);
+//        avatarImageView.setImage(photo, "50_50", avatarDrawable);
+        avatarImageView.setImageResource(R.drawable.pin);
     }
 }

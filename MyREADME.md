@@ -71,3 +71,13 @@ Notes:
 Temporally delete some function from the method. and <intent-filter> action.view  SEND_MULTIPLE in AndroidManifest.xml
 2. //TODO-mock  or TODO-temp. temp mock which I should redesign.
 3. Remove and re develop send exception info. When Exception appears, apps ask to send info to developers.
+
+
+TODO:
+1. JNI exception !! load some native methods.  native method com.facebook.breakpad.BreakpadManager.getMinidumpFlags()
+2. Localize and rename string value. Noch keine Nachrichten... replace with something else.
+3. Exception in PhotoPicker when I click  on ...
+4. Add task into bitbucket!!
+5. ContactsController.checkAppAccount UserConfig.loadUser ... and other - do not invoke them. ??
+6. Change drawer left sidebar size of header
+7. Fragen und Antworten - replace the link or create a page with antworten. Landing Page.

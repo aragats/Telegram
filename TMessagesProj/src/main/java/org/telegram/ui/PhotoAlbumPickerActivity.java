@@ -120,10 +120,11 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
                     }
                     finishFragment();
                 } else if (id == 1) {
-                    if (delegate != null) {
-                        finishFragment(false);
-                        delegate.startPhotoSelectActivity();
-                    }
+                    //TODO do nothing. sub menu. of action bar. dropDownContainer.setSubMenuOpenSide(1);
+//                    if (delegate != null) {
+//                        finishFragment(false);
+//                        delegate.startPhotoSelectActivity();
+//                    }
                 } else if (id == item_photos) {
                     if (selectedMode == 0) {
                         return;

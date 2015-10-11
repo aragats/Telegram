@@ -14,12 +14,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.telegram.android.LocaleController;
-import org.telegram.android.PostsController;
 import org.telegram.messenger.UserConfig;
-import org.telegram.ui.Cells.DrawerActionCell;
 import org.telegram.ui.Cells.DividerCell;
-import org.telegram.ui.Cells.EmptyCell;
+import org.telegram.ui.Cells.DrawerActionCell;
 import org.telegram.ui.Cells.DrawerProfileCell;
+import org.telegram.ui.Cells.EmptyCell;
 
 import ru.aragats.wgo.R;
 
@@ -69,7 +68,8 @@ public class DrawerLayoutAdapter extends BaseAdapter {
             if (view == null) {
                 view = new DrawerProfileCell(mContext);
             }
-            ((DrawerProfileCell) view).setUser(PostsController.getInstance().getUser(UserConfig.getClientUserId()));
+//            ((DrawerProfileCell) view).setUser(PostsController.getInstance().getUser(UserConfig.getClientUserId()));
+            ((DrawerProfileCell) view).setUser();
         } else if (type == 1) {
             if (view == null) {
                 view = new EmptyCell(mContext, 8);

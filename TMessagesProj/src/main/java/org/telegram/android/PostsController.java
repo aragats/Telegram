@@ -234,7 +234,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
     public User getUser(String id) {
-        return UserServiceMock.getRandomUser();
+        return UserServiceMock.getDefaultUser();
     }
 
     public void setUser(User user) {

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Random;
 
 
-
 import static org.telegram.messenger.service.mock.PostServiceMock.*;
 
 /**
@@ -18,9 +17,13 @@ public class UserServiceMock {
 
 
     private static List<User> users = new ArrayList<>();
+    private static User defaultUser;
 
     static {
         users.addAll(generateUsers(5));
+
+        defaultUser = new User();
+        defaultUser.setId(Long.MAX_VALUE + "");
     }
 
 
@@ -49,6 +52,10 @@ public class UserServiceMock {
 
     public static User getRandomUser() {
         return users.get(new Random().nextInt(users.size()));
+    }
+
+    public static User getDefaultUser() {
+        return defaultUser;
     }
 
 

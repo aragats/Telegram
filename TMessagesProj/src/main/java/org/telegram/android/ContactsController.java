@@ -105,7 +105,7 @@ public class ContactsController {
         AccountManager am = AccountManager.get(ApplicationLoader.applicationContext);
         Account[] accounts;
         try {
-            accounts = am.getAccountsByType("org.telegram.account");
+            accounts = am.getAccountsByType("ru.aragats.wgo");
             if (accounts != null && accounts.length > 0) {
                 for (Account c : accounts) {
                     am.removeAccount(c, null, null);
