@@ -1355,6 +1355,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
                 coordinates.setType("Point");
                 venue.setCoordinates(coordinates);
+                if(location.geoPlace != null) {
+                    Coordinates placeCoordinates = new Coordinates();
+                    placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
+                    placeCoordinates.setType("Point");
+                    venue.setPlaceCoordinates(placeCoordinates);
+                }
                 venue.setFoursquareId(location.venue_id);
                 Image image = new Image();
                 image.setUrl(location.iconUrl);

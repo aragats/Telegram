@@ -65,6 +65,7 @@ public class TLRPC {
 
     public static class MessageMedia extends TLObject {
         public GeoPoint geo;
+        public GeoPoint geoPlace;
         public String title;
         public String address;
         public String provider;

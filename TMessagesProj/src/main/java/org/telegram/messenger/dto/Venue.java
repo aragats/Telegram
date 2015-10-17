@@ -10,6 +10,7 @@ public class Venue {
     //Text representation of address
     private String address;
     private Coordinates coordinates;
+    private Coordinates placeCoordinates;
     // distance in meters;
     private int distance;
     private Image image;
@@ -52,6 +53,14 @@ public class Venue {
 
     public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
+    }
+
+    public Coordinates getPlaceCoordinates() {
+        return placeCoordinates;
+    }
+
+    public void setPlaceCoordinates(Coordinates placeCoordinates) {
+        this.placeCoordinates = placeCoordinates;
     }
 
     public int getDistance() {

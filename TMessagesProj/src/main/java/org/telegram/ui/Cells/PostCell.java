@@ -446,7 +446,7 @@ public class PostCell extends BaseCell {
         nameString = post.getVenue().getName();
         if (StringUtils.isEmpty(nameString)) {
 //            nameString = LocaleController.getString("HiddenName", R.string.HiddenName);
-            nameString = "Point";
+            nameString = LocaleController.getString("Place", R.string.Place);;
         }
 
         int nameWidth;

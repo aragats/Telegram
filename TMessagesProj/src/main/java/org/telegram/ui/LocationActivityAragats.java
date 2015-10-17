@@ -436,6 +436,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     } else {
                         TLRPC.TL_messageMediaVenue object = adapter.getItem(position);
                         if (object != null && delegate != null) {
+                            object.geo = convertLocationToGeoPoint(userLocation);
                             delegate.didSelectLocation(object);
                         }
                         finishFragment();
@@ -594,6 +595,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     TLRPC.TL_messageMediaVenue object = searchAdapter.getItem(position);
                     if (object != null && delegate != null) {
+                        object.geo = convertLocationToGeoPoint(userLocation);
                         delegate.didSelectLocation(object);
                     }
                     finishFragment();
@@ -621,6 +623,9 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 }
             });
             positionMarker(myLocation = LocationManagerHelper.getInstance().getLastLocation());
+            if(myLocation == null) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
+            }
         }
 
         return fragmentView;
@@ -862,5 +867,13 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+    }
+
+
+    private TLRPC.GeoPoint convertLocationToGeoPoint(Location userLocation){
+        TLRPC.GeoPoint geo = new TLRPC.TL_geoPoint();
+        geo.lat = userLocation.getLatitude();
+        geo._long = userLocation.getLongitude();
+        return geo;
     }
 }

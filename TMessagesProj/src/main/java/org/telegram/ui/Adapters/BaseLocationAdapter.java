@@ -164,9 +164,9 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
                                         JSONObject location = object.getJSONObject("location");
                                         TLRPC.TL_messageMediaVenue venue = new TLRPC.TL_messageMediaVenue();
                                         venue.iconUrl = iconUrl;
-                                        venue.geo = new TLRPC.TL_geoPoint();
-                                        venue.geo.lat = location.getDouble("lat");
-                                        venue.geo._long = location.getDouble("lng");
+                                        venue.geoPlace = new TLRPC.TL_geoPoint();
+                                        venue.geoPlace.lat = location.getDouble("lat");
+                                        venue.geoPlace._long = location.getDouble("lng");
                                         if (location.has("address")) {
                                             venue.address = location.getString("address");
                                         } else if (location.has("city")) {
@@ -176,7 +176,7 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
                                         } else if (location.has("country")) {
                                             venue.address = location.getString("country");
                                         } else {
-                                            venue.address = String.format(Locale.US, "%f,%f", venue.geo.lat, venue.geo._long);
+                                            venue.address = String.format(Locale.US, "%f,%f", venue.geoPlace.lat, venue.geoPlace._long);
                                         }
                                         if (object.has("name")) {
                                             venue.title = object.getString("name");
