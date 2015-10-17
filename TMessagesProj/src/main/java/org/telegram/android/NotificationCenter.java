@@ -27,6 +27,7 @@ public class NotificationCenter {
     public static final int postRequestFinished = totalEvents++;
     public static final int undefinedLocation = totalEvents++;
     public static final int newPostSaved = totalEvents++;
+    public static final int postsRefresh = totalEvents++;
 
     public static final int didReceivedNewPosts = totalEvents++; //TODO
     public static final int updateInterfaces = totalEvents++; //TODO

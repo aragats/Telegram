@@ -248,6 +248,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     //TODO Update opened PostsActivity and close drawer.
 //                    Bundle args = new Bundle();
 //                    presentFragment(new PostsActivity(args));
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRefresh);
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (position == 3) {
 

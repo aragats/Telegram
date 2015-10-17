@@ -51,6 +51,7 @@ import org.telegram.android.PostsController;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
+
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
 
@@ -104,7 +105,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     // Swipe Refresh Layout
     private SwipeRefreshLayout swipeRefreshLayout;
-
 
 
     //TODO-legacy. update according to new version.
@@ -205,6 +205,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
         if (searchString == null) {
             //TODO learn NotificationCenter class especiallu case when post notification. There is different situations when notify when animation or not.
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsRefresh);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
@@ -226,6 +227,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
         if (searchString == null) {
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsRefresh);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
@@ -478,6 +480,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         textView.setTextColor(0xff959595);
         textView.setGravity(Gravity.CENTER);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshPosts(false);
+            }
+        });
         emptyView.addView(textView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 
         textView = new TextView(context);
@@ -724,6 +732,21 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         } else if (id == NotificationCenter.updateInterfaces) {
             updateVisibleRows((Integer) args[0]);
+        } else if (id == NotificationCenter.postsRefresh) {
+            boolean force = false;
+            if (args != null && args.length != 0) {
+                force = args[0] == null ? false : (Boolean) args[0];
+            }
+            refreshPosts(force);
+        }
+    }
+
+    private void refreshPosts(boolean force) {
+        if (PostsController.getInstance().posts.isEmpty() || force) {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(true);
+            }
+            PostsController.getInstance().loadPosts(0, Constants.POST_COUNT, true, true);
         }
     }
 
