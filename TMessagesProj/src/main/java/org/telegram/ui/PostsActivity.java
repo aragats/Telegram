@@ -324,7 +324,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             actionBar.setBackButtonDrawable(new MenuDrawable());
         }
 //            actionBar.setTitle(LocaleController.getString("AppName", R.string.AppName));
-        actionBar.setTitle("Whats going on?");
+        actionBar.setTitle(LocaleController.getString("AppFullName", R.string.AppFullName));
         //TODO in LaunchActivity if setAllowOverlayText is TRUE you can change the text.
 //        actionBar.setTitleOverlayText("Verbinde...");
         actionBar.setAllowOverlayTitle(true);
@@ -472,7 +472,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
         TextView textView = new TextView(context);
 //        textView.setText(LocaleController.getString("NoChats", R.string.NoChats));
-        textView.setText("There are not recent posts around you.");
+//        Es gibt nicht die neuesten Beiträge in Ihrer Nähe.
+//        textView.setText(LocaleController.getString("NoPosts", R.string.NoPosts));
+        textView.setText(LocaleController.getString("NothingHappens", R.string.NothingHappens));
         textView.setTextColor(0xff959595);
         textView.setGravity(Gravity.CENTER);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
@@ -483,7 +485,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 //        if (AndroidUtilities.isTablet() && !AndroidUtilities.isSmallTablet()) {
 //            help = help.replace("\n", " ");
 //        }
-        textView.setText("Please check whether your gps is enabled.");
+//        textView.setText(LocaleController.getString("NothingHappens", R.string.NothingHappens));
+        textView.setText(LocaleController.getString("NoPosts", R.string.NoPosts));
         textView.setTextColor(0xff959595);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         textView.setGravity(Gravity.CENTER);
@@ -662,8 +665,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             Activity context = getParentActivity();
             if (context != null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Whats going on?");
-                builder.setMessage("Please, enable gps on your phone.");
+                builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
+                builder.setMessage(LocaleController.getString("EnableGPS", R.string.EnableGPS));
 //            builder.setPositiveButton("OK", null);
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

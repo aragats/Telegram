@@ -84,7 +84,7 @@ public class ContactsController {
             updatingInviteText = true;
 
             //Load from the server invite message for lang async and save to settings
-            String inviteMessage = "Check Whats going on?";
+            String inviteMessage = getInviteText();
 
             updatingInviteText = false;
             preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);

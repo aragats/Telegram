@@ -4,6 +4,8 @@
 
 <resources>
     <string name="AppName">WGO</string>
+    <string name="AppFullName">What\'s going on?</string>
+    <string name="AppHintText">Really! What\'s going on around you?</string>
     <string name="LanguageName">English</string>
     <string name="LanguageNameInEnglish">English</string>
     <string name="LanguageCode">en</string>
@@ -17,17 +19,6 @@
     <string name="SearchMessages">MESSAGES</string>
     <string name="Search">Search</string>
     <string name="Hashtags">HASHTAGS</string>
-    <!--documents view-->
-    <string name="SelectFile">Select File</string>
-    <string name="UnknownError">Unknown error</string>
-    <string name="AccessError">Access error</string>
-    <string name="NoFiles">No files yet...</string>
-    <string name="FileUploadLimit">File size shouldn\'t be greater than %1$s</string>
-    <string name="InternalStorage">Internal Storage</string>
-    <string name="ExternalStorage">External Storage</string>
-    <string name="SystemRoot">System Root</string>
-    <string name="SdCard">SD Card</string>
-    <string name="Folder">Folder</string>
     <!--chat view-->
     <string name="ChatTakePhoto">Take photo</string>
     <string name="ChatGallery">Gallery</string>
@@ -37,31 +28,22 @@
     <string name="NoRecent">No recent</string>
     <string name="Message">Message</string>
     <string name="TypeMessage">Message</string>
-    <string name="DeleteThisChat">Delete this chat</string>
     <string name="ShareFile">Share</string>
     <!--contacts view-->
-    <string name="InviteText">Hey, let\'s switch to Telegram: https://telegram.org/dl</string>
+    <string name="InviteText">Hey, what\s going on? https://play.google.com/store</string>
     <string name="TodayAt">at</string>
     <string name="YesterdayAt">yesterday at</string>
     <string name="Online">online</string>
     <string name="LastSeen">last seen</string>
     <string name="LastSeenDate">last seen</string>
     <string name="InviteFriends">Invite Friends</string>
-    <string name="GlobalSearch">GLOBAL SEARCH</string>
-    <string name="Lately">last seen recently</string>
-    <string name="WithinAWeek">last seen within a week</string>
-    <string name="WithinAMonth">last seen within a month</string>
-    <string name="ALongTimeAgo">last seen a long time ago</string>
-    <string name="NewMessageTitle">New Message</string>
     <!--usernames-->
     <string name="Username">Username</string>
     <!--stickers view-->
     <string name="NoStickers">No stickers yet</string>
     <!--settings view-->
-    <string name="TelegramFaq">Telegram FAQ</string>
-    <string name="TelegramFaqUrl">https://telegram.org/faq</string>
-    <!--passcode view-->
-    <string name="EnterYourPasscode">Enter your passcode</string>
+    <string name="WGOFaq">FAQ</string>
+    <string name="WGOFaqUrl">https://www.google.com</string>
     <!--map view-->
     <string name="Map">Map</string>
     <string name="Satellite">Satellite</string>
@@ -144,7 +126,7 @@
     <string name="AreYouSureDeleteThisChat">Are you sure you want to delete this chat?</string>
     <string name="AreYouSureClearHistory">Are you sure you want to clear history?</string>
     <!--Intro view-->
-    <string name="Page1Title">Telegram</string>
+    <string name="Page1Title">What\'s going on?</string>
     <string name="Page2Title">Fast</string>
     <string name="Page3Title">Free</string>
     <string name="Page4Title">Secure</string>
@@ -187,4 +169,14 @@
     <!--update text-->
     <string name="updateText">Telegram for Android has been updated. New in version 2.9:\n\n- Install and share custom sticker sets like this one: https://telegram.me/addstickers/Animals\n- If you\'re an artist, create custom sticker sets using our @stickers bot.\n\n- Use Telegram with Android Auto.</string>
     <string name="updateBuild">536</string>
+    <!--Posts-->
+    <string name="Posts">Posts</string>
+    <string name="NoPosts">There are not recent posts around you.</string>
+    <string name="NothingHappens">Nothing is going on here.</string>
+    <string name="EnableGPS">Please enable GPS on your phone.</string>
+    <!--Create post-->
+    <string name="AddPhotoHint">Choose photo</string>
+    <string name="Place">Place</string>
+    <string name="Address">address</string>
+    <string name="CurrentLocation">Current location</string>
 </resources>

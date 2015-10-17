@@ -22,6 +22,7 @@ import android.widget.TextView;
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.ContactsController;
+import org.telegram.android.LocaleController;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.dto.User;
 import org.telegram.ui.Components.AvatarDrawable;
@@ -97,8 +98,8 @@ public class DrawerProfileCell extends FrameLayout {
     }
 
     public void setUser() {
-        nameTextView.setText("What is going on?");
-        phoneTextView.setText("Really, What is going on around you?");
+        nameTextView.setText(LocaleController.getString("AppFullName", R.string.AppFullName));
+        phoneTextView.setText(LocaleController.getString("AppHintText", R.string.AppHintText));
         AvatarDrawable avatarDrawable = new AvatarDrawable();
         avatarDrawable.setColor(0xff5c98cd);
 //        avatarImageView.setImage(photo, "50_50", avatarDrawable);
@@ -116,8 +117,8 @@ public class DrawerProfileCell extends FrameLayout {
         }
 //        nameTextView.setText(ContactsController.formatName(user.getFirstName(), user.getLastName()));
 //        phoneTextView.setText(PhoneFormat.getInstance().format("+" + user.getPhone()));
-        nameTextView.setText("What is going on?");
-        phoneTextView.setText("Really, What is going on around you?");
+        nameTextView.setText(LocaleController.getString("AppFullName", R.string.AppFullName));
+        phoneTextView.setText(LocaleController.getString("AppHintText", R.string.AppHintText));
         AvatarDrawable avatarDrawable = new AvatarDrawable();
         avatarDrawable.setColor(0xff5c98cd);
 //        avatarImageView.setImage(photo, "50_50", avatarDrawable);

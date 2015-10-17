@@ -35,13 +35,10 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.telegram.android.AndroidUtilities;
-import org.telegram.android.AnimationCompat.AnimatorSetProxy;
-import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
@@ -321,7 +318,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         venueNameTextView.setGravity(Gravity.LEFT);
         venueNameTextView.setCompoundDrawablePadding(AndroidUtilities.dp(4));
         venueNameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
-        venueNameTextView.setText("Venue name");
+        venueNameTextView.setText(LocaleController.getString("Place", R.string.Place));
         avatarContainer.addView(venueNameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 54, 0, 0, 22));
 
         addressTextView = new TextView(context);
@@ -483,7 +480,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         });
 
         TextView emptyView = new TextView(context);
-        emptyView.setText(LocaleController.getString("NoMessages", R.string.NoMessages));
+        emptyView.setText(LocaleController.getString("addPhotoHint", R.string.AddPhotoHint));
         emptyView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         emptyView.setGravity(Gravity.CENTER);
         emptyView.setTextColor(0xffffffff);
@@ -706,10 +703,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (venueNameTextView == null) {
             return;
         }
-        String name = "Current location";
+        String name;
         if (venue != null) {
             if (!StringUtils.isEmpty(venue.getName())) {
                 name = venue.getName();
+            } else {
+                name = LocaleController.getString("CurrentLocation", R.string.CurrentLocation);
             }
             venueNameTextView.setText(name);
         }
@@ -728,7 +727,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             return;
         }
 //        CharSequence addressString = "printing";
-        CharSequence addressString = "address";
+        CharSequence addressString = LocaleController.getString("Address", R.string.Address);
         if (venue != null && !StringUtils.isEmpty(venue.getAddress())) {
             addressString = venue.getAddress();
         }
