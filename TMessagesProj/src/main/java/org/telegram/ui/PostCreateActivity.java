@@ -859,6 +859,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             if (postCreateActivityEnterView != null) {
                 postCreateActivityEnterView.hideEmojiPopup();
             }
+            clearStates();
             finishFragment();
 
         }
@@ -1536,6 +1537,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
         }
 
+    }
+
+    private void clearStates() {
+        posts.clear();
+        venue = null;
+        PostsController.getInstance().setCurrentVenue(venue);
+        postCreateActivityEnterView.setFieldText("");
     }
 
 }
