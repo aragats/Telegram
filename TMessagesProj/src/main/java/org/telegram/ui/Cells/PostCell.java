@@ -29,6 +29,7 @@ import org.telegram.android.Emoji;
 import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
 import org.telegram.android.PostsController;
+import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Image;
@@ -261,7 +262,12 @@ public class PostCell extends BaseCell {
         if (this.textLayoutBlock != null && this.textLayoutBlock.textLayout != null) {
             textHeight = this.textLayoutBlock.textLayout.getHeight();
         }
-        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + AndroidUtilities.dp(82) + textHeight + (useSeparator ? 1 : 0));
+        int marginHeight = AndroidUtilities.dp(82);
+        if (StringUtils.isEmpty(post.getMessage())) {
+            textHeight = 0;
+            marginHeight = 0;
+        }
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + marginHeight + textHeight + (useSeparator ? 1 : 0));
 
     }
 
@@ -387,7 +393,9 @@ public class PostCell extends BaseCell {
             lastPrintString = null;
 
             String address = "";
-            address = post.getVenue().getAddress();
+            address = post.getVenue() != null ? post.getVenue().getAddress() :
+                    post.getPostCoordinates().getCoordinates().get(0) + ", "
+                            + post.getPostCoordinates().getCoordinates().get(0);
 
 
             checkMessage = false;
@@ -399,9 +407,9 @@ public class PostCell extends BaseCell {
 //            String distance = LocaleController.formatString("AccurateTo", R.string.AccurateTo, LocaleController.formatPluralString("Meters", (int) PostsController.getInstance().getCurrentLocation().getAccuracy()));
 
             String distanceStr = "";
-            Location userLocation = PostsController.getInstance().getCurrentLocation();
-            if (userLocation != null && post.getCoordinates() != null) {
-                Coordinates coordinates = post.getCoordinates();
+            Location userLocation = LocationManagerHelper.getInstance().getLastSavedLocation();
+            if (userLocation != null && post.getPostCoordinates() != null) {
+                Coordinates coordinates = post.getPostCoordinates();
                 Location location = new Location("network");
                 location.setLongitude(coordinates.getCoordinates().get(0));
                 location.setLatitude(coordinates.getCoordinates().get(1));
@@ -443,10 +451,11 @@ public class PostCell extends BaseCell {
         //  here was building name string
 
 
-        nameString = post.getVenue().getName();
+        nameString = post.getVenue() != null ? post.getVenue().getName() : "";
         if (StringUtils.isEmpty(nameString)) {
 //            nameString = LocaleController.getString("HiddenName", R.string.HiddenName);
-            nameString = LocaleController.getString("Place", R.string.Place);;
+            nameString = LocaleController.getString("Place", R.string.Place);
+            ;
         }
 
         int nameWidth;
@@ -816,23 +825,28 @@ public class PostCell extends BaseCell {
 
         // TEXT
 
-        canvas.save();
-        canvas.translate(textLeft, textTop);
-        try {
-            //TODO draw text message
-            this.textLayoutBlock.textLayout.draw(canvas);
-        } catch (Exception e) {
-            FileLog.e("tmessages", e);
+        if (!StringUtils.isEmpty(post.getMessage())) {
+            canvas.save();
+            canvas.translate(textLeft, textTop);
+            try {
+                //TODO draw text message
+                this.textLayoutBlock.textLayout.draw(canvas);
+            } catch (Exception e) {
+                FileLog.e("tmessages", e);
+            }
+            canvas.restore();
         }
-        canvas.restore();
     }
 
 
     //TODO utils method ?
     // TODO It should be before creating Cell. somewhere in generating entities. Because it is static layout. in Cell we just find the position. !!
     private void generateTextLayout(Post post) {
-        if (post == null || post.getMessage() == null || post.getMessage().length() == 0) {
+        if (post == null) {
             return;
+        }
+        if (post.getMessage() == null) {
+            post.setMessage("");
         }
 
         CharSequence messageText = post.getMessage();

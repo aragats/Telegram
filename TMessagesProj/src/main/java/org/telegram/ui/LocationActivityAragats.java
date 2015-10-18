@@ -178,7 +178,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     }
                 } else if (id == share) {
                     try {
-                        List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
+                        List<Double> coordinates = post.getPostCoordinates().getCoordinates();
                         double lat = coordinates.get(1);
                         double lon = coordinates.get(0);
                         getParentActivity().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("geo:" + lat + "," + lon + "?q=" + lat + "," + lon)));
@@ -333,7 +333,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             // change the top margin to change the position
             bottomView.addView(distanceTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), LocaleController.isRTL ? 12 : 72, 10, LocaleController.isRTL ? 72 : 12, 0));
 
-            List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
+            List<Double> coordinates = post.getPostCoordinates().getCoordinates();
             userLocation = new Location("network");
             userLocation.setLatitude(coordinates.get(1));
             userLocation.setLongitude(coordinates.get(0));
@@ -370,7 +370,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 public void onClick(View v) {
                     if (myLocation != null) {
                         try {
-                            List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
+                            List<Double> coordinates = post.getPostCoordinates().getCoordinates();
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(Locale.US, "http://maps.google.com/maps?saddr=%f,%f&daddr=%f,%f", myLocation.getLatitude(), myLocation.getLongitude(), coordinates.get(1), coordinates.get(0))));
                             getParentActivity().startActivity(intent);
                         } catch (Exception e) {

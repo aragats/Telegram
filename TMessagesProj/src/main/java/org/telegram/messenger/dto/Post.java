@@ -79,7 +79,7 @@ public class Post {
 
 
     public String getVenuePreviewImageUrl() {
-        if(this.getVenue() == null || this.getVenue().getImage() == null) {
+        if (this.getVenue() == null || this.getVenue().getImage() == null) {
             return null;
         }
         return this.getVenue().getImage().getUrl();
@@ -88,6 +88,15 @@ public class Post {
 
     public String getPreviewImageUrl() {
         return this.getPreviewImage().getUrl();
+    }
+
+
+    public Coordinates getPostCoordinates() {
+        if (venue != null && venue.getCoordinates() != null) {
+            return venue.getCoordinates();
+        } else {
+            return coordinates;
+        }
     }
 
 }

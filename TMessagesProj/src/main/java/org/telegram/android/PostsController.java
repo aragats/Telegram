@@ -36,11 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //TODO Look at MessagesController methods. There are many good examples and best practice.
 public class PostsController implements NotificationCenter.NotificationCenterDelegate {
 
-    private Location currentLocation;
-    public Venue currentVenue;
-
-    public Post currentPost;
-
+    private Venue lastVenue;
 
     public List<Post> posts = new ArrayList<>();
     public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
@@ -154,20 +150,12 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             return;
         }
-        currentLocation = location;
-//        NotificationCenter.getInstance().postNotificationName(NotificationCenter.dialogsNeedReload);
-
         //TODO here async  request
         PostResponse postResponse = PostServiceMock.getPosts("location", null, offset, count);
 //        after getting response.
         processLoadedPosts(postResponse, offset, count, reload);
 
     }
-
-    public Location getCurrentLocation() {
-        return currentLocation;
-    }
-
 
     public void processLoadedPosts(PostResponse postResponse, final int offset, final int count, boolean reload) {
         if (reload) {
@@ -194,35 +182,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         Location location = LocationManagerHelper.getInstance().getLastLocation();
         if (location == null) {
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
-            return;
         }
-
-        Venue venue = new Venue();
-        Coordinates coordinates = new Coordinates();
-        coordinates.setCoordinates(Arrays.asList(location.getLongitude(), location.getLatitude()));
-        coordinates.setType("Point");
-        venue.setCoordinates(coordinates);
-        if (StringUtils.isEmpty(venue.getAddress())) {
-            venue.setAddress(location.getLongitude() + ", " + location.getLatitude());
-        }
-//        this.currentVenue = VenueServiceMock.getRandomVenue();
-        this.currentVenue = venue;
-    }
-
-    public Venue getCurrentVenue() {
-        return currentVenue;
-    }
-
-    public void setCurrentVenue(Venue currentVenue) {
-        this.currentVenue = currentVenue;
-    }
-
-    public Post getCurrentPost() {
-        return currentPost;
-    }
-
-    public void setCurrentPost(Post currentPost) {
-        this.currentPost = currentPost;
     }
 
     public boolean isLoadingPosts() {
@@ -251,4 +211,13 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //        }
 //        return usersByUsernames.get(username.toLowerCase());
 //    }
+
+
+    public Venue getLastVenue() {
+        return lastVenue;
+    }
+
+    public void setLastVenue(Venue lastVenue) {
+        this.lastVenue = lastVenue;
+    }
 }

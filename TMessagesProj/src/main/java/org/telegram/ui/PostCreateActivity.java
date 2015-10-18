@@ -20,6 +20,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -44,6 +45,7 @@ import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.PostsController;
+import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.FileLog;
@@ -66,6 +68,7 @@ import org.telegram.ui.Components.PostCreateActivityEnterView;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
+import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
@@ -106,6 +109,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     //TODO - here are post for ???
     protected ArrayList<Post> posts = new ArrayList<>();
     protected Venue venue;
+    protected Coordinates userCoordinates;
 
 
     private String currentPicturePath;
@@ -149,8 +153,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     @Override
     public boolean onFragmentCreate() {
         //TODO-temp
-        PostsController.getInstance().loadCurrentVenue("location");
-        venue = PostsController.getInstance().getCurrentVenue();
+//        PostsController.getInstance().loadCurrentVenue("location");
+        userCoordinates = convertLocationToCoordinates(LocationManagerHelper.getInstance().getLastLocation());
 
 //        if(0==0) {
 //            return true;
@@ -228,7 +232,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 } else if (id == done_button) {
                     Toast.makeText(((Context) getParentActivity()), "DONE BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
                     Post post = null;
-                    if (posts != null && !posts.isEmpty() && posts.get(0) != null && venue != null) {
+                    if (!CollectionUtils.isEmpty(posts) && posts.get(0) != null && (venue != null || userCoordinates != null)) {
                         post = posts.get(0);
                         post.setVenue(venue);
 
@@ -238,18 +242,18 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                            image.setUrl(image.getUrl().replace("_64", "_bg_64"));
 //                            post.getVenue().setImage(image);
 //                        }
-
-
-                        post.setCoordinates(venue.getCoordinates());
+                        post.setCoordinates(userCoordinates);
                         String text = postCreateActivityEnterView.getFieldText();
-                        if (!StringUtils.isEmpty(text)) {
+                        if (text != null) {
                             text = text.trim();
+                        } else {
+                            text = "";
                         }
                         post.setMessage(text);
                     }
 
                     //TODO many check text, venue, coordinates and so on.
-                    if (post != null && venue != null) {
+                    if (post != null && post.getPostCoordinates() != null) {
                         final Post finalPost = post;
                         progressDialog.show();
 //                        AndroidUtilities.runOnUIThread(new Runnable() {
@@ -719,14 +723,15 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             return;
         }
         String name;
-        if (venue != null) {
-            if (!StringUtils.isEmpty(venue.getName())) {
-                name = venue.getName();
-            } else {
-                name = LocaleController.getString("CurrentLocation", R.string.CurrentLocation);
-            }
-            venueNameTextView.setText(name);
+        if (venue != null && !StringUtils.isEmpty(venue.getName())) {
+            name = venue.getName();
+        } else if (userCoordinates != null) {
+            name = LocaleController.getString("CurrentLocation", R.string.CurrentLocation);
+        } else {
+            name = LocaleController.getString("Place", R.string.Place);
         }
+        venueNameTextView.setText(name);
+
     }
 
     private void updateTitleIcons() {
@@ -745,8 +750,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         CharSequence addressString = LocaleController.getString("Address", R.string.Address);
         if (venue != null && !StringUtils.isEmpty(venue.getAddress())) {
             addressString = venue.getAddress();
+        } else if (userCoordinates != null) {
+            addressString = userCoordinates.getCoordinates().get(0) + ", " + userCoordinates.getCoordinates().get(1);
         }
-        addressString = TextUtils.replace(addressString, new String[]{"..."}, new String[]{""});
+//        addressString = TextUtils.replace(addressString, new String[]{"..."}, new String[]{""});
         addressTextView.setText(addressString);
     }
 
@@ -924,8 +931,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             photos.add(lastPhotoURL);
             didSelectPhotos(photos);
         }
-        venue = PostsController.getInstance().getCurrentVenue();
-//        PostsController.getInstance().setCurrentVenue(null);
+        venue = venue != null ? venue : PostsController.getInstance().getLastVenue();
         updateVenue();
 
 
@@ -950,7 +956,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (postCreateActivityEnterView != null) {
             postCreateActivityEnterView.hideEmojiPopup();
             String text = postCreateActivityEnterView.getFieldText();
-            if (text != null || !posts.isEmpty()) {
+            if (text != null || !posts.isEmpty() || venue != null) {
                 SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
                 //TODO save text before pause.
@@ -961,7 +967,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     editor.putString(Constants.PREF_NEW_POST_PHOTO, posts.get(0).getPreviewImage().getUrl());
                 }
                 editor.commit();
-                PostsController.getInstance().setCurrentVenue(venue);
+                PostsController.getInstance().setLastVenue(venue);
             }
             postCreateActivityEnterView.setFieldFocused(false);
         }
@@ -1366,28 +1372,31 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override
             public void didSelectLocation(TLRPC.MessageMedia location) {
-                Venue venue = new Venue();
                 Coordinates coordinates = new Coordinates();
                 coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
                 coordinates.setType("Point");
-                venue.setCoordinates(coordinates);
+                PostCreateActivity.this.userCoordinates = coordinates;
                 if (location.geoPlace != null) {
-                    Coordinates placeCoordinates = new Coordinates();
-                    placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
-                    placeCoordinates.setType("Point");
-                    venue.setPlaceCoordinates(placeCoordinates);
+                    Venue venue = new Venue();
+                    if (location.geoPlace != null) {
+                        Coordinates placeCoordinates = new Coordinates();
+                        placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
+                        placeCoordinates.setType("Point");
+                        venue.setCoordinates(placeCoordinates);
+                    } else {
+                        venue.setCoordinates(coordinates);
+                    }
+                    venue.setFoursquareId(location.venue_id);
+                    Image image = new Image();
+                    image.setUrl(location.iconUrl);
+                    venue.setImage(image);
+                    venue.setName(location.title);
+                    venue.setAddress(location.address);
+                    if (StringUtils.isEmpty(venue.getAddress())) {
+                        venue.setAddress(location.geo._long + ", " + location.geo.lat);
+                    }
+                    PostCreateActivity.this.venue = venue;
                 }
-                venue.setFoursquareId(location.venue_id);
-                Image image = new Image();
-                image.setUrl(location.iconUrl);
-                venue.setImage(image);
-                venue.setName(location.title);
-                venue.setAddress(location.address);
-                if (StringUtils.isEmpty(venue.getAddress())) {
-                    venue.setAddress(location.geo._long + ", " + location.geo.lat);
-                }
-                PostCreateActivity.this.venue = venue;
-                PostsController.getInstance().setCurrentVenue(venue);
 //                location.iconUrl;
 //                Toast.makeText(getParentActivity(), location.venue_id + " " + location.geo.lat + " " + location.geo._long, Toast.LENGTH_LONG).show();
 //                            SendMessagesHelper.getInstance().sendMessage(location, dialog_id, replyingMessageObject);
@@ -1542,8 +1551,24 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private void clearStates() {
         posts.clear();
         venue = null;
-        PostsController.getInstance().setCurrentVenue(venue);
+        userCoordinates = null;
+        PostsController.getInstance().setLastVenue(null);
         postCreateActivityEnterView.setFieldText("");
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+        preferences.edit().remove(Constants.PREF_NEW_POST_TEXT).commit();
+        preferences.edit().remove(Constants.PREF_NEW_POST_PHOTO).commit();
+
+    }
+
+
+    private Coordinates convertLocationToCoordinates(Location location) {
+        if (location == null) {
+            return null;
+        }
+        Coordinates coordinates = new Coordinates();
+        coordinates.setCoordinates(Arrays.asList(location.getLongitude(), location.getLatitude()));
+        coordinates.setType("Point");
+        return coordinates;
     }
 
 }

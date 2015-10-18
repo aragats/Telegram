@@ -19,6 +19,8 @@ public class LocationManagerHelper {
 
     private LocationListener locationListener;
 
+    private Location lastSavedLocation;
+
     public static LocationManagerHelper getInstance() {
         LocationManagerHelper localInstance = Instance;
         if (localInstance == null) {
@@ -83,6 +85,11 @@ public class LocationManagerHelper {
                 break;
             }
         }
+        lastSavedLocation = l;
         return l;
+    }
+
+    public Location getLastSavedLocation() {
+        return lastSavedLocation;
     }
 }
