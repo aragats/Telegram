@@ -424,6 +424,10 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (myLocation == null) {
+                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
+                        return;
+                    }
                     if (position == 1) {
                         if (delegate != null && userLocation != null) {
                             TLRPC.TL_messageMediaGeo location = new TLRPC.TL_messageMediaGeo();
@@ -623,7 +627,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 }
             });
             positionMarker(myLocation = LocationManagerHelper.getInstance().getLastLocation());
-            if(myLocation == null) {
+            if (myLocation == null) {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             }
         }
@@ -870,7 +874,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
     }
 
 
-    private TLRPC.GeoPoint convertLocationToGeoPoint(Location userLocation){
+    private TLRPC.GeoPoint convertLocationToGeoPoint(Location userLocation) {
         TLRPC.GeoPoint geo = new TLRPC.TL_geoPoint();
         geo.lat = userLocation.getLatitude();
         geo._long = userLocation.getLongitude();
