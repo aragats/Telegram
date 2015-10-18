@@ -66,6 +66,7 @@ import org.telegram.ui.Components.PostCreateActivityEnterView;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
+import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 import java.io.File;
@@ -161,6 +162,20 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.didReceivedNewPosts);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.closeChats);
+
+        if (getArguments() != null) {
+            SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            String text = (String) super.arguments.get("text");
+            String image = (String) super.arguments.get("image");
+            if (!StringUtils.isEmpty(text)) {
+                editor.putString(Constants.PREF_NEW_POST_TEXT, text.trim());
+            }
+            if (!StringUtils.isEmpty(image)) {
+                editor.putString(Constants.PREF_NEW_POST_PHOTO, image);
+            }
+            editor.commit();
+        }
 
         super.onFragmentCreate();
 
@@ -896,14 +911,14 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
         fixLayout(true);
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
-        String lastMessageText = preferences.getString("new_post_text", null);
+        String lastMessageText = preferences.getString(Constants.PREF_NEW_POST_TEXT, null);
         if (lastMessageText != null) {
-            preferences.edit().remove("new_post_text").commit();
+            preferences.edit().remove(Constants.PREF_NEW_POST_TEXT).commit();
             postCreateActivityEnterView.setFieldText(lastMessageText);
         }
-        String lastPhotoURL = preferences.getString("new_post_photo", null);
+        String lastPhotoURL = preferences.getString(Constants.PREF_NEW_POST_PHOTO, null);
         if (!StringUtils.isEmpty(lastPhotoURL) && posts.isEmpty()) {
-            preferences.edit().remove("new_post_photo").commit();
+            preferences.edit().remove(Constants.PREF_NEW_POST_PHOTO).commit();
             ArrayList<String> photos = new ArrayList<>();
             photos.add(lastPhotoURL);
             didSelectPhotos(photos);
@@ -939,10 +954,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 SharedPreferences.Editor editor = preferences.edit();
                 //TODO save text before pause.
                 if (text != null) {
-                    editor.putString("new_post_text", text);
+                    editor.putString(Constants.PREF_NEW_POST_TEXT, text);
                 }
                 if (!posts.isEmpty()) {
-                    editor.putString("new_post_photo", posts.get(0).getPreviewImage().getUrl());
+                    editor.putString(Constants.PREF_NEW_POST_PHOTO, posts.get(0).getPreviewImage().getUrl());
                 }
                 editor.commit();
                 PostsController.getInstance().setCurrentVenue(venue);
@@ -1355,7 +1370,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
                 coordinates.setType("Point");
                 venue.setCoordinates(coordinates);
-                if(location.geoPlace != null) {
+                if (location.geoPlace != null) {
                     Coordinates placeCoordinates = new Coordinates();
                     placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
                     placeCoordinates.setType("Point");

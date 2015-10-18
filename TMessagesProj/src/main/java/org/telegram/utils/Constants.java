@@ -13,6 +13,10 @@ public class Constants {
     public static final String WGO_FAQ = "WGOFAQ";
 
 
+    public static final String PREF_NEW_POST_TEXT = "NEW_POST_TEXT";
+    public static final String PREF_NEW_POST_PHOTO = "NEW_POST_PHOTO";
+
+
 
     public static int POST_COUNT = 20;
 }
