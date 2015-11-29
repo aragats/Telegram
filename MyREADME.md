@@ -81,3 +81,8 @@ TODO:
 5. ContactsController.checkAppAccount UserConfig.loadUser ... and other - do not invoke them. ??
 6. Change drawer left sidebar size of header
 7. Fragen und Antworten - replace the link or create a page with antworten. Landing Page.
+
+
+
+TOP libraries for Android
+https://infinum.co/the-capsized-eight/articles/top-5-android-libraries-every-android-developer-should-know-about
