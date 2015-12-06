@@ -52,8 +52,16 @@ import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
 
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
+import ru.aragats.wgo.rest.client.WGOClient;
+import ru.aragats.wgo.rest.dto.PostRequest;
+import ru.aragats.wgo.rest.dto.PostResponse;
+import ru.aragats.wgo.rest.manager.RestManager;
+import ru.aragats.wgo.rest.task.RestTask;
 
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.dto.Post;
@@ -360,7 +368,23 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                // TODO temp test
+//                new RestTask().execute("param");
                 PostsController.getInstance().loadPosts(0, Constants.POST_COUNT, true, true);
+
+//                RestManager.getInstance().uploadTest(new PostRequest(), new Callback<PostResponse>() {
+//                    @Override
+//                    public void onResponse(Response<PostResponse> response, Retrofit retrofit) {
+//                        System.out.println(response);
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Throwable t) {
+//                        System.out.println(t);
+//                    }
+//                });
+
+
 //                refreshContent();
 //                Toast.makeText(((Context) getParentActivity()), "REFRESH BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
                 // Probably refresh icon disappear when we update the adapter the content. Because I should not use this method. OR NOT . I think it is ok to use this method. according to tutorial

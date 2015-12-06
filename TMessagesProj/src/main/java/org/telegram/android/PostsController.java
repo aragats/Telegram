@@ -14,7 +14,12 @@ import android.location.Location;
 
 import org.telegram.android.location.LocationManagerHelper;
 
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.rest.dto.PostRequest;
+import ru.aragats.wgo.rest.manager.RestManager;
 
 import org.telegram.messenger.dto.Coordinates;
 import org.telegram.messenger.dto.Post;
@@ -114,6 +119,20 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     public void addPost(Post post) {
+
+        //TODO temp test
+//        RestManager.getInstance().uploadTest(new PostRequest(post.getImage().getUrl()), new Callback<ru.aragats.wgo.rest.dto.PostResponse>() {
+//            @Override
+//            public void onResponse(Response<ru.aragats.wgo.rest.dto.PostResponse> response, Retrofit retrofit) {
+//                System.out.println(response);
+//            }
+//
+//            @Override
+//            public void onFailure(Throwable t) {
+//                System.out.println(t);
+//            }
+//        });
+
         PostServiceMock.addPost(post);
         //TODO mock loading
         AndroidUtilities.runOnUIThread(new Runnable() {
