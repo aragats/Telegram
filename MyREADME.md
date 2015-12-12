@@ -81,7 +81,7 @@ TODO:
 5. ContactsController.checkAppAccount UserConfig.loadUser ... and other - do not invoke them. ??
 6. Change drawer left sidebar size of header
 7. Fragen und Antworten - replace the link or create a page with antworten. Landing Page.
-
+8. Loading container error. If I got the empy result ??
 
 
 TOP libraries for Android

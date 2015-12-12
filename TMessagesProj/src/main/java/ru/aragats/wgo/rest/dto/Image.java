@@ -13,7 +13,7 @@ public class Image {
     private int height;
     private long size;
     //TODO enum // contentType !!!
-    private String contentType;
+    private String type;
     // TODO TEMP. Use other Image class. make it Transient.
     private Bitmap bitmap;
 
@@ -49,12 +49,12 @@ public class Image {
         this.size = size;
     }
 
-    public String getContentType() {
-        return contentType;
+    public String getType() {
+        return type;
     }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Bitmap getBitmap() {

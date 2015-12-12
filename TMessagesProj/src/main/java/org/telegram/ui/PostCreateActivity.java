@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -165,6 +166,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         //
 
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.newPostSaved);
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.savePostError);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.didReceivedNewPosts);
@@ -200,6 +202,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             postCreateActivityEnterView.onDestroy();
         }
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.newPostSaved);
+        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.savePostError);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.didReceivedNewPosts);
@@ -872,6 +875,20 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             clearStates();
             finishFragment();
 
+        } else if (id == NotificationCenter.savePostError) {
+//            progressDialog.hide();
+            //clear
+//            venue = null;
+//            if (posts != null) {
+//                posts.clear();
+//            }
+//            if (postCreateActivityEnterView != null) {
+//                postCreateActivityEnterView.setFieldText("");
+//            }
+            progressDialog.dismiss();
+            Toast.makeText(getParentActivity(), "Error in saving post", Toast.LENGTH_SHORT).show();
+
+
         }
     }
 
@@ -1445,19 +1462,23 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             int height = options.outHeight;
 //If you want, the MIME type will also be decoded (if possible)
             String type = options.outMimeType;
+//            String type = getMimeType(photoUrl);
 
+//            Java 7
+//            MediaStore.Files.probeContentType(path);
 
             //
             bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
 
 
             Post post = new Post();
-            post.setId(PostServiceMock.generateString("1234567890", 5));
+//            post.setId(PostServiceMock.generateString("1234567890", 5));
             Image image = new Image();
             image.setUrl(photoUrl);
             image.setWidth(width);
             image.setHeight(height);
             image.setBitmap(bitmap);
+            image.setType(type);
 //            image = ImageServiceMock.getRandomImage();
             List<Image> images = new ArrayList<>();
             images.add(image); // preview
@@ -1472,6 +1493,16 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
             postCreateAdapter.notifyDataSetChanged();
         }
+    }
+
+    // url = file path or whatever suitable URL you want.
+    public static String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
     }
 
 

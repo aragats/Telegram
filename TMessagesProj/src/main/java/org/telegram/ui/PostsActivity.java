@@ -38,6 +38,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
@@ -55,7 +56,9 @@ import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
 
 import org.telegram.messenger.FileLog;
+
 import ru.aragats.wgo.rest.dto.Post;
+
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -208,6 +211,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.loadPostsError);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         }
@@ -215,7 +219,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         LocationManagerHelper.getInstance().runLocationListener();
 
         if (!postsLoaded) {
-            PostsController.getInstance().loadPosts(0, Constants.POST_COUNT, true, true);
+            PostsController.getInstance().loadPosts(null, Constants.POST_COUNT, true, true);
             ContactsController.getInstance().checkInviteText();
             postsLoaded = true;
         }
@@ -230,6 +234,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.loadPostsError);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
         }
@@ -361,7 +366,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             public void onRefresh() {
                 // TODO temp test
 //                new RestTask().execute("param");
-                PostsController.getInstance().loadPosts(0, Constants.POST_COUNT, true, true);
+                PostsController.getInstance().loadPosts(null, Constants.POST_COUNT, true, true);
 
 //                RestManager.getInstance().uploadTest(new PostRequest(), new Callback<PostResponse>() {
 //                    @Override
@@ -572,7 +577,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 //TODO fix it.
                 if (visibleItemCount > 0) {
                     if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().posts.size() - 1) {
-                        PostsController.getInstance().loadPosts(PostsController.getInstance().posts.size(), Constants.POST_COUNT, false, true);
+                        String offset = PostsController.getInstance().posts.get(PostsController.getInstance().posts.size() - 1).getId();
+                        PostsController.getInstance().loadPosts(offset, Constants.POST_COUNT, false, true);
                     }
                 }
 
@@ -704,20 +710,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 showDialog(builder.create());
             }
         } else if (id == NotificationCenter.postRequestFinished) {
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        } else if (id == NotificationCenter.postsNeedReload) {
-            if (postsAdapter != null) {
-                if (postsAdapter.isDataSetChanged()) {
-                    postsAdapter.notifyDataSetChanged();
-                } else {
-                    updateVisibleRows(PostsController.UPDATE_MASK_NEW_MESSAGE);
-                }
-            }
-            if (postsSearchAdapter != null) {
-                postsSearchAdapter.notifyDataSetChanged();
-            }
+            //TODO duplicates
             if (postListView != null) {
                 try {
                     if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
@@ -741,6 +734,47 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);
             }
+        } else if (id == NotificationCenter.postsNeedReload) {
+            if (postsAdapter != null) {
+                if (postsAdapter.isDataSetChanged()) {
+                    postsAdapter.notifyDataSetChanged();
+                } else {
+                    updateVisibleRows(PostsController.UPDATE_MASK_NEW_MESSAGE);
+                }
+            }
+            if (postsSearchAdapter != null) {
+                postsSearchAdapter.notifyDataSetChanged();
+            }
+            // TODO duplicates
+            if (postListView != null) {
+                try {
+                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
+                        searchEmptyView.setVisibility(View.INVISIBLE);
+                        emptyView.setVisibility(View.INVISIBLE);
+                        postListView.setEmptyView(progressView);
+                    } else {
+                        progressView.setVisibility(View.INVISIBLE);
+                        if (searching && searchWas) {
+                            emptyView.setVisibility(View.INVISIBLE);
+                            postListView.setEmptyView(searchEmptyView);
+                        } else {
+                            searchEmptyView.setVisibility(View.INVISIBLE);
+                            postListView.setEmptyView(emptyView);
+                        }
+                    }
+                } catch (Exception e) {
+                    FileLog.e("tmessages", e); //TODO fix it in other way?
+                }
+            }
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        } else if (id == NotificationCenter.loadPostsError) {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            Toast.makeText(((Context) getParentActivity()), "Load posts Error", Toast.LENGTH_SHORT).show();
+
         } else if (id == NotificationCenter.emojiDidLoaded) {
             if (postListView != null) {
                 updateVisibleRows(0);
@@ -761,7 +795,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(true);
             }
-            PostsController.getInstance().loadPosts(0, Constants.POST_COUNT, true, true);
+            PostsController.getInstance().loadPosts(null, Constants.POST_COUNT, true, true);
         }
     }
 

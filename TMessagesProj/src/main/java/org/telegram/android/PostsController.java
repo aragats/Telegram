@@ -14,12 +14,19 @@ import android.location.Location;
 
 import org.telegram.android.location.LocationManagerHelper;
 
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
 
+import ru.aragats.wgo.rest.dto.FileUploadRequest;
+import ru.aragats.wgo.rest.dto.Image;
 import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.rest.dto.PostRequest;
 import ru.aragats.wgo.rest.dto.PostResponse;
 import ru.aragats.wgo.rest.dto.User;
 import ru.aragats.wgo.rest.dto.Venue;
+import ru.aragats.wgo.rest.manager.RestManager;
 import ru.aragats.wgo.rest.mock.PostServiceMock;
 import ru.aragats.wgo.rest.mock.UserServiceMock;
 
@@ -110,7 +117,40 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void addPost(Post post) {
+    public void addPost(final Post post) {
+
+        RestManager.getInstance().uploadImage(new FileUploadRequest(post.getImage().getUrl(), post.getImage().getType()), new Callback<List<Image>>() {
+            @Override
+            public void onResponse(Response<List<Image>> response, Retrofit retrofit) {
+                post.setImages(response.body());
+                savePost(post);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.savePostError);
+            }
+        });
+    }
+
+
+    private void savePost(final Post post) {
+        RestManager.getInstance().savePost(post, new Callback<String>() {
+            @Override
+            public void onResponse(Response<String> response, Retrofit retrofit) {
+                post.setId(response.body());
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.savePostError);
+            }
+        });
+    }
+
+
+    public void addPostMock(Post post) {
 
         //TODO temp test
 //        RestManager.getInstance().uploadTest(new PostRequest(post.getImage().getUrl()), new Callback<ru.aragats.wgo.rest.dto.PostResponse>() {
@@ -150,7 +190,41 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void loadPosts(final int offset, final int count, boolean reload, boolean fromCache) {
+    public void loadPosts(final String offset, final int count, final boolean reload, boolean fromCache) {
+        if (loadingPosts) {
+            return;
+        }
+        loadingPosts = true;
+        Location location = LocationManagerHelper.getInstance().getLastLocation();
+        if (location == null) {
+            loadingPosts = false;
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
+            return;
+        }
+        PostRequest postRequest = new PostRequest();
+        postRequest.setLatitude(location.getLatitude());
+        postRequest.setLongitude(location.getLongitude());
+        postRequest.setCount(count);
+        postRequest.setOffset(offset);
+        postRequest.setDistance(1000); // 1000 meters. ??
+        RestManager.getInstance().findNearPosts(postRequest, new Callback<PostResponse>() {
+            @Override
+            public void onResponse(Response<PostResponse> response, Retrofit retrofit) {
+                //        after getting response.
+                processLoadedPosts(response.body(), reload);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
+            }
+        });
+
+
+    }
+
+
+    public void loadPostsMock(final int offset, final int count, boolean reload, boolean fromCache) {
         if (loadingPosts) {
             return;
         }
@@ -164,11 +238,11 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         //TODO here async  request
         PostResponse postResponse = PostServiceMock.getPosts("location", null, offset, count);
 //        after getting response.
-        processLoadedPosts(postResponse, offset, count, reload);
+        processLoadedPosts(postResponse, reload);
 
     }
 
-    public void processLoadedPosts(PostResponse postResponse, final int offset, final int count, boolean reload) {
+    public void processLoadedPosts(PostResponse postResponse, boolean reload) {
         if (reload) {
             posts.clear();
             postsMap.clear();
@@ -182,6 +256,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         if (!postResponse.getPosts().isEmpty()) {
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
         } else {
+//            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);  //TODO hide progress view
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished);
         }
 

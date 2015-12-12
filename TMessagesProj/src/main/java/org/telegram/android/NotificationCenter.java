@@ -29,6 +29,9 @@ public class NotificationCenter {
     public static final int newPostSaved = totalEvents++;
     public static final int postsRefresh = totalEvents++;
 
+    public static final int savePostError = totalEvents++;
+    public static final int loadPostsError = totalEvents++;
+
     public static final int didReceivedNewPosts = totalEvents++; //TODO
     public static final int updateInterfaces = totalEvents++; //TODO
     public static final int closeChats = totalEvents++; //TODO important. force selfClose other activities when open some particular.

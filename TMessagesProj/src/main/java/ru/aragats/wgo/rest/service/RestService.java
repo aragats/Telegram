@@ -26,20 +26,20 @@ public interface RestService {
     @GET("/api/posts/find/near")
     Call<PostResponse> findNearPosts(@Query("lng") double longitude, @Query("lat") double latitude,
                                      @Query("distance") int distance, @Query("offset") String offset,
-                                     @Query("count") double count);
+                                     @Query("count") int count);
 
 
     @GET("/api/posts/find/near/venue/{venueId}")
     Call<PostResponse> findPostsAtVenue(@Path(value = "venueId") String venueId,
                                         @Query("offset") String offset,
-                                        @Query("count") double count);
+                                        @Query("count") int count);
 
     @POST("/api/posts/upload")
     Call<List<Image>> uploadImage(@Body RequestBody fileRequestBody);
 
 
-    @POST("/api/posts/add")
-    Call<String> addPost(@Body Post post);
+    @POST("/api/posts/save")
+    Call<String> savePost(@Body Post post);
 
 
 

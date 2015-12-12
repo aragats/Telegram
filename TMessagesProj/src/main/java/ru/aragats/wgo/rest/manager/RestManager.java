@@ -10,6 +10,7 @@ import java.util.List;
 import retrofit.Call;
 import retrofit.Callback;
 import ru.aragats.wgo.rest.client.RestClient;
+import ru.aragats.wgo.rest.dto.FileUploadRequest;
 import ru.aragats.wgo.rest.dto.Image;
 import ru.aragats.wgo.rest.dto.Post;
 import ru.aragats.wgo.rest.dto.PostRequest;
@@ -47,29 +48,24 @@ public class RestManager {
     }
 
     private Call<PostResponse> findNearPostsCall(PostRequest request) {
-        return restClient.getRestService().findNearPosts(request.getLng(), request.getLat(),
+        return restClient.getRestService().findNearPosts(request.getLongitude(), request.getLatitude(),
                 request.getDistance(), request.getOffset(), request.getCount());
     }
 
 
-    public void uploadImage(PostRequest request, Callback<List<Image>> callback) {
+    public void uploadImage(FileUploadRequest request, Callback<List<Image>> callback) {
         uploadImage(request).enqueue(callback);
     }
 
-    private Call<List<Image>> uploadImage(PostRequest request) {
-//        File file = new File("/storage/emulated/0/download/1289.jpeg");
-        File file = new File("/storage/emulated/0/Download/amerIstotia1.jpg");
-//        File file = new File(request.getFilePath());
-
-
-        RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
+    private Call<List<Image>> uploadImage(FileUploadRequest request) {
+        File file = new File(request.getFilePath());
+        RequestBody fileBody = RequestBody.create(MediaType.parse(request.getContentType()), file);
 //        MultipartBuilder multipartBuilder = new MultipartBuilder("95416089-b2fd-4eab-9a14-166bb9c5788b");
         MultipartBuilder multipartBuilder = new MultipartBuilder();
         multipartBuilder.addFormDataPart("file", file.getName(), fileBody);
         multipartBuilder.addFormDataPart("description", "value");
         multipartBuilder.type(MultipartBuilder.FORM);
         RequestBody fileRequestBody = multipartBuilder.build();
-
         return restClient.getRestService().uploadImage(fileRequestBody);
     }
 
@@ -83,15 +79,17 @@ public class RestManager {
         return restClient.getRestService().findPostsAtVenue(request.getVenueId(), request.getOffset(), request.getCount());
     }
 
-    // addPost
-    public void addPost(Post post, Callback<String> callback) {
-        addPostCall(post).enqueue(callback);
+    // savePost
+    public void savePost(Post post, Callback<String> callback) {
+        savePostCall(post).enqueue(callback);
     }
 
-    private Call<String> addPostCall(Post post) {
-        return restClient.getRestService().addPost(post);
+    private Call<String> savePostCall(Post post) {
+        return restClient.getRestService().savePost(post);
     }
 
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //    public Call<PostResponse> uploadTest1(PostRequest request) {
 //        File file = new File("/storage/emulated/0/Download/amerIstotia1.jpg");
@@ -105,7 +103,26 @@ public class RestManager {
 //        return restClient.getRestService().uploadTest(requestBody, "key-value");
 //    }
 
-
+    //
+    // // BackUP
+//    private Call<List<Image>> uploadImage(PostRequest request) {
+////        File file = new File("/storage/emulated/0/download/1289.jpeg");
+//        File file = new File("/storage/emulated/0/Download/amerIstotia1.jpg");
+////        File file = new File(request.getFilePath());
+//
+//
+//        RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
+////        MultipartBuilder multipartBuilder = new MultipartBuilder("95416089-b2fd-4eab-9a14-166bb9c5788b");
+//        MultipartBuilder multipartBuilder = new MultipartBuilder();
+//        multipartBuilder.addFormDataPart("file", file.getName(), fileBody);
+//        multipartBuilder.addFormDataPart("description", "value");
+//        multipartBuilder.type(MultipartBuilder.FORM);
+//        RequestBody fileRequestBody = multipartBuilder.build();
+//
+//        return restClient.getRestService().uploadImage(fileRequestBody);
+//    }
+//
+//
     public void addTest(PostRequest request, Callback<PostResponse> callback) {
         addTest(request).enqueue(callback);
     }
@@ -113,6 +130,11 @@ public class RestManager {
     public Call<PostResponse> addTest(PostRequest request) {
         return restClient.getRestService().addTest(new Post());
     }
+
+
+
+//    http://192.168.0.100:8080/api/posts/find/near?lng=11.22&lat=23.15&distance=1000&offset=sad&count=20
+//    http://192.168.0.100:8080/api/posts/find/near?lng=13.0116908&lat=52.3898987&distance=1000&count=20.0&offset=sds
 
 
 }
