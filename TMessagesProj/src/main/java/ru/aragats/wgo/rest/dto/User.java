@@ -1,4 +1,6 @@
-package org.telegram.messenger.dto;
+package ru.aragats.wgo.rest.dto;
+
+import ru.aragats.wgo.rest.dto.Image;
 
 /**
  * Created by aragats on 09/05/15.

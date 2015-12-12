@@ -5,15 +5,16 @@ import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.RequestBody;
 
 import java.io.File;
+import java.util.List;
 
 import retrofit.Call;
 import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
 import ru.aragats.wgo.rest.client.RestClient;
+import ru.aragats.wgo.rest.dto.Image;
 import ru.aragats.wgo.rest.dto.Post;
 import ru.aragats.wgo.rest.dto.PostRequest;
 import ru.aragats.wgo.rest.dto.PostResponse;
+import ru.aragats.wgo.rest.dto.VenuePostsRequest;
 
 /**
  * Created by aragats on 05/12/15.
@@ -41,29 +42,21 @@ public class RestManager {
     }
 
 
-    public void findPosts(PostRequest request, Callback<PostResponse> callback) {
-        findPostsCall(request).enqueue(callback);
+    public void findNearPosts(PostRequest request, Callback<PostResponse> callback) {
+        findNearPostsCall(request).enqueue(callback);
     }
 
-    public Call<PostResponse> findPostsCall(PostRequest request) {
-        return restClient.getRestService().find("sd");
-    }
-
-
-    public void addTest(PostRequest request, Callback<PostResponse> callback) {
-        addTest(request).enqueue(callback);
-    }
-
-    public Call<PostResponse> addTest(PostRequest request) {
-        return restClient.getRestService().addTest(new Post(1, "test"));
+    private Call<PostResponse> findNearPostsCall(PostRequest request) {
+        return restClient.getRestService().findNearPosts(request.getLng(), request.getLat(),
+                request.getDistance(), request.getOffset(), request.getCount());
     }
 
 
-    public void uploadTest(PostRequest request, Callback<PostResponse> callback) {
-        uploadTest(request).enqueue(callback);
+    public void uploadImage(PostRequest request, Callback<List<Image>> callback) {
+        uploadImage(request).enqueue(callback);
     }
 
-    public Call<PostResponse> uploadTest(PostRequest request) {
+    private Call<List<Image>> uploadImage(PostRequest request) {
 //        File file = new File("/storage/emulated/0/download/1289.jpeg");
         File file = new File("/storage/emulated/0/Download/amerIstotia1.jpg");
 //        File file = new File(request.getFilePath());
@@ -72,12 +65,31 @@ public class RestManager {
         RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
 //        MultipartBuilder multipartBuilder = new MultipartBuilder("95416089-b2fd-4eab-9a14-166bb9c5788b");
         MultipartBuilder multipartBuilder = new MultipartBuilder();
-        multipartBuilder.addFormDataPart("myfile", file.getName(), fileBody);
+        multipartBuilder.addFormDataPart("file", file.getName(), fileBody);
         multipartBuilder.addFormDataPart("description", "value");
         multipartBuilder.type(MultipartBuilder.FORM);
         RequestBody fileRequestBody = multipartBuilder.build();
 
-        return restClient.getRestService().uploadTest(fileRequestBody);
+        return restClient.getRestService().uploadImage(fileRequestBody);
+    }
+
+
+    // findPostsAtVenue
+    public void findPostsAtVenue(VenuePostsRequest request, Callback<PostResponse> callback) {
+        findPostsAtVenueCall(request).enqueue(callback);
+    }
+
+    private Call<PostResponse> findPostsAtVenueCall(VenuePostsRequest request) {
+        return restClient.getRestService().findPostsAtVenue(request.getVenueId(), request.getOffset(), request.getCount());
+    }
+
+    // addPost
+    public void addPost(Post post, Callback<String> callback) {
+        addPostCall(post).enqueue(callback);
+    }
+
+    private Call<String> addPostCall(Post post) {
+        return restClient.getRestService().addPost(post);
     }
 
 
@@ -92,5 +104,15 @@ public class RestManager {
 //
 //        return restClient.getRestService().uploadTest(requestBody, "key-value");
 //    }
+
+
+    public void addTest(PostRequest request, Callback<PostResponse> callback) {
+        addTest(request).enqueue(callback);
+    }
+
+    public Call<PostResponse> addTest(PostRequest request) {
+        return restClient.getRestService().addTest(new Post());
+    }
+
 
 }

@@ -1,6 +1,6 @@
-package org.telegram.messenger.service.mock;
+package ru.aragats.wgo.rest.mock;
 
-import org.telegram.messenger.dto.Coordinates;
+import ru.aragats.wgo.rest.dto.Coordinates;
 
 import java.util.ArrayList;
 import java.util.Arrays;

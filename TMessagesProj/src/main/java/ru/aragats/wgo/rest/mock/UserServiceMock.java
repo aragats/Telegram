@@ -1,14 +1,14 @@
-package org.telegram.messenger.service.mock;
+package ru.aragats.wgo.rest.mock;
 
-import org.telegram.messenger.dto.Image;
-import org.telegram.messenger.dto.User;
+import ru.aragats.wgo.rest.dto.Image;
+import ru.aragats.wgo.rest.dto.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 
-import static org.telegram.messenger.service.mock.PostServiceMock.*;
+import static ru.aragats.wgo.rest.mock.PostServiceMock.*;
 
 /**
  * Created by aragats on 09/05/15.

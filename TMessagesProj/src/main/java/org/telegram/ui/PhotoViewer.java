@@ -61,7 +61,7 @@ import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.dto.Post;
+import ru.aragats.wgo.rest.dto.Post;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -810,7 +810,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         //TODO-aragats new. It is important do not save again from the internet but use saved in cache. But actually it load the file from cache, because already loaded.
                         currentFileNames[0] = Utilities.MD5(currentPost.getImage().getUrl()) + ".jpg";
                         f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);
-//                        text = currentPost.getMessage();
+//                        text = currentPost.getText();
                     }
 
                     if (f != null && f.exists()) {
@@ -1665,7 +1665,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             String dateString = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, LocaleController.formatterYear.format(new Date(date)), LocaleController.formatterDay.format(new Date(date)));
             dateTextView.setText(dateString);
 
-            CharSequence caption = currentPost.getMessage();
+            CharSequence caption = currentPost.getText();
             setCurrentCaption(caption);
 
             //TODO  It is title 1 of 1

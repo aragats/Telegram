@@ -50,8 +50,8 @@ import org.telegram.android.NotificationCenter;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
-import org.telegram.messenger.dto.Post;
-import org.telegram.messenger.dto.Venue;
+import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.rest.dto.Venue;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -762,7 +762,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 //                }
 //                avatarImageView.setImage(post.getImage().getUrl(), "50_50", avatarDrawable);
                 avatarImageView.setImage(post.getPreviewImage().getUrl(), null, new AvatarDrawable());
-                nameTextView.setText(post.getMessage());
+                nameTextView.setText(post.getText());
             } else {
                 avatarImageView.setImageDrawable(null);
             }

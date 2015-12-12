@@ -3,12 +3,11 @@ package ru.aragats.wgo.rest.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
- * Created by aragats on 05/12/15.
+ * Created by aragats on 09/05/15.
  */
 public class PostResponse {
-
-
     private List<Post> posts = new ArrayList<>();
     private String error;
 
@@ -29,4 +28,3 @@ public class PostResponse {
         this.error = error;
     }
 }
-

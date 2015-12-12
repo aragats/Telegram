@@ -10,7 +10,6 @@ import ru.aragats.wgo.rest.dto.Request;
 /**
  * Created by aragats on 05/12/15.
  */
-//http://stackoverflow.com/questions/29323095/retrofit-call-inside-asynctask
 public interface WGOService {
     // sync
     @GET("/api/posts/all")

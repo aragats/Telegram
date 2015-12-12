@@ -19,7 +19,7 @@ import org.telegram.messenger.BuffersStorage;
 import org.telegram.messenger.ByteBufferDesc;
 import org.telegram.messenger.DispatchQueue;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.dto.User;
+import ru.aragats.wgo.rest.dto.User;
 
 import java.io.File;
 import java.util.ArrayList;

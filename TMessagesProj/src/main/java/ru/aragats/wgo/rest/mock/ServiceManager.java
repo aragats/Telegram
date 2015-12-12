@@ -1,4 +1,4 @@
-package org.telegram.messenger.service.mock;
+package ru.aragats.wgo.rest.mock;
 
 /**
  * Created by aragats on 09/05/15.

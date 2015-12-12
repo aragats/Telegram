@@ -14,10 +14,6 @@ import ru.aragats.wgo.rest.service.WGOService;
 /**
  * Created by aragats on 05/12/15.
  */
-// !!! TODO important
-// TODO http://stackoverflow.com/questions/6343166/android-os-networkonmainthreadexception
-// Retrofit recommendations async.  http://stackoverflow.com/questions/29323095/retrofit-call-inside-asynctask
-    //TODO set time out  http://stackoverflow.com/questions/29380844/how-to-set-a-timeout-in-retrofit-library
 public class WGOClient {
 
     public String method() {

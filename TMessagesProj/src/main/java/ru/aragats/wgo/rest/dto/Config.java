@@ -1,4 +1,4 @@
-package org.telegram.messenger.dto;
+package ru.aragats.wgo.rest.dto;
 
 /**
  * Created by aragats on 29/12/14.

@@ -1,9 +1,8 @@
-package org.telegram.messenger.service.mock;
+package ru.aragats.wgo.rest.mock;
 
-import org.telegram.messenger.dto.Image;
-import org.telegram.messenger.dto.Venue;
-import org.telegram.messenger.dto.VenueResponse;
-import org.telegram.messenger.object.VenueObject;
+import ru.aragats.wgo.rest.dto.Image;
+import ru.aragats.wgo.rest.dto.Venue;
+import ru.aragats.wgo.rest.dto.VenueResponse;
 import org.telegram.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -56,20 +55,11 @@ public class VenueServiceMock {
     }
 
 
-    public static List<VenueObject> convertVenue(List<Venue> venues) {
-        List<VenueObject> result = new ArrayList<>();
-        for (Venue venue : venues) {
-            result.add(new VenueObject(venue));
-        }
-        return result;
-    }
-
-
     public static Venue generateVenue(int i) {
         Venue result = new Venue();
         result.setId("" + i);
         Image image = ImageServiceMock.getRandomImage();
-        result.setImage(image);
+        result.setIcon(image);
         result.setAddress(PostServiceMock.generateString("ab c de fg rty  ui o ph jk", 60));
         result.setName(PostServiceMock.generateString("ab c de fg rty  ui o ph jk", 60));
         result.setCoordinates(CoordinatesServiceMock.getRandomCoordinates());

@@ -1,4 +1,4 @@
-package org.telegram.messenger.dto;
+package ru.aragats.wgo.rest.dto;
 
 import android.graphics.Bitmap;
 
@@ -7,13 +7,14 @@ import android.graphics.Bitmap;
  */
 public class Image {
 
+    private String key;
     private String url;
     private int width;
     private int height;
     private long size;
-    //TODO enum
-    private String type;
-    // TODO TEMP. Use other Image class.
+    //TODO enum // contentType !!!
+    private String contentType;
+    // TODO TEMP. Use other Image class. make it Transient.
     private Bitmap bitmap;
 
     public String getUrl() {
@@ -48,12 +49,12 @@ public class Image {
         this.size = size;
     }
 
-    public String getType() {
-        return type;
+    public String getContentType() {
+        return contentType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     public Bitmap getBitmap() {

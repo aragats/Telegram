@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.RecyclerView;
-import org.telegram.messenger.dto.Post;
+import ru.aragats.wgo.rest.dto.Post;
 import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.LocationActivityAragats;

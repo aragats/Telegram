@@ -14,24 +14,16 @@ import android.location.Location;
 
 import org.telegram.android.location.LocationManagerHelper;
 
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.rest.dto.PostRequest;
-import ru.aragats.wgo.rest.manager.RestManager;
 
-import org.telegram.messenger.dto.Coordinates;
-import org.telegram.messenger.dto.Post;
-import org.telegram.messenger.dto.PostResponse;
-import org.telegram.messenger.dto.User;
-import org.telegram.messenger.dto.Venue;
-import org.telegram.messenger.service.mock.PostServiceMock;
-import org.telegram.messenger.service.mock.UserServiceMock;
-import org.telegram.utils.StringUtils;
+import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.rest.dto.PostResponse;
+import ru.aragats.wgo.rest.dto.User;
+import ru.aragats.wgo.rest.dto.Venue;
+import ru.aragats.wgo.rest.mock.PostServiceMock;
+import ru.aragats.wgo.rest.mock.UserServiceMock;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 

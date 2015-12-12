@@ -7,7 +7,6 @@ import ru.aragats.wgo.rest.client.WGOClient;
 /**
  * Created by aragats on 05/12/15.
  */
-//TODO Important http://stackoverflow.com/questions/6343166/android-os-networkonmainthreadexception
 public class RestTask extends AsyncTask<String, Void, String> {
 
     private Exception exception;

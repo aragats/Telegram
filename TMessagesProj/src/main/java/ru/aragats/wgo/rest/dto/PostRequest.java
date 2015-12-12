@@ -3,22 +3,36 @@ package ru.aragats.wgo.rest.dto;
 /**
  * Created by aragats on 05/12/15.
  */
-public class PostRequest {
+public class PostRequest extends Request {
 
-    private String filePath;
+    private double lng;
+    private double lat;
+    private int distance;
 
-    public PostRequest() {
+    public double getLng() {
+        return lng;
     }
 
-    public PostRequest(String filePath) {
-        this.filePath = filePath;
+    public void setLng(double lng) {
+        this.lng = lng;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public double getLat() {
+        return lat;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
     }
 }
+
+
+

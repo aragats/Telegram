@@ -1,8 +1,8 @@
-package org.telegram.messenger.service.mock;
+package ru.aragats.wgo.rest.mock;
 
-import org.telegram.messenger.dto.Image;
-import org.telegram.messenger.dto.Post;
-import org.telegram.messenger.dto.PostResponse;
+import ru.aragats.wgo.rest.dto.Image;
+import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.rest.dto.PostResponse;
 import org.telegram.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class PostServiceMock {
     private static List<Post> searchPosts(String query) {
         List<Post> result = new ArrayList<>();
         for (Post post : posts) {
-            if (post.getMessage().contains(query)) {
+            if (post.getText().contains(query)) {
                 result.add(post);
             }
         }
@@ -70,10 +70,12 @@ public class PostServiceMock {
         Post post = new Post();
         post.setId("" + i);
         post.setCreatedDate(new Date().getTime());
-        post.setMessage(generateString("ab c de fg rty  ui o ph jk", 150));
+        post.setText(generateString("ab c de fg rty  ui o ph jk", 150));
         Image image = ImageServiceMock.getRandomImage();
-        post.setPreviewImage(image);
-        post.setImage(image);
+        List<Image> images = new ArrayList<>();
+        images.add(image); // preview
+        images.add(image); // original
+        post.setImages(images);
         post.setVenue(VenueServiceMock.getRandomVenue());
         return post;
     }

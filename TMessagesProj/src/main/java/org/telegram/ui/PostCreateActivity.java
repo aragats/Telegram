@@ -50,11 +50,13 @@ import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
-import org.telegram.messenger.dto.Coordinates;
-import org.telegram.messenger.dto.Image;
-import org.telegram.messenger.dto.Post;
-import org.telegram.messenger.dto.Venue;
-import org.telegram.messenger.service.mock.PostServiceMock;
+
+import ru.aragats.wgo.rest.dto.Coordinates;
+import ru.aragats.wgo.rest.dto.Image;
+import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.rest.dto.Venue;
+import ru.aragats.wgo.rest.mock.PostServiceMock;
+
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -75,6 +77,7 @@ import org.telegram.utils.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
@@ -249,7 +252,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                         } else {
                             text = "";
                         }
-                        post.setMessage(text);
+                        post.setText(text);
                     }
 
                     //TODO many check text, venue, coordinates and so on.
@@ -767,8 +770,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            avatarImageView.setImage(newPhoto, "50_50", avatarDrawable);
 //            avatarImageView.setImage("/storage/emulated/0/Telegram/WGO Images/730111210_6623.jpg", "50_50", avatarDrawable);
             //TODO probably save venue. into field in Activity.
-            if (venue != null && venue.getImage() != null && !StringUtils.isEmpty(venue.getImage().getUrl())) {
-                avatarImageView.setImage(venue.getImage().getUrl(), "50_50", avatarDrawable);
+            if (venue != null && venue.getIcon() != null && !StringUtils.isEmpty(venue.getIcon().getUrl())) {
+                avatarImageView.setImage(venue.getIcon().getUrl(), "50_50", avatarDrawable);
             } else {
                 avatarImageView.setImageResource(R.drawable.pin);
 //                    avatarImageView.setImage(PostsController.getInstance().getCurrentVenue().getVenuePreviewImageUrl(), "50_50", avatarDrawable);
@@ -1389,7 +1392,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     venue.setFoursquareId(location.venue_id);
                     Image image = new Image();
                     image.setUrl(location.iconUrl);
-                    venue.setImage(image);
+                    venue.setIcon(image);
                     venue.setName(location.title);
                     venue.setAddress(location.address);
                     if (StringUtils.isEmpty(venue.getAddress())) {
@@ -1456,8 +1459,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             image.setHeight(height);
             image.setBitmap(bitmap);
 //            image = ImageServiceMock.getRandomImage();
-            post.setImage(image);
-            post.setPreviewImage(image);
+            List<Image> images = new ArrayList<>();
+            images.add(image); // preview
+            images.add(image); // original
+            post.setImages(images);
 //            post.setVenue(VenueServiceMock.getRandomVenue());
             //TODO-temp
 //            PostCreateActivity.this.post = new PostObject(post);

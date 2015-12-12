@@ -19,7 +19,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -52,19 +51,11 @@ import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
 
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
-import ru.aragats.wgo.rest.client.WGOClient;
-import ru.aragats.wgo.rest.dto.PostRequest;
-import ru.aragats.wgo.rest.dto.PostResponse;
-import ru.aragats.wgo.rest.manager.RestManager;
-import ru.aragats.wgo.rest.task.RestTask;
 
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.dto.Post;
+import ru.aragats.wgo.rest.dto.Post;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;

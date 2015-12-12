@@ -1,4 +1,4 @@
-package org.telegram.messenger.dto;
+package ru.aragats.wgo.rest.dto;
 
 /**
  * Created by aragats on 09/05/15.
@@ -10,9 +10,10 @@ public class Venue {
     //Text representation of address
     private String address;
     private Coordinates coordinates;
-    // distance in meters;
+    private Image icon;
+
+    // distance in meters; Transient.
     private int distance;
-    private Image image;
 
     public String getId() {
         return id;
@@ -62,11 +63,11 @@ public class Venue {
         this.distance = distance;
     }
 
-    public Image getImage() {
-        return image;
+    public Image getIcon() {
+        return icon;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
+    public void setIcon(Image icon) {
+        this.icon = icon;
     }
 }

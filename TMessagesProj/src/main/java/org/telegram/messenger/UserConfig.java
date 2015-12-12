@@ -13,8 +13,8 @@ import android.content.SharedPreferences;
 import android.util.Base64;
 
 import org.telegram.android.PostsStorage;
-import org.telegram.messenger.dto.User;
-import org.telegram.messenger.service.mock.UserServiceMock;
+import ru.aragats.wgo.rest.dto.User;
+import ru.aragats.wgo.rest.mock.UserServiceMock;
 
 import java.io.File;
 

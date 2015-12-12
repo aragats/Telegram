@@ -31,9 +31,9 @@ import org.telegram.android.LocaleController;
 import org.telegram.android.PostsController;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.dto.Coordinates;
-import org.telegram.messenger.dto.Image;
-import org.telegram.messenger.dto.Post;
+import ru.aragats.wgo.rest.dto.Coordinates;
+import ru.aragats.wgo.rest.dto.Image;
+import ru.aragats.wgo.rest.dto.Post;
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.URLSpanNoUnderline;
@@ -263,7 +263,7 @@ public class PostCell extends BaseCell {
             textHeight = this.textLayoutBlock.textLayout.getHeight();
         }
         int marginHeight = AndroidUtilities.dp(82);
-        if (StringUtils.isEmpty(post.getMessage())) {
+        if (StringUtils.isEmpty(post.getText())) {
             textHeight = 0;
             marginHeight = 0;
         }
@@ -825,7 +825,7 @@ public class PostCell extends BaseCell {
 
         // TEXT
 
-        if (!StringUtils.isEmpty(post.getMessage())) {
+        if (!StringUtils.isEmpty(post.getText())) {
             canvas.save();
             canvas.translate(textLeft, textTop);
             try {
@@ -845,16 +845,16 @@ public class PostCell extends BaseCell {
         if (post == null) {
             return;
         }
-        if (post.getMessage() == null) {
-            post.setMessage("");
+        if (post.getText() == null) {
+            post.setText("");
         }
 
-        CharSequence messageText = post.getMessage();
+        CharSequence messageText = post.getText();
 
         messageText = Emoji.replaceEmoji(messageText, textPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
 
-        if (messageText instanceof Spannable && containsUrls(post.getMessage())) {
-            if (post.getMessage().length() < 100) {
+        if (messageText instanceof Spannable && containsUrls(post.getText())) {
+            if (post.getText().length() < 100) {
                 Linkify.addLinks((Spannable) messageText, Linkify.WEB_URLS | Linkify.PHONE_NUMBERS);
             } else {
                 Linkify.addLinks((Spannable) messageText, Linkify.WEB_URLS);
@@ -1068,7 +1068,7 @@ public class PostCell extends BaseCell {
 // Backup press URL method.
 //    public boolean onTouchEventMessage(MotionEvent event) {
 //        boolean result = false;
-//        if (textLayoutBlock != null && post.getMessage() != null && !isPressed && textLayoutBlock.textLayout != null) {
+//        if (textLayoutBlock != null && post.getText() != null && !isPressed && textLayoutBlock.textLayout != null) {
 //
 ////            CharSequence messageText = textLayoutBlock.messageText;
 //            CharSequence messageText = textLayoutBlock.textLayout.getText();

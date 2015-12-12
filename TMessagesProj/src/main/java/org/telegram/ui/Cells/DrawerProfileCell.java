@@ -19,12 +19,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.android.AndroidUtilities;
-import org.telegram.android.ContactsController;
 import org.telegram.android.LocaleController;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.dto.User;
+import ru.aragats.wgo.rest.dto.User;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
