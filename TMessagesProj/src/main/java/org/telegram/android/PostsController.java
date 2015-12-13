@@ -197,7 +197,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         loadingPosts = true;
         Location location = LocationManagerHelper.getInstance().getLastLocation();
         if (location == null) {
-            loadingPosts = false;
+            loadingPosts = false; // TODO
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             return;
         }
@@ -253,10 +253,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         }
         loadingPosts = false;
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
-        if (!postResponse.getPosts().isEmpty()) {
+        if (!postResponse.getPosts().isEmpty() || reload) {
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
         } else {
-//            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);  //TODO hide progress view
+//            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);  //TODO hide progress view does not work !!!
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished);
         }
 

@@ -58,6 +58,8 @@ public class RestManager {
     }
 
     private Call<List<Image>> uploadImage(FileUploadRequest request) {
+        // TODO Validate parameters. After saving could be that parameters will be cleaned.
+        // TODO  java.lang.NullPointerException: Attempt to invoke virtual method 'char[] java.lang.String.toCharArray()' on a null object reference
         File file = new File(request.getFilePath());
         RequestBody fileBody = RequestBody.create(MediaType.parse(request.getContentType()), file);
 //        MultipartBuilder multipartBuilder = new MultipartBuilder("95416089-b2fd-4eab-9a14-166bb9c5788b");
