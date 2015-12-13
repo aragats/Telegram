@@ -1396,27 +1396,28 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
                 coordinates.setType("Point");
                 PostCreateActivity.this.userCoordinates = coordinates;
+                Venue venue = new Venue();
                 if (location.geoPlace != null) {
-                    Venue venue = new Venue();
-                    if (location.geoPlace != null) {
-                        Coordinates placeCoordinates = new Coordinates();
-                        placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
-                        placeCoordinates.setType("Point");
-                        venue.setCoordinates(placeCoordinates);
-                    } else {
-                        venue.setCoordinates(coordinates);
-                    }
-                    venue.setFoursquareId(location.venue_id);
+                    Coordinates placeCoordinates = new Coordinates();
+                    placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
+                    placeCoordinates.setType("Point");
+                    venue.setCoordinates(placeCoordinates);
+                } else {
+                    venue.setCoordinates(coordinates);
+                }
+                venue.setFoursquareId(location.venue_id);
+                if (!StringUtils.isEmpty(location.iconUrl)) {
                     Image image = new Image();
                     image.setUrl(location.iconUrl);
                     venue.setIcon(image);
-                    venue.setName(location.title);
-                    venue.setAddress(location.address);
-                    if (StringUtils.isEmpty(venue.getAddress())) {
-                        venue.setAddress(location.geo._long + ", " + location.geo.lat);
-                    }
-                    PostCreateActivity.this.venue = venue;
                 }
+                venue.setName(location.title);
+                venue.setAddress(location.address);
+                if (StringUtils.isEmpty(venue.getAddress())) {
+                    venue.setAddress(location.geo._long + ", " + location.geo.lat); // TODO better to find concrete address. Google service.
+                }
+                PostCreateActivity.this.venue = venue;
+
 //                location.iconUrl;
 //                Toast.makeText(getParentActivity(), location.venue_id + " " + location.geo.lat + " " + location.geo._long, Toast.LENGTH_LONG).show();
 //                            SendMessagesHelper.getInstance().sendMessage(location, dialog_id, replyingMessageObject);
