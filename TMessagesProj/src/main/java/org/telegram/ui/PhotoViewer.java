@@ -53,6 +53,7 @@ import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
 import org.telegram.android.NotificationCenter;
+
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
 
@@ -61,7 +62,9 @@ import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.Utilities;
+
 import ru.aragats.wgo.rest.dto.Post;
+
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -1659,8 +1662,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
             currentPost = imagesPostArr.get(currentIndex);
 
-            //TODO name of venue (user) !!!
-            nameTextView.setText(currentPost.getVenue().getName());
+            //TODO name of venue (user) !!! TODO getName() Null
+//            nameTextView.setText(currentPost.getVenue().getName());
+            nameTextView.setText(currentPost.getVenue() != null ? currentPost.getVenue().getName() : "");
             long date = currentPost.getCreatedDate();
             String dateString = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, LocaleController.formatterYear.format(new Date(date)), LocaleController.formatterDay.format(new Date(date)));
             dateTextView.setText(dateString);

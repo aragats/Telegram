@@ -1418,26 +1418,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 venue.setName(location.title);
                 venue.setAddress(location.address);
                 if (StringUtils.isEmpty(venue.getAddress())) {
-                    venue.setAddress(location.geo._long + ", " + location.geo.lat); // TODO better to find concrete address. Google service.
-// TODO temp
-                    Geocoder geocoder;
-                    List<Address> addresses;
-                    geocoder = new Geocoder(getParentActivity(), Locale.getDefault()); //TODO de ?? should be english ? or ?? in real time. Save in ENG, but display in locale in real-time
-
-                    try {
-                        addresses = geocoder.getFromLocation(location.geo.lat, location.geo._long, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-                        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                        String city = addresses.get(0).getLocality();
-                        String state = addresses.get(0).getAdminArea();
-                        String country = addresses.get(0).getCountryName();
-                        String postalCode = addresses.get(0).getPostalCode();
-                        String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-                        venue.setAddress(address);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-///
+                    String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(), location.geo._long, location.geo.lat);
+                    venue.setAddress(address);
                 }
                 PostCreateActivity.this.venue = venue;
 
