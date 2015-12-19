@@ -8,6 +8,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import org.telegram.utils.StringUtils;
+
 import ru.aragats.wgo.ApplicationLoader;
 
 import java.io.IOException;
@@ -43,6 +45,7 @@ public class LocationManagerHelper {
 
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
+                //TODO is often ??
                 // Called when a new location is found by the network location provider.
 //                makeUseOfNewLocation(location);
                 Location loc = getLastLocation();
@@ -98,25 +101,29 @@ public class LocationManagerHelper {
     }
 
 
-    public String getAddress(Context context, double longitude, double latitude) {
+    public String getAddress(Context context, double longitude, double latitude, String defaultVal) {
         Geocoder geocoder;
         List<Address> addresses;
+        String address;
 //        geocoder = new Geocoder(context, Locale.getDefault()); //TODO de ?? should be english ? or ?? in real time. Save in ENG, but display in locale in real-time
         geocoder = new Geocoder(context, Locale.ENGLISH); //TODO de ?? should be english ? or ?? in real time. Save in ENG, but display in locale in real-time
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String country = addresses.get(0).getCountryName();
-            String postalCode = addresses.get(0).getPostalCode();
-            String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-            return address;
+            address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            if (StringUtils.isEmpty(address)) {
+                address = defaultVal;
+            }
+//            String city = addresses.get(0).getLocality();
+//            String state = addresses.get(0).getAdminArea();
+//            String country = addresses.get(0).getCountryName();
+//            String postalCode = addresses.get(0).getPostalCode();
+//            String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
         } catch (IOException e) {
 //            e.printStackTrace();
             //TODO logger
-            return "";
+            address = defaultVal;
         }
+        return address;
     }
 
     public String getAddress(Geocoder geocoder, double longitude, double latitude) {

@@ -761,7 +761,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (venue != null && !StringUtils.isEmpty(venue.getAddress())) {
             addressString = venue.getAddress();
         } else if (userCoordinates != null) {
-            addressString = userCoordinates.getCoordinates().get(0) + ", " + userCoordinates.getCoordinates().get(1);
+            addressString = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
+                    userCoordinates.getCoordinates().get(0),
+                    userCoordinates.getCoordinates().get(1),
+                    userCoordinates.getCoordinates().get(0) + ", " + userCoordinates.getCoordinates().get(1));
         }
 //        addressString = TextUtils.replace(addressString, new String[]{"..."}, new String[]{""});
         addressTextView.setText(addressString);
@@ -1418,7 +1421,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 venue.setName(location.title);
                 venue.setAddress(location.address);
                 if (StringUtils.isEmpty(venue.getAddress())) {
-                    String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(), location.geo._long, location.geo.lat);
+                    String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
+                            location.geo._long, location.geo.lat, location.geo._long + ", " + location.geo.lat);
                     venue.setAddress(address);
                 }
                 PostCreateActivity.this.venue = venue;
