@@ -31,9 +31,11 @@ import org.telegram.android.LocaleController;
 import org.telegram.android.PostsController;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
+
 import ru.aragats.wgo.rest.dto.Coordinates;
 import ru.aragats.wgo.rest.dto.Image;
 import ru.aragats.wgo.rest.dto.Post;
+
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.URLSpanNoUnderline;
@@ -265,7 +267,7 @@ public class PostCell extends BaseCell {
         int marginHeight = AndroidUtilities.dp(82);
         if (StringUtils.isEmpty(post.getText())) {
             textHeight = 0;
-            marginHeight = 0;
+            marginHeight = AndroidUtilities.dp(72);
         }
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + marginHeight + textHeight + (useSeparator ? 1 : 0));
 
