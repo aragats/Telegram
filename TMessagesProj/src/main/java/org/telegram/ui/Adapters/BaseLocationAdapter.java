@@ -19,10 +19,13 @@ import org.telegram.android.volley.Response;
 import org.telegram.android.volley.VolleyError;
 import org.telegram.android.volley.toolbox.JsonObjectRequest;
 import org.telegram.android.volley.toolbox.Volley;
+
 import ru.aragats.wgo.ApplicationLoader;
+
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
+import org.telegram.utils.Constants;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -104,7 +107,8 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
         }
         try {
             searching = true;
-            String url = String.format(Locale.US, "https://api.foursquare.com/v2/venues/search/?v=%s&locale=en&limit=25&client_id=%s&client_secret=%s&ll=%s", BuildVars.FOURSQUARE_API_VERSION, BuildVars.FOURSQUARE_API_ID, BuildVars.FOURSQUARE_API_KEY,  String.format(Locale.US, "%f,%f", coordinate.getLatitude(), coordinate.getLongitude()));
+            String url = String.format(Locale.US, "https://api.foursquare.com/v2/venues/search/?v=%s&locale=en&limit=25&client_id=%s&client_secret=%s&ll=%s&radius=%s",
+                    BuildVars.FOURSQUARE_API_VERSION, BuildVars.FOURSQUARE_API_ID, BuildVars.FOURSQUARE_API_KEY, String.format(Locale.US, "%f,%f", coordinate.getLatitude(), coordinate.getLongitude()), Constants.RADIUS);
             if (query != null && query.length() > 0) {
                 url += "&query=" + URLEncoder.encode(query, "UTF-8");
             }
@@ -219,5 +223,5 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
             }
         }
         notifyDataSetChanged();
-        }
+    }
 }

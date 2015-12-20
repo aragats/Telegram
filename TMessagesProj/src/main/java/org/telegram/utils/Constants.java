@@ -17,6 +17,11 @@ public class Constants {
     public static final String PREF_NEW_POST_PHOTO = "NEW_POST_PHOTO";
 
 
-
     public static int POST_COUNT = 20;
+
+    public static final int RADIUS = 2000; // meters
+
+
+    public static final String RESTRICTED_AREA = "restricted_area";
+    public static final String RADIUS_ARG = "radius";
 }

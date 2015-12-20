@@ -13,10 +13,12 @@ import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Outline;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -40,6 +42,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -50,8 +53,10 @@ import org.telegram.android.NotificationCenter;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
+
 import ru.aragats.wgo.rest.dto.Post;
 import ru.aragats.wgo.rest.dto.Venue;
+
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -63,6 +68,7 @@ import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.MapPlaceholderDrawable;
+import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -117,6 +123,10 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
     public interface LocationActivityDelegate {
         void didSelectLocation(TLRPC.MessageMedia location);
+    }
+
+    public LocationActivityAragats(Bundle args) {
+        super(args);
     }
 
     @Override
@@ -630,6 +640,48 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             if (myLocation == null) {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             }
+
+
+            //TODO in case of myLocation is null. it does not work !!!! Consider it !!!!
+            // Circle area restriction.
+            boolean restrictedArea = getArguments().getBoolean("restricted_area", false);
+            final int radius = getArguments().getInt("radius", Constants.RADIUS);
+            if (restrictedArea) {
+                googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                    @Override
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        if (userLocation != null && myLocation != null) {
+                            if (myLocation.distanceTo(userLocation) > radius) {
+                                CameraUpdate position = CameraUpdateFactory.newLatLng(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
+                                googleMap.animateCamera(position);
+                            }
+                        }
+                    }
+                });
+
+                if (myLocation != null) {
+//                googleMap.addCircle(new CircleOptions()
+//                        .center(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
+//                        .radius(Constants.RADIUS)
+//                        .strokeColor(Color.BLUE)
+//                        .fillColor(Color.TRANSPARENT)
+//                        .strokeWidth(2));
+
+                    CircleOptions circleOptions = new CircleOptions()
+                            .center(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
+                            .radius(Constants.RADIUS)
+                            .strokeWidth(1)
+                            .strokeColor(Color.BLUE)
+                            .fillColor(Color.parseColor("#300084d3")); //#500084d3  #506bc8ff - blue  #501cff5c - green
+//                        .fillColor(Color.parseColor("#506bc8ff"));// blue original //#500084d3  #506bc8ff - blue  #501cff5c - green
+//                        .fillColor(Color.parseColor("#501cff5c")); //#500084d3  #506bc8ff  #501cff5c - green
+                    ////#500084d3 - original;  #500084d3 - original with other transparency;   #506bc8ff - blue (my);  #501cff5c - green (my)
+                    // Supported formats are: #RRGGBB #AARRGGBB
+                    //   #AA is the alpha, or amount of transparency
+                    googleMap.addCircle(circleOptions);
+                }
+            }
+
         }
 
         return fragmentView;

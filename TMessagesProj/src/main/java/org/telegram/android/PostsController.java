@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 
 import org.telegram.android.location.LocationManagerHelper;
+import org.telegram.utils.Constants;
 
 import retrofit.Callback;
 import retrofit.Response;
@@ -206,7 +207,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         postRequest.setLongitude(location.getLongitude());
         postRequest.setCount(count);
         postRequest.setOffset(offset);
-        postRequest.setDistance(1000); // 1000 meters. ??
+        postRequest.setDistance(Constants.RADIUS);
         RestManager.getInstance().findNearPosts(postRequest, new Callback<PostResponse>() {
             @Override
             public void onResponse(Response<PostResponse> response, Retrofit retrofit) {

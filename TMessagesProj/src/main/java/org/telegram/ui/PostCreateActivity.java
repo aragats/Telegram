@@ -735,7 +735,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         String name;
         if (venue != null && !StringUtils.isEmpty(venue.getName())) {
             name = venue.getName();
-        } else if (userCoordinates != null) {
+        } else if (userCoordinates != null) { //TODO Current Location is better to rename to Location. ??? May be is better to delete Place(Ort)
             name = LocaleController.getString("CurrentLocation", R.string.CurrentLocation);
         } else {
             name = LocaleController.getString("Place", R.string.Place);
@@ -1395,7 +1395,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (!isGoogleMapsInstalled()) {
             return;
         }
-        LocationActivityAragats fragment = new LocationActivityAragats();
+        Bundle args = new Bundle();
+        args.putBoolean(Constants.RESTRICTED_AREA, true);
+        args.putInt(Constants.RADIUS_ARG, Constants.RADIUS);
+        LocationActivityAragats fragment = new LocationActivityAragats(args);
         fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override
             public void didSelectLocation(TLRPC.MessageMedia location) {

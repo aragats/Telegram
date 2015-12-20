@@ -10,6 +10,7 @@ package org.telegram.ui.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -22,6 +23,7 @@ import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.LocationActivityAragats;
 import org.telegram.ui.PhotoViewer;
 import org.telegram.ui.PostsActivity;
+import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 // TODO-aragats
@@ -119,7 +121,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
                 @Override
                 public void didClickedVenue(PostCell cell) {
                     Post cellPost = cell.getPost();
-                    LocationActivityAragats fragment = new LocationActivityAragats();
+                    LocationActivityAragats fragment = new LocationActivityAragats(new Bundle());
                     fragment.setPost(cellPost);
                     postsActivity.presentFragment(fragment);
                 }
