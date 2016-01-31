@@ -123,7 +123,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         RestManager.getInstance().uploadImage(new FileUploadRequest(post.getImage().getUrl(), post.getImage().getType()), new Callback<List<Image>>() {
             @Override
             public void onResponse(Response<List<Image>> response, Retrofit retrofit) {
-                post.setImages(response.body());
+                post.setImages(response.body()); // TODO chek whether images are not empty
                 savePost(post);
             }
 

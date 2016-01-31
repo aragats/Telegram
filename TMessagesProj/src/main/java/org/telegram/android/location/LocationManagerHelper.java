@@ -11,6 +11,7 @@ import android.os.Bundle;
 import org.telegram.utils.StringUtils;
 
 import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.rest.dto.Coordinates;
 
 import java.io.IOException;
 import java.util.List;
@@ -109,6 +110,31 @@ public class LocationManagerHelper {
         geocoder = new Geocoder(context, Locale.ENGLISH); //TODO de ?? should be english ? or ?? in real time. Save in ENG, but display in locale in real-time
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+            address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            if (StringUtils.isEmpty(address)) {
+                address = defaultVal;
+            }
+//            String city = addresses.get(0).getLocality();
+//            String state = addresses.get(0).getAdminArea();
+//            String country = addresses.get(0).getCountryName();
+//            String postalCode = addresses.get(0).getPostalCode();
+//            String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
+        } catch (IOException e) {
+//            e.printStackTrace();
+            //TODO logger
+            address = defaultVal;
+        }
+        return address;
+    }
+
+    public String getAddress(Context context, List<Double> coordinates, String defaultVal) {
+        Geocoder geocoder;
+        List<Address> addresses;
+        String address;
+//        geocoder = new Geocoder(context, Locale.getDefault()); //TODO de ?? should be english ? or ?? in real time. Save in ENG, but display in locale in real-time
+        geocoder = new Geocoder(context, Locale.ENGLISH); //TODO de ?? should be english ? or ?? in real time. Save in ENG, but display in locale in real-time
+        try {
+            addresses = geocoder.getFromLocation(coordinates.get(1), coordinates.get(0), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
             address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
             if (StringUtils.isEmpty(address)) {
                 address = defaultVal;

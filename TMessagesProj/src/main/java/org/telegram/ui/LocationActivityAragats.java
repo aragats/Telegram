@@ -54,6 +54,7 @@ import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 
+import ru.aragats.wgo.rest.dto.Coordinates;
 import ru.aragats.wgo.rest.dto.Post;
 import ru.aragats.wgo.rest.dto.Venue;
 
@@ -68,6 +69,7 @@ import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.MapPlaceholderDrawable;
+import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
@@ -209,6 +211,10 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 }
             } else {
                 actionBar.setTitle(LocaleController.getString("ChatLocation", R.string.ChatLocation));
+                if (venue != null && venue.getCoordinates() != null && !CollectionUtils.isEmpty(venue.getCoordinates().getCoordinates(), 2)) {
+                    List<Double> coordinates = venue.getCoordinates().getCoordinates();
+                    actionBar.setSubtitle(String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0)));
+                }
             }
             menu.addItem(share, R.drawable.share);
         } else {

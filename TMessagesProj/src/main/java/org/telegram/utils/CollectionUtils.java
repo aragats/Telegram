@@ -12,6 +12,12 @@ public class CollectionUtils {
             return true;
         }
         return false;
+    }
 
+    public static boolean isEmpty(List list, int size) {
+        if (list == null || list.size() != size) {
+            return true;
+        }
+        return false;
     }
 }

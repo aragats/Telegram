@@ -240,9 +240,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     }
                     finishFragment();
                 } else if (id == done_button) {
-                    Toast.makeText(((Context) getParentActivity()), "DONE BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getParentActivity(), "DONE BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
                     Post post = null;
-                    if (!CollectionUtils.isEmpty(posts) && posts.get(0) != null && (venue != null || userCoordinates != null)) {
+                    if (!CollectionUtils.isEmpty(posts) && posts.get(0) != null
+                            && venue != null && venue.getCoordinates() != null
+                            && userCoordinates != null) {
                         post = posts.get(0);
                         post.setVenue(venue);
 
@@ -264,12 +266,18 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
                     //TODO many check text, venue, coordinates and so on.
                     if (post != null && post.getPostCoordinates() != null) {
-                        final Post finalPost = post;
                         progressDialog.show();
+                        if (StringUtils.isEmpty(post.getVenue().getName())) {
+                            List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
+                            String defaultAddress = String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0)); // TODO the same value shoudld be int venue.getAddress();
+                            String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
+                                    coordinates, defaultAddress);
+                            post.getVenue().setAddress(address);
+                        }
 //                        AndroidUtilities.runOnUIThread(new Runnable() {
 //                            @Override
 //                            public void run() {
-                        PostsController.getInstance().addPost(finalPost);
+                        PostsController.getInstance().addPost(post);
 //                                progressDialog.dismiss();
 //                                if (postCreateActivityEnterView != null) {
 //                                    postCreateActivityEnterView.hideEmojiPopup();
@@ -758,13 +766,20 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         }
 //        CharSequence addressString = "printing";
         CharSequence addressString = LocaleController.getString("Address", R.string.Address);
-        if (venue != null && !StringUtils.isEmpty(venue.getAddress())) {
-            addressString = venue.getAddress();
+        if (venue != null) {
+            if (!StringUtils.isEmpty(venue.getAddress())) {
+                addressString = venue.getAddress();
+            } else if (venue.getCoordinates() != null && !CollectionUtils.isEmpty(venue.getCoordinates().getCoordinates(), 2)) {
+                List<Double> coordinates = venue.getCoordinates().getCoordinates();
+                addressString = String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0));
+            }
         } else if (userCoordinates != null) {
-            addressString = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
-                    userCoordinates.getCoordinates().get(0),
-                    userCoordinates.getCoordinates().get(1),
-                    userCoordinates.getCoordinates().get(0) + ", " + userCoordinates.getCoordinates().get(1));
+//            addressString = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
+//                    userCoordinates.getCoordinates().get(0),
+//                    userCoordinates.getCoordinates().get(1),
+//                    userCoordinates.getCoordinates().get(0) + ", " + userCoordinates.getCoordinates().get(1));
+            addressString = String.format(Locale.US, "(%f,%f)",
+                    userCoordinates.getCoordinates().get(1), userCoordinates.getCoordinates().get(0));
         }
 //        addressString = TextUtils.replace(addressString, new String[]{"..."}, new String[]{""});
         addressTextView.setText(addressString);
@@ -1423,11 +1438,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 }
                 venue.setName(location.title);
                 venue.setAddress(location.address);
-                if (StringUtils.isEmpty(venue.getAddress())) {
-                    String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
-                            location.geo._long, location.geo.lat, location.geo._long + ", " + location.geo.lat);
-                    venue.setAddress(address);
-                }
+//                if (StringUtils.isEmpty(venue.getAddress())) {
+////                    String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
+////                            location.geo._long, location.geo.lat, location.geo._long + ", " + location.geo.lat);
+//                    String address = String.format(Locale.US, "(%f,%f)", location.geo.lat, location.geo._long);
+//                    venue.setAddress(address);
+//                }
                 PostCreateActivity.this.venue = venue;
 
 //                location.iconUrl;

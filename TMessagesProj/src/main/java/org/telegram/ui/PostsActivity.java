@@ -577,7 +577,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 //TODO fix it.
                 if (visibleItemCount > 0) {
                     if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().posts.size() - 1) {
-                        String offset = PostsController.getInstance().posts.get(PostsController.getInstance().posts.size() - 1).getId();
+                        String offset = PostsController.getInstance().posts.get(PostsController.getInstance().posts.size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
                         PostsController.getInstance().loadPosts(offset, Constants.POST_COUNT, false, true);
                     }
                 }

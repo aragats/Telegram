@@ -9,6 +9,7 @@ import ru.aragats.wgo.rest.service.RestService;
  */
 public class RestClient {
     private static final String BASE_URL = "http://192.168.0.101:8080/";
+//    private static final String BASE_URL = "http://aragatss-macbook-pro.local:8080/";
     private RestService restService;
 
 
