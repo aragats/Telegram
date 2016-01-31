@@ -650,7 +650,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     closePhoto(true, false);
                 } else if (id == gallery_menu_save) {
                     File f = null;
-                    //TODO-aragats new. It is important do not save again from the internet but use saved in cache.
+                    //TODO-aragats new. It is important do not save again from the internet but use saved in cache. // TOOD why jpg???
                     if (currentPost != null) {
                         currentFileNames[0] = Utilities.MD5(currentPost.getImage().getUrl()) + ".jpg";
                         f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);

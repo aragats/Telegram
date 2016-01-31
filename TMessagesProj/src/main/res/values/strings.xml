@@ -22,7 +22,6 @@
     <!--chat view-->
     <string name="ChatTakePhoto">Take photo</string>
     <string name="ChatGallery">Gallery</string>
-    <string name="ChatLocation">Location</string>
     <string name="NoMessages">No messages here yet...</string>
     <string name="From">From</string>
     <string name="NoRecent">No recent</string>
@@ -52,7 +51,7 @@
     <string name="KMetersAway">km away</string>
     <string name="SendLocation">Send your current location</string>
     <string name="SendSelectedLocation">Send selected location</string>
-    <string name="ShareLocation">Location</string>
+    <string name="Location">Location</string>
     <string name="AccurateTo">Accurate to %1$s</string>
     <string name="NearbyPlaces">OR CHOOSE A PLACE</string>
     <!--photo gallery view-->

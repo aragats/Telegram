@@ -54,7 +54,6 @@ import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 
-import ru.aragats.wgo.rest.dto.Coordinates;
 import ru.aragats.wgo.rest.dto.Post;
 import ru.aragats.wgo.rest.dto.Venue;
 
@@ -210,7 +209,12 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     actionBar.setSubtitle(venue.getAddress());
                 }
             } else {
-                actionBar.setTitle(LocaleController.getString("ChatLocation", R.string.ChatLocation));
+//                actionBar.setTitle(LocaleController.getString("ChatLocation", R.string.ChatLocation));
+                if (post.getVenue() != null && !StringUtils.isEmpty(post.getVenue().getAddress())) {
+                    actionBar.setTitle(post.getVenue().getAddress()); // TODO TextUtils.ellipsize END  ...  and replace tags and emoji and so on
+                } else {
+                    actionBar.setTitle(LocaleController.getString("ChatLocation", R.string.Location));
+                }
                 if (venue != null && venue.getCoordinates() != null && !CollectionUtils.isEmpty(venue.getCoordinates().getCoordinates(), 2)) {
                     List<Double> coordinates = venue.getCoordinates().getCoordinates();
                     actionBar.setSubtitle(String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0)));
@@ -218,7 +222,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             }
             menu.addItem(share, R.drawable.share);
         } else {
-            actionBar.setTitle(LocaleController.getString("ShareLocation", R.string.ShareLocation));
+            actionBar.setTitle(LocaleController.getString("ShareLocation", R.string.Location));
 
             ActionBarMenuItem item = menu.addItem(0, R.drawable.ic_ab_search).setIsSearchField(true).setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
                 @Override

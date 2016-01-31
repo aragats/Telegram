@@ -373,12 +373,17 @@ public class PostCell extends BaseCell {
         TextPaint currentAddressPaint = addressPaint;
         boolean checkMessage = true;
 
+        String address = "";
+
         if (!LocaleController.isRTL) {
             nameLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
         } else {
             nameLeft = AndroidUtilities.dp(14);
         }
 
+        //TODO could be NPE postCoordinates !!!
+
+        //TODO change checking FIX it. I need validate post and then do what I need. MAny possibilities for NPE.
         if (post == null) {
             lastPrintString = addressString;
             currentAddressPaint = messagePrintingPaint;
@@ -397,7 +402,6 @@ public class PostCell extends BaseCell {
             lastPrintString = null;
 
             //TODO could be NPE postCoordinates !!!
-            String address = "";
             address = post.getVenue() != null ? post.getVenue().getAddress() :
                     String.format(Locale.US, "(%f,%f)",
                             post.getPostCoordinates().getCoordinates().get(1),
@@ -432,9 +436,21 @@ public class PostCell extends BaseCell {
             }
             distanceStr = distanceStr.replace("\n", " ");
 
+            //addressString was address String and it was like address: distance
 //                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff4d83b3>%s</c>", address, post.messageText)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
             // address: distance
-            addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distanceStr)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+            //addressString was address String and it was like address: distance
+
+            nameString = post.getVenue() != null ? post.getVenue().getName() : "";
+
+            // if nameString is empty then we should not use address in the addressString, but only coordinates, because in this case address goes to name field.
+            if (StringUtils.isEmpty(nameString)) {
+                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff808080>%s</c>", distanceStr)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+            } else {
+                addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distanceStr)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+
+            }
+//            addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff808080>%s</c>", distanceStr)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
 
 
 //            if (unreadCount != 0) {
@@ -459,9 +475,9 @@ public class PostCell extends BaseCell {
 
         nameString = post.getVenue() != null ? post.getVenue().getName() : "";
         if (StringUtils.isEmpty(nameString)) {
+            nameString = address;
 //            nameString = LocaleController.getString("HiddenName", R.string.HiddenName);
-            nameString = LocaleController.getString("Place", R.string.Place);
-            ;
+//            nameString = LocaleController.getString("Place", R.string.Place);
         }
 
         int nameWidth;
@@ -474,8 +490,20 @@ public class PostCell extends BaseCell {
         }
 
 
+//        nameStringFinal = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", nameString, address)), distancePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+
         nameWidth = Math.max(AndroidUtilities.dp(12), nameWidth);
+//        CharSequence nameStringFinal = null;
+//        if (StringUtils.isEmpty(nameString)) {
+////            nameStringFinal = Emoji.replaceEmoji(AndroidUtilities.replaceTags(address), distancePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+//            nameStringFinal = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s</c>", address)), distancePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+//
+//        } else {
+//            nameStringFinal = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", nameString, address)), distancePaint.getFontMetricsInt(), AndroidUtilities.dp(20));
+//        }
+
         CharSequence nameStringFinal = TextUtils.ellipsize(nameString.replace("\n", " "), currentNamePaint, nameWidth - AndroidUtilities.dp(12), TextUtils.TruncateAt.END);
+
         try {
             nameLayout = new StaticLayout(nameStringFinal, currentNamePaint, nameWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
         } catch (Exception e) {
@@ -510,7 +538,7 @@ public class PostCell extends BaseCell {
             if (addressString == null) {
                 addressString = "";
             }
-            String address = addressString.toString();
+            address = addressString.toString();
             if (address.length() > 150) {
                 address = address.substring(0, 150);
             }

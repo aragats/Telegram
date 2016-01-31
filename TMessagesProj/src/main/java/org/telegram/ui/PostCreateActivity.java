@@ -163,6 +163,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         //TODO-temp
 //        PostsController.getInstance().loadCurrentVenue("location");
         userCoordinates = convertLocationToCoordinates(LocationManagerHelper.getInstance().getLastLocation());
+        if (userCoordinates != null && venue == null) {
+            venue = new Venue();
+            venue.setCoordinates(userCoordinates);
+        }
 
 //        if(0==0) {
 //            return true;
@@ -393,7 +397,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         menuItem = menu.addItem(chat_menu_attach, R.drawable.ic_ab_attach);
         menuItem.addSubItem(attach_photo, LocaleController.getString("ChatTakePhoto", R.string.ChatTakePhoto), R.drawable.ic_attach_photo);
         menuItem.addSubItem(attach_gallery, LocaleController.getString("ChatGallery", R.string.ChatGallery), R.drawable.ic_attach_gallery);
-        menuItem.addSubItem(attach_location, LocaleController.getString("ChatLocation", R.string.ChatLocation), R.drawable.ic_attach_location);
+        menuItem.addSubItem(attach_location, LocaleController.getString("ChatLocation", R.string.Location), R.drawable.ic_attach_location);
         menuItem.setShowFromBottom(true);
         menuItem.setBackgroundDrawable(null);
 
