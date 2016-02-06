@@ -408,6 +408,12 @@ public class PostCell extends BaseCell {
                             post.getPostCoordinates().getCoordinates().get(1),
                             post.getPostCoordinates().getCoordinates().get(0));
 
+            //TODO-refactoring low performance
+//            if (StringUtils.isEmpty(address)) {
+//                address = LocationManagerHelper.getInstance().getAddress(getContext(), post.getPostCoordinates().getCoordinates(), "");
+//                post.getVenue().setAddress(address);
+//            }
+
 
             checkMessage = false;
 
