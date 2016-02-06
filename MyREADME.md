@@ -86,3 +86,9 @@ TODO:
 
 TOP libraries for Android
 https://infinum.co/the-capsized-eight/articles/top-5-android-libraries-every-android-developer-should-know-about
+
+
+
+VK URL
+https://api.vk.com/method/photos.search?lat=52.400608&long=13.011822&count=100&radius=5000&v=5.44
+https://api.vk.com/method/newsfeed.search?lat=52.400608&lng=13.011822&count=100

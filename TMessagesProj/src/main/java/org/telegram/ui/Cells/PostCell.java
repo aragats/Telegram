@@ -32,9 +32,9 @@ import org.telegram.android.PostsController;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 
-import ru.aragats.wgo.rest.dto.Coordinates;
-import ru.aragats.wgo.rest.dto.Image;
-import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.dto.Coordinates;
+import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.Post;
 
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
@@ -396,6 +396,7 @@ public class PostCell extends BaseCell {
             if (lastMessageDate != 0) {
                 timeString = LocaleController.stringForMessageListDate(lastMessageDate);
             } else {
+//                timeString = LocaleController.formatString("formatDateAtTime", R.string.formatDateAtTime, LocaleController.formatterYear.format(new Date(post.getCreatedDate())), LocaleController.formatterDay.format(new Date(post.getCreatedDate())));
                 timeString = LocaleController.stringForMessageListDate(post.getCreatedDate() / 1000);
             }
 

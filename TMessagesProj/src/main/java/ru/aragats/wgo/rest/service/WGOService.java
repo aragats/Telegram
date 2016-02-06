@@ -1,11 +1,9 @@
 package ru.aragats.wgo.rest.service;
 
 import retrofit.Call;
-import retrofit.Callback;
-import retrofit.http.Body;
 import retrofit.http.GET;
-import ru.aragats.wgo.rest.dto.PostResponse;
-import ru.aragats.wgo.rest.dto.Request;
+import ru.aragats.wgo.dto.PostResponse;
+import ru.aragats.wgo.dto.Request;
 
 /**
  * Created by aragats on 05/12/15.

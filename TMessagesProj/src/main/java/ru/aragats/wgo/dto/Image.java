@@ -1,4 +1,4 @@
-package ru.aragats.wgo.rest.dto;
+package ru.aragats.wgo.dto;
 
 import android.graphics.Bitmap;
 

@@ -11,7 +11,7 @@ import android.os.Bundle;
 import org.telegram.utils.StringUtils;
 
 import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.rest.dto.Coordinates;
+import ru.aragats.wgo.dto.Coordinates;
 
 import java.io.IOException;
 import java.util.List;

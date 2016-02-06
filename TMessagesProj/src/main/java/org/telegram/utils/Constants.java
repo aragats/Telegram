@@ -19,7 +19,7 @@ public class Constants {
 
     public static int POST_COUNT = 20;
 
-    public static final int RADIUS = 2000; // meters
+    public static final int RADIUS = 800; // meters 8000 for VK
 
 
     public static final String RESTRICTED_AREA = "restricted_area";

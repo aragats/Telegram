@@ -1,6 +1,6 @@
 package ru.aragats.wgo.rest.mock;
 
-import ru.aragats.wgo.rest.dto.Image;
+import ru.aragats.wgo.dto.Image;
 
 import java.util.ArrayList;
 import java.util.List;

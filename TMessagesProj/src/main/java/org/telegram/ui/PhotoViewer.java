@@ -63,7 +63,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.Utilities;
 
-import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.dto.Post;
 
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;

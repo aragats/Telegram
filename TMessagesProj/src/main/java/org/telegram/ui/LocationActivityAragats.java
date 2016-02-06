@@ -54,8 +54,8 @@ import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 
-import ru.aragats.wgo.rest.dto.Post;
-import ru.aragats.wgo.rest.dto.Venue;
+import ru.aragats.wgo.dto.Post;
+import ru.aragats.wgo.dto.Venue;
 
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;

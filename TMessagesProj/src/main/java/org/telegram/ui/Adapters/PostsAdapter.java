@@ -17,13 +17,12 @@ import android.view.ViewGroup;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.RecyclerView;
-import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.dto.Post;
 import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.LocationActivityAragats;
 import org.telegram.ui.PhotoViewer;
 import org.telegram.ui.PostsActivity;
-import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 // TODO-aragats

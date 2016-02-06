@@ -7,8 +7,8 @@ import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
-import ru.aragats.wgo.rest.dto.PostResponse;
-import ru.aragats.wgo.rest.dto.Request;
+import ru.aragats.wgo.dto.PostResponse;
+import ru.aragats.wgo.dto.Request;
 import ru.aragats.wgo.rest.service.WGOService;
 
 /**

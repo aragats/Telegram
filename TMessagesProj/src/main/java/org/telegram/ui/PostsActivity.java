@@ -57,7 +57,7 @@ import ru.aragats.wgo.R;
 
 import org.telegram.messenger.FileLog;
 
-import ru.aragats.wgo.rest.dto.Post;
+import ru.aragats.wgo.dto.Post;
 
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
@@ -219,7 +219,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         LocationManagerHelper.getInstance().runLocationListener();
 
         if (!postsLoaded) {
-            PostsController.getInstance().loadPosts(null, Constants.POST_COUNT, true, true);
+            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, true);
             ContactsController.getInstance().checkInviteText();
             postsLoaded = true;
         }
@@ -366,7 +366,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             public void onRefresh() {
                 // TODO temp test
 //                new RestTask().execute("param");
-                PostsController.getInstance().loadPosts(null, Constants.POST_COUNT, true, true);
+                PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, true);
 
 //                RestManager.getInstance().uploadTest(new PostRequest(), new Callback<PostResponse>() {
 //                    @Override
@@ -578,7 +578,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 if (visibleItemCount > 0) {
                     if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().posts.size() - 1) {
                         String offset = PostsController.getInstance().posts.get(PostsController.getInstance().posts.size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
-                        PostsController.getInstance().loadPosts(offset, Constants.POST_COUNT, false, true);
+                        PostsController.getInstance().loadPosts(offset, PostsController.getInstance().posts.size(), Constants.POST_COUNT, false, true);
                     }
                 }
 
@@ -795,7 +795,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(true);
             }
-            PostsController.getInstance().loadPosts(null, Constants.POST_COUNT, true, true);
+            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, true);
         }
     }
 

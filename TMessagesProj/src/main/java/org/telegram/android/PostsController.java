@@ -15,25 +15,26 @@ import android.location.Location;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.utils.Constants;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
-
-import ru.aragats.wgo.rest.dto.FileUploadRequest;
-import ru.aragats.wgo.rest.dto.Image;
-import ru.aragats.wgo.rest.dto.Post;
-import ru.aragats.wgo.rest.dto.PostRequest;
-import ru.aragats.wgo.rest.dto.PostResponse;
-import ru.aragats.wgo.rest.dto.User;
-import ru.aragats.wgo.rest.dto.Venue;
+import ru.aragats.wgo.dto.FileUploadRequest;
+import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.Post;
+import ru.aragats.wgo.dto.PostRequest;
+import ru.aragats.wgo.dto.PostResponse;
+import ru.aragats.wgo.dto.User;
+import ru.aragats.wgo.dto.Venue;
 import ru.aragats.wgo.rest.manager.RestManager;
 import ru.aragats.wgo.rest.mock.PostServiceMock;
 import ru.aragats.wgo.rest.mock.UserServiceMock;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import ru.aragats.wgo.converter.vk.VKPhotoResponseToPostListConverter;
+import ru.aragats.wgo.dto.vk.VKPhotoResponse;
 
 //import org.telegram.messenger.TLRPC;
 
@@ -41,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //TODO Look at MessagesController methods. There are many good examples and best practice.
 public class PostsController implements NotificationCenter.NotificationCenterDelegate {
 
+    private VKPhotoResponseToPostListConverter vkPhotoResponseConverter = new VKPhotoResponseToPostListConverter();
     private Venue lastVenue;
 
     public List<Post> posts = new ArrayList<>();
@@ -154,9 +156,9 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public void addPostMock(Post post) {
 
         //TODO temp test
-//        RestManager.getInstance().uploadTest(new PostRequest(post.getImage().getUrl()), new Callback<ru.aragats.wgo.rest.dto.PostResponse>() {
+//        RestManager.getInstance().uploadTest(new PostRequest(post.getImage().getUrl()), new Callback<ru.aragats.wgo.dto.PostResponse>() {
 //            @Override
-//            public void onResponse(Response<ru.aragats.wgo.rest.dto.PostResponse> response, Retrofit retrofit) {
+//            public void onResponse(Response<ru.aragats.wgo.dto.PostResponse> response, Retrofit retrofit) {
 //                System.out.println(response);
 //            }
 //
@@ -191,7 +193,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void loadPosts(final String offset, final int count, final boolean reload, boolean fromCache) {
+    public void loadPosts(final String idOffset, final int offset, final int count, final boolean reload, boolean fromCache) {
         if (loadingPosts) {
             return;
         }
@@ -202,10 +204,11 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
             return;
         }
-        PostRequest postRequest = new PostRequest();
+        final PostRequest postRequest = new PostRequest();
         postRequest.setLatitude(location.getLatitude());
         postRequest.setLongitude(location.getLongitude());
         postRequest.setCount(count);
+        postRequest.setIdOffset(idOffset);
         postRequest.setOffset(offset);
         postRequest.setDistance(Constants.RADIUS);
         RestManager.getInstance().findNearPosts(postRequest, new Callback<PostResponse>() {
@@ -217,11 +220,35 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
             @Override
             public void onFailure(Throwable t) {
-                NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
+//                NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
+                loadVKPhotos(postRequest, reload);
             }
         });
 
 
+    }
+
+
+    private void loadVKPhotos(final PostRequest postRequest, final boolean reload) {
+        RestManager.getInstance().findNearVKPhotos(postRequest, new Callback<VKPhotoResponse>() {
+            @Override
+            public void onResponse(Response<VKPhotoResponse> response, Retrofit retrofit) {
+                //        after getting response.
+                PostResponse postResponse = new PostResponse();
+                postResponse.setPosts(vkPhotoResponseConverter.convert(response.body() != null ?
+                        response.body().getResponse() : null));
+                if (postResponse.getPosts() == null) {
+                    postResponse.setPosts(new ArrayList<Post>());
+                }
+
+                processLoadedPosts(postResponse, reload);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
+            }
+        });
     }
 
 

@@ -20,8 +20,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -54,11 +52,10 @@ import org.telegram.android.support.widget.RecyclerView;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 
-import ru.aragats.wgo.rest.dto.Coordinates;
-import ru.aragats.wgo.rest.dto.Image;
-import ru.aragats.wgo.rest.dto.Post;
-import ru.aragats.wgo.rest.dto.Venue;
-import ru.aragats.wgo.rest.mock.PostServiceMock;
+import ru.aragats.wgo.dto.Coordinates;
+import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.Post;
+import ru.aragats.wgo.dto.Venue;
 
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
@@ -78,7 +75,6 @@ import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

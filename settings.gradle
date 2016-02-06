@@ -1,1 +1,2 @@
 include ':TMessagesProj'
+//include ':vksdk_library', ':TMessagesProj'

@@ -7,15 +7,12 @@ import java.util.List;
 import retrofit.Call;
 import retrofit.http.Body;
 import retrofit.http.GET;
-import retrofit.http.Multipart;
 import retrofit.http.POST;
-import retrofit.http.PUT;
-import retrofit.http.Part;
 import retrofit.http.Path;
 import retrofit.http.Query;
-import ru.aragats.wgo.rest.dto.Image;
-import ru.aragats.wgo.rest.dto.Post;
-import ru.aragats.wgo.rest.dto.PostResponse;
+import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.Post;
+import ru.aragats.wgo.dto.PostResponse;
 
 /**
  * Created by aragats on 05/12/15.

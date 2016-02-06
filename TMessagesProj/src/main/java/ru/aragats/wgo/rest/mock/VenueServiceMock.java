@@ -1,8 +1,8 @@
 package ru.aragats.wgo.rest.mock;
 
-import ru.aragats.wgo.rest.dto.Image;
-import ru.aragats.wgo.rest.dto.Venue;
-import ru.aragats.wgo.rest.dto.VenueResponse;
+import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.Venue;
+import ru.aragats.wgo.dto.VenueResponse;
 import org.telegram.utils.StringUtils;
 
 import java.util.ArrayList;

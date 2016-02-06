@@ -22,7 +22,7 @@ import android.widget.TextView;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
 import org.telegram.messenger.FileLog;
-import ru.aragats.wgo.rest.dto.User;
+import ru.aragats.wgo.dto.User;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;

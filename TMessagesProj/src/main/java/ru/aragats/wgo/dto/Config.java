@@ -1,4 +1,4 @@
-package ru.aragats.wgo.rest.dto;
+package ru.aragats.wgo.dto;
 
 /**
  * Created by aragats on 29/12/14.

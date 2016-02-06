@@ -1,6 +1,6 @@
 package ru.aragats.wgo.rest.mock;
 
-import ru.aragats.wgo.rest.dto.Coordinates;
+import ru.aragats.wgo.dto.Coordinates;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,6 +1,6 @@
-package ru.aragats.wgo.rest.dto;
+package ru.aragats.wgo.dto;
 
-import ru.aragats.wgo.rest.dto.Image;
+import ru.aragats.wgo.dto.Image;
 
 /**
  * Created by aragats on 09/05/15.

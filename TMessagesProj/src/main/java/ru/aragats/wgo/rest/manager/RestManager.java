@@ -10,12 +10,14 @@ import java.util.List;
 import retrofit.Call;
 import retrofit.Callback;
 import ru.aragats.wgo.rest.client.RestClient;
-import ru.aragats.wgo.rest.dto.FileUploadRequest;
-import ru.aragats.wgo.rest.dto.Image;
-import ru.aragats.wgo.rest.dto.Post;
-import ru.aragats.wgo.rest.dto.PostRequest;
-import ru.aragats.wgo.rest.dto.PostResponse;
-import ru.aragats.wgo.rest.dto.VenuePostsRequest;
+import ru.aragats.wgo.rest.client.VKRestClient;
+import ru.aragats.wgo.dto.FileUploadRequest;
+import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.Post;
+import ru.aragats.wgo.dto.PostRequest;
+import ru.aragats.wgo.dto.PostResponse;
+import ru.aragats.wgo.dto.VenuePostsRequest;
+import ru.aragats.wgo.dto.vk.VKPhotoResponse;
 
 /**
  * Created by aragats on 05/12/15.
@@ -23,6 +25,7 @@ import ru.aragats.wgo.rest.dto.VenuePostsRequest;
 public class RestManager {
     private static volatile RestManager Instance = null;
     private static volatile RestClient restClient;
+    private static volatile VKRestClient vkRestClient;
 
     public static RestManager getInstance() {
         RestManager localInstance = Instance;
@@ -40,6 +43,7 @@ public class RestManager {
 
     private RestManager() {
         restClient = RestClient.getInstance();
+        vkRestClient = VKRestClient.getInstance();
     }
 
 
@@ -49,7 +53,7 @@ public class RestManager {
 
     private Call<PostResponse> findNearPostsCall(PostRequest request) {
         return restClient.getRestService().findNearPosts(request.getLongitude(), request.getLatitude(),
-                request.getDistance(), request.getOffset(), request.getCount());
+                request.getDistance(), request.getIdOffset(), request.getCount());
     }
 
 
@@ -78,7 +82,7 @@ public class RestManager {
     }
 
     private Call<PostResponse> findPostsAtVenueCall(VenuePostsRequest request) {
-        return restClient.getRestService().findPostsAtVenue(request.getVenueId(), request.getOffset(), request.getCount());
+        return restClient.getRestService().findPostsAtVenue(request.getVenueId(), request.getIdOffset(), request.getCount());
     }
 
     // savePost
@@ -134,9 +138,16 @@ public class RestManager {
     }
 
 
-
 //    http://192.168.0.100:8080/api/posts/find/near?lng=11.22&lat=23.15&distance=1000&offset=sad&count=20
 //    http://192.168.0.100:8080/api/posts/find/near?lng=13.0116908&lat=52.3898987&distance=1000&count=20.0&offset=sds
 
 
+    public void findNearVKPhotos(PostRequest request, Callback<VKPhotoResponse> callback) {
+        findNearVKPhotos(request).enqueue(callback);
+    }
+
+    private Call<VKPhotoResponse> findNearVKPhotos(PostRequest request) {
+        return vkRestClient.getRestService().findNearPhotos(request.getLongitude(), request.getLatitude(),
+                request.getDistance(), request.getOffset(), request.getCount(), 5.44);
+    }
 }
