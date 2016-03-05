@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Outline;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.TypedValue;
@@ -84,6 +85,10 @@ TODO-aragats
  */
 public class PostsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, PhotoViewer.PhotoViewerProvider {
 
+    private int mLastFirstVisibleItem;
+    private boolean mIsScrollingUp;
+
+
     private RecyclerListView postListView;
     private LinearLayoutManager layoutManager;
     private PostsAdapter postsAdapter;
@@ -108,6 +113,18 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     // Swipe Refresh Layout
     private SwipeRefreshLayout swipeRefreshLayout;
+    //handler
+    private Handler handler = new Handler();
+
+    private Runnable refreshProgressRun = new Runnable() {
+        @Override
+        public void run() {
+            if (PostsController.getInstance().isLoadingPosts()) {
+                swipeRefreshLayout.setRefreshing(true);
+            }
+        }
+    };
+
 
     private boolean offlineMode;
 
@@ -400,7 +417,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 //                refreshContent();
 //                Toast.makeText(((Context) getParentActivity()), "REFRESH BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
                 // Probably refresh icon disappear when we update the adapter the content. Because I should not use this method. OR NOT . I think it is ok to use this method. according to tutorial
-//                swipeRefreshLayout.setRefreshing(false);
+//                stopRefreshingProgressView();
 //                postsAdapter.notifyDataSetChanged();
             }
         });
@@ -576,6 +593,17 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING && searching && searchWas) {
                     AndroidUtilities.hideKeyboard(getParentActivity().getCurrentFocus());
                 }
+
+                final int currentFirstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+
+                if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                    mIsScrollingUp = false;
+                } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                    mIsScrollingUp = true;
+                }
+
+                mLastFirstVisibleItem = currentFirstVisibleItem;
+
             }
 
             @Override
@@ -590,10 +618,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     }
                     return;
                 }
-                //TODO fix it.
+                //TODO fix it. to often run load posts.
                 if (visibleItemCount > 0) {
-                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().getPosts().size() - 1) {
+                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().getPosts().size() - 1 && !mIsScrollingUp) {
                         String offset = PostsController.getInstance().getPosts().get(PostsController.getInstance().getPosts().size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
+                        startRefreshingProgressView();
                         PostsController.getInstance().loadPosts(offset, PostsController.getInstance().getPosts().size(), Constants.POST_COUNT, false, offlineMode);
                     }
                 }
@@ -707,14 +736,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 //            guid  = (int)args[0];
 //        }
         if (id == NotificationCenter.stopRefreshingView) {
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
+            stopRefreshingProgressView();
         } else if (id == NotificationCenter.undefinedLocation) {
 //            Toast.makeText(((Context) getParentActivity()), "Please, enable gps on your phone", Toast.LENGTH_SHORT).show();
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
+            stopRefreshingProgressView();
             Activity context = getParentActivity();
             if (context != null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -755,9 +780,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     FileLog.e("tmessages", e); //TODO fix it in other way?
                 }
             }
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
+            stopRefreshingProgressView();
         } else if (id == NotificationCenter.postsNeedReload) {
             if (postsAdapter != null) {
                 if (postsAdapter.isDataSetChanged()) {
@@ -791,13 +814,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     FileLog.e("tmessages", e); //TODO fix it in other way?
                 }
             }
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
+            stopRefreshingProgressView();
         } else if (id == NotificationCenter.loadPostsError) {
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
+            stopRefreshingProgressView();
             Toast.makeText(((Context) getParentActivity()), "Load posts Error", Toast.LENGTH_SHORT).show();
 
         } else if (id == NotificationCenter.emojiDidLoaded) {
@@ -813,6 +832,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             refreshPosts(force);
         } else if (id == NotificationCenter.offlinePostsLoaded) {
+            startRefreshingProgressView();
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
             boolean force = false;
@@ -846,9 +866,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     private void refreshPosts(boolean force) {
         if (PostsController.getInstance().getPosts().isEmpty() || force) {
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(true);
-            }
+            startRefreshingProgressView();
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
         }
     }
@@ -988,6 +1006,16 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         });
         showDialog(builder.create());
+
+    }
+
+    private void startRefreshingProgressView() {
+        handler.postDelayed(refreshProgressRun, Constants.PROGRESS_DIALOG_TIMEOUT);
+    }
+
+    private void stopRefreshingProgressView() {
+        handler.removeCallbacks(refreshProgressRun);
+        swipeRefreshLayout.setRefreshing(false);
 
     }
 }

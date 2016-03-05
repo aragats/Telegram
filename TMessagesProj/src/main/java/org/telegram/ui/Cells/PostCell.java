@@ -806,6 +806,10 @@ public class PostCell extends BaseCell {
         invalidate();
     }
 
+
+//    progressView = new ProgressBar(context);
+//    progressView.setVisibility(View.INVISIBLE);
+
     @Override
     protected void onDraw(Canvas canvas) {
         if (StringUtils.isEmpty(currentPostId)) {

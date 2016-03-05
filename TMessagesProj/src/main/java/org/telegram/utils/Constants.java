@@ -45,4 +45,6 @@ public class Constants {
     public static final String EXTENSION_JPG = ".jpg";
     public static final String EXTENSION_JPEG = ".jpeg";
     public static final String EXTENSION_PNG = ".png";
+
+    public static long PROGRESS_DIALOG_TIMEOUT = 500;
 }
