@@ -63,6 +63,7 @@ import java.util.UUID;
 public class MediaController implements NotificationCenter.NotificationCenterDelegate {
 
     private static RTree<Post, Geometry> rTree;
+    private static boolean rTreeloaded;
 
 
     public static int[] readArgs = new int[3];
@@ -749,7 +750,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     //TODO why it is static
     //TODO what is it guid. I need guid in postNotification. I should pass this parameter in args to say to which activiy I send the notification, because many activities could subscribe to the same notification, but not all of them must receive the response
     public static void loadGeoTaggedGalleryPhotos(final int guid) {
-        if (rTree != null) {
+        if (rTree != null || isRTreeloaded()) {
             AndroidUtilities.runOnUIThread(new Runnable() {
                 @Override
                 public void run() {
@@ -828,6 +829,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
     private static void setrTree(RTree<Post, Geometry> rTree) {
         MediaController.rTree = rTree;
+        rTreeloaded = true;
 
     }
 
@@ -1045,5 +1047,9 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
     public static RTree<Post, Geometry> getrTree() {
         return rTree;
+    }
+
+    public static boolean isRTreeloaded() {
+        return rTreeloaded;
     }
 }

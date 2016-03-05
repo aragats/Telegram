@@ -777,6 +777,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         emptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(progressView);
                     } else {
+//                        postListView.setVisibility(View.INVISIBLE);
                         progressView.setVisibility(View.INVISIBLE);
                         if (searching && searchWas) {
                             emptyView.setVisibility(View.INVISIBLE);
@@ -814,17 +815,29 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         } else if (id == NotificationCenter.offlinePostsLoaded) {
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
-            MediaController.loadGeoTaggedGalleryPhotos(0);
             boolean force = false;
             if (!this.offlineMode) {
                 force = true;
+                if (!MediaController.isRTreeloaded()) {
+                    if (progressView != null && postListView != null) {
+                        progressView.setVisibility(View.VISIBLE);
+                        postListView.setVisibility(View.INVISIBLE);
+                    }
+                }
+                MediaController.loadGeoTaggedGalleryPhotos(0);
             }
+
+
             this.offlineMode = true;
 //            refreshPosts(force);
         } else if (id == NotificationCenter.switchToOnlineMode) {
             boolean force = false;
             if (this.offlineMode) {
                 force = true;
+                if (progressView != null && postListView != null) {
+                    progressView.setVisibility(View.VISIBLE);
+                    postListView.setVisibility(View.INVISIBLE);
+                }
             }
             this.offlineMode = false;
             refreshPosts(force);
