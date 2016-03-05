@@ -8,12 +8,16 @@
 
 package org.telegram.ui.Cells;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.StaticLayout;
@@ -31,11 +35,6 @@ import org.telegram.android.LocaleController;
 import org.telegram.android.PostsController;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
-
-import ru.aragats.wgo.dto.Coordinates;
-import ru.aragats.wgo.dto.Image;
-import ru.aragats.wgo.dto.Post;
-
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.URLSpanNoUnderline;
@@ -44,6 +43,9 @@ import org.telegram.utils.StringUtils;
 import java.util.Locale;
 
 import ru.aragats.wgo.R;
+import ru.aragats.wgo.dto.Coordinates;
+import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.Post;
 
 public class PostCell extends BaseCell {
 
@@ -792,7 +794,38 @@ public class PostCell extends BaseCell {
 
         //2. from postMediaCell . works faster
         int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
+        //TODO mock. above correct version.
+//        int size = (int) (800 / AndroidUtilities.density);
+//        size = size / 2; // TODO it reduces the size and we have less sized image to display in UI. !!!
+        //TODO size parameter in filter influences on loading time. Than less than faster. File size does not effect. ??
         photoImage.setImage(post.getPreviewImageUrl(), String.format(Locale.US, "%d_%d", size, size), imageDrawable, null, (int) post.getPreviewImage().getSize()); // TODO fix it. Create drawable.
+
+
+        //3 method Thumbnail
+//        Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+//                getContentResolver(), selectedImageUri,
+//                MediaStore.Images.Thumbnails.MINI_KIND,
+//                (BitmapFactory.Options) null );
+//
+
+//        Uri uri = Uri.fromFile(new File(post.getPreviewImageUrl()));
+//        uri.getLastPathSegment();
+//        Cursor cursor = MediaStore.Images.Thumbnails.queryMiniThumbnail(
+//                getContext().getContentResolver(), 0,
+//                MediaStore.Images.Thumbnails.MINI_KIND,
+//                null);
+//        if (cursor != null && cursor.getCount() > 0) {
+//            cursor.moveToFirst();//**EDIT**
+////            String uri = cursor.getString( cursor.getColumnIndex( MediaStore.Images.Thumbnails.DATA ) );
+//        }
+//        Bitmap bitmap = getThumbnail(getContext().getContentResolver(), post.getPreviewImageUrl());
+
+        //5
+
+//        Bitmap bitmap1 = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(post.getPreviewImageUrl()), 200, 200);
+//        if (bitmap1 != null) {
+//            photoImage.setImageBitmap(bitmap1);
+//        }
 
         //Photo
 
@@ -806,6 +839,19 @@ public class PostCell extends BaseCell {
         invalidate();
     }
 
+    public Bitmap getThumbnail(ContentResolver cr, String path) {
+
+        Cursor ca = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.MediaColumns._ID}, MediaStore.MediaColumns.DATA + "=?", new String[]{path}, null);
+        if (ca != null && ca.moveToFirst()) {
+            int id = ca.getInt(ca.getColumnIndex(MediaStore.MediaColumns._ID));
+            ca.close();
+            return MediaStore.Images.Thumbnails.getThumbnail(cr, id, MediaStore.Images.Thumbnails.MICRO_KIND, null);
+        }
+
+//        ca.close();
+        return null;
+
+    }
 
 //    progressView = new ProgressBar(context);
 //    progressView.setVisibility(View.INVISIBLE);

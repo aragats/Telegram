@@ -26,6 +26,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 
 import ru.aragats.wgo.ApplicationLoader;
+
 import org.telegram.messenger.DispatchQueue;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
@@ -893,6 +894,7 @@ public class ImageLoader {
             runtimeHack = new VMRuntimeHack();
             cacheSize = 1024 * 1024 * 3;
         }
+//        cacheSize = cacheSize * 10; // We can increase the size of cache if needed
         memCache = new LruCache(cacheSize) {
             @Override
             protected int sizeOf(String key, BitmapDrawable bitmap) {
@@ -1307,13 +1309,13 @@ public class ImageLoader {
 //                                    FileLoader.getInstance().loadFile((TLRPC.Document) imageLocation, true, true);
 //                                }
 //                            } else {
-                                String file = Utilities.MD5(httpLocation);
-                                File cacheDir = FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE);
-                                img.tempFilePath = new File(cacheDir, file + "_temp.jpg");
-                                img.finalFilePath = cacheFile;
-                                img.httpTask = new HttpImageTask(img, size);
-                                httpTasks.add(img.httpTask);
-                                runHttpTasks(false);
+                            String file = Utilities.MD5(httpLocation);
+                            File cacheDir = FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE);
+                            img.tempFilePath = new File(cacheDir, file + "_temp.jpg");
+                            img.finalFilePath = cacheFile;
+                            img.httpTask = new HttpImageTask(img, size);
+                            httpTasks.add(img.httpTask);
+                            runHttpTasks(false);
 //                            }
                         }
                     }

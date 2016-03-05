@@ -10,8 +10,6 @@ package org.telegram.android;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 
 import com.github.davidmoten.rtree.Entry;
@@ -26,7 +24,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -251,18 +248,22 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         List<Entry<Post, Geometry>> entries = rTree.search(
                 Geometries.point(postRequest.getLongitude(), postRequest.getLatitude()), Constants.MAX_DISTANCE_DEGREE)
                 .toList().toBlocking().single();
+
+        int start = postRequest.getOffset();
+        int end = postRequest.getOffset() + postRequest.getCount();
+        if (end > entries.size()) {
+            end = entries.size();
+        }
+        if (!entries.isEmpty()) {
+            entries = entries.subList(start, end);
+        }
+
         for (Entry<Post, Geometry> entry : entries) {
             Post post = entry.value();
             results.add(post);
         }
-        int start = postRequest.getOffset();
-        int end = postRequest.getOffset() + postRequest.getCount();
-        if (end > results.size()) {
-            end = results.size();
-        }
-        if (!results.isEmpty()) {
-            results = results.subList(start, end);
-        }
+
+
         PostResponse postResponse = new PostResponse();
         postResponse.setPosts(results);
         processLoadedPosts(postResponse, reload);
@@ -426,20 +427,22 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         image.setUrl(photoUrl);
         image.setSize(file.length());
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
+//        BitmapFactory.Options options = new BitmapFactory.Options();
         // TODO THIS Do not allow decode the file.
 //            options.inJustDecodeBounds = true;
 
 //Returns null, sizes are in the options variable
-        Bitmap bitmap = BitmapFactory.decodeFile(photoUrl, options);
-        int width = options.outWidth;
-        int height = options.outHeight;
+//        Bitmap bitmap = BitmapFactory.decodeFile(photoUrl, options);
+//        int width = options.outWidth;
+//        int height = options.outHeight;
 //If you want, the MIME type will also be decoded (if possible)
-        String type = options.outMimeType;
+//        String type = options.outMimeType;
 //            String type = getMimeType(photoUrl
 
-        image.setWidth(width);
-        image.setHeight(height);
+
+
+        image.setWidth(AndroidUtilities.getPhotoSize());
+        image.setHeight(AndroidUtilities.getPhotoSize());
         post.setImages(Arrays.asList(image, image));
         return post;
 
