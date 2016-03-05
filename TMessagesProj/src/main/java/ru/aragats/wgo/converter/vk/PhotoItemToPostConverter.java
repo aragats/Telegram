@@ -19,7 +19,7 @@ public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post>
     public Post convertIntern(PhotoItem source) {
         Post result = new Post();
         result.setId("" + source.getId());
-        result.setCreatedDate(( (long)source.getDate() * 1000));
+        result.setCreatedDate(((long) source.getDate() * 1000));
         Coordinates coordinates = new Coordinates();
         coordinates.setType("Point");
         coordinates.setCoordinates(Arrays.asList(source.getLong(), source.getLat()));
@@ -27,12 +27,13 @@ public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post>
         result.setText(source.getText());
         Venue venue = new Venue();
         venue.setCoordinates(coordinates);
-        venue.setName("");
+        venue.setName("VK");
         venue.setAddress("");
         result.setVenue(venue);
 
         List<Image> images = new ArrayList<>();
         Image previewImage = new Image();
+        //TODO if height or width  == 0 then throw this item
         previewImage.setHeight(source.getHeight());
         previewImage.setWidth(source.getWidth());
         previewImage.setUrl(source.getPhoto604());

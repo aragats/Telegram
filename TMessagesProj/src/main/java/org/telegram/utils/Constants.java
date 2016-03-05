@@ -20,8 +20,29 @@ public class Constants {
     public static int POST_COUNT = 20;
 
     public static final int RADIUS = 800; // meters 8000 for VK
+    public static final double MAX_DISTANCE_DEGREE = 0.01;
 
 
     public static final String RESTRICTED_AREA = "restricted_area";
     public static final String RADIUS_ARG = "radius";
+
+
+    // sizes from VK
+    public static final int PHOTO_WIDTH_2560 = 2560;
+    public static final int PHOTO_WIDTH_1280 = 1280;
+    public static final int PHOTO_WIDTH_807 = 807;
+    public static final int PHOTO_WIDTH_604 = 604;
+
+
+    public static final int PHOTO_WIDTH_MAX = PHOTO_WIDTH_2560;
+
+    public static final int PHOTO_WIDTH_MIN = PHOTO_WIDTH_604;
+    public static final int PHOTO_HEIGHT_MIN = PHOTO_WIDTH_604;
+
+    public static final int PHOTO_QUALITY = 70;
+
+
+    public static final String EXTENSION_JPG = ".jpg";
+    public static final String EXTENSION_JPEG = ".jpeg";
+    public static final String EXTENSION_PNG = ".png";
 }

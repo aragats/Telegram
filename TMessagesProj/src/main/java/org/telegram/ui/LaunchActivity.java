@@ -248,7 +248,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     //TODO Update opened PostsActivity and close drawer.
 //                    Bundle args = new Bundle();
 //                    presentFragment(new PostsActivity(args));
-                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRefresh);
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.switchToOnlineMode);
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (position == 3) {
 
@@ -270,6 +270,14 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                         FileLog.e("tmessages", e);
                     }
                     drawerLayoutContainer.closeDrawer(false);
+                } else if (position == 6) {
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.switchToOfflineMode);
+                    drawerLayoutContainer.closeDrawer(false);
+//
+//                    Bundle bundle = new Bundle();
+//                    bundle.putBoolean("offlineMode", true);
+//                    presentFragment(new PostsActivity(bundle));
+//                    drawerLayoutContainer.closeDrawer(false);
                 }
             }
         });

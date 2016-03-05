@@ -727,8 +727,8 @@ public class PostCell extends BaseCell {
     public void checkCurrentPostIndex() {
         Post post = null;
 
-        if (index < PostsController.getInstance().posts.size()) {
-            post = PostsController.getInstance().posts.get(index);
+        if (index < PostsController.getInstance().getPosts().size()) {
+            post = PostsController.getInstance().getPosts().get(index);
         }
 
         if (post != null) {
@@ -786,8 +786,13 @@ public class PostCell extends BaseCell {
         }
 
         //Photo
+        //1 original - slow
         // TODO null ?
-        photoImage.setImage(post.getPreviewImageUrl(), null, imageDrawable, null, 0); // TODO fix it. Create drawable.
+//        photoImage.setImage(post.getPreviewImageUrl(), null, imageDrawable, null, 0); // TODO fix it. Create drawable.
+
+        //2. from postMediaCell . works faster
+        int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
+        photoImage.setImage(post.getPreviewImageUrl(), String.format(Locale.US, "%d_%d", size, size), imageDrawable, null, (int) post.getPreviewImage().getSize()); // TODO fix it. Create drawable.
 
         //Photo
 

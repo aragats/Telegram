@@ -46,6 +46,7 @@ import org.telegram.android.AnimationCompat.ViewProxy;
 import org.telegram.android.ContactsController;
 import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
+import org.telegram.android.MediaController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.PostsController;
 import org.telegram.android.location.LocationManagerHelper;
@@ -108,6 +109,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     // Swipe Refresh Layout
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private boolean offlineMode;
 
     //TODO-legacy. update according to new version.
     @Override
@@ -195,6 +197,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     public PostsActivity(Bundle args) {
         super(args);
+        if (args != null) {
+            offlineMode = args.getBoolean("offlineMode", false);
+        }
     }
 
     @Override
@@ -207,6 +212,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
         if (searchString == null) {
             //TODO learn NotificationCenter class especiallu case when post notification. There is different situations when notify when animation or not.
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.switchToOfflineMode);
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.switchToOnlineMode);
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.stopRefreshingView);
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.offlinePostsLoaded);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsRefresh);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
@@ -216,10 +225,13 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         }
 
+        if (offlineMode) {
+            MediaController.loadGeoTaggedGalleryPhotos(classGuid);
+        }
         LocationManagerHelper.getInstance().runLocationListener();
 
-        if (!postsLoaded) {
-            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, true);
+        if (!offlineMode && !postsLoaded) {
+            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
             ContactsController.getInstance().checkInviteText();
             postsLoaded = true;
         }
@@ -230,6 +242,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
         if (searchString == null) {
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.switchToOfflineMode);
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.switchToOnlineMode);
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.stopRefreshingView);
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.offlinePostsLoaded);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsRefresh);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
@@ -275,7 +291,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 searchWas = false;
                 if (postListView != null) {
                     searchEmptyView.setVisibility(View.INVISIBLE);
-                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
+                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().getPosts().isEmpty()) {
                         emptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(progressView);
                     } else {
@@ -366,7 +382,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             public void onRefresh() {
                 // TODO temp test
 //                new RestTask().execute("param");
-                PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, true);
+                PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
 
 //                RestManager.getInstance().uploadTest(new PostRequest(), new Callback<PostResponse>() {
 //                    @Override
@@ -576,9 +592,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 }
                 //TODO fix it.
                 if (visibleItemCount > 0) {
-                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().posts.size() - 1) {
-                        String offset = PostsController.getInstance().posts.get(PostsController.getInstance().posts.size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
-                        PostsController.getInstance().loadPosts(offset, PostsController.getInstance().posts.size(), Constants.POST_COUNT, false, true);
+                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().getPosts().size() - 1) {
+                        String offset = PostsController.getInstance().getPosts().get(PostsController.getInstance().getPosts().size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
+                        PostsController.getInstance().loadPosts(offset, PostsController.getInstance().getPosts().size(), Constants.POST_COUNT, false, offlineMode);
                     }
                 }
 
@@ -635,7 +651,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         });
 
-        if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
+        if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().getPosts().isEmpty()) {
             searchEmptyView.setVisibility(View.INVISIBLE);
             emptyView.setVisibility(View.INVISIBLE);
             postListView.setEmptyView(progressView);
@@ -686,7 +702,15 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     @Override
     @SuppressWarnings("unchecked")
     public void didReceivedNotification(int id, Object... args) {
-        if (id == NotificationCenter.undefinedLocation) {
+//        int guid = 0;
+//        if(args !=null && args.length != 0) {
+//            guid  = (int)args[0];
+//        }
+        if (id == NotificationCenter.stopRefreshingView) {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        } else if (id == NotificationCenter.undefinedLocation) {
 //            Toast.makeText(((Context) getParentActivity()), "Please, enable gps on your phone", Toast.LENGTH_SHORT).show();
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);
@@ -713,7 +737,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             //TODO duplicates
             if (postListView != null) {
                 try {
-                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
+                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().getPosts().isEmpty()) {
                         searchEmptyView.setVisibility(View.INVISIBLE);
                         emptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(progressView);
@@ -748,7 +772,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             // TODO duplicates
             if (postListView != null) {
                 try {
-                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().posts.isEmpty()) {
+                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().getPosts().isEmpty()) {
                         searchEmptyView.setVisibility(View.INVISIBLE);
                         emptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(progressView);
@@ -787,15 +811,32 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 force = args[0] == null ? false : (Boolean) args[0];
             }
             refreshPosts(force);
+        } else if (id == NotificationCenter.offlinePostsLoaded) {
+            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
+        } else if (id == NotificationCenter.switchToOfflineMode) {
+            MediaController.loadGeoTaggedGalleryPhotos(0);
+            boolean force = false;
+            if (!this.offlineMode) {
+                force = true;
+            }
+            this.offlineMode = true;
+//            refreshPosts(force);
+        } else if (id == NotificationCenter.switchToOnlineMode) {
+            boolean force = false;
+            if (this.offlineMode) {
+                force = true;
+            }
+            this.offlineMode = false;
+            refreshPosts(force);
         }
     }
 
     private void refreshPosts(boolean force) {
-        if (PostsController.getInstance().posts.isEmpty() || force) {
+        if (PostsController.getInstance().getPosts().isEmpty() || force) {
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(true);
             }
-            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, true);
+            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
         }
     }
 
@@ -885,7 +926,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             return;
         }
-        Post post = PostsController.getInstance().posts.get(position);
+        Post post = PostsController.getInstance().getPosts().get(position);
 
         selectedPost = post.getId();
 

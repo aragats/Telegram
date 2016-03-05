@@ -10,12 +10,22 @@ package org.telegram.android;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+
+import com.github.davidmoten.rtree.Entry;
+import com.github.davidmoten.rtree.RTree;
+import com.github.davidmoten.rtree.geometry.Geometries;
+import com.github.davidmoten.rtree.geometry.Geometry;
 
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.utils.Constants;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +33,7 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.FileUploadRequest;
 import ru.aragats.wgo.dto.Image;
 import ru.aragats.wgo.dto.Post;
@@ -45,8 +56,8 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     private VKPhotoResponseToPostListConverter vkPhotoResponseConverter = new VKPhotoResponseToPostListConverter();
     private Venue lastVenue;
 
-    public List<Post> posts = new ArrayList<>();
-    public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
+    private List<Post> posts = new ArrayList<>();
+//    public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
 
     private boolean loadingPosts = false;
 
@@ -112,7 +123,6 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public void cleanUp() {
         MediaController.getInstance().cleanup();
 
-        postsMap.clear();
         posts.clear();
 
         loadingPosts = false;
@@ -121,6 +131,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     public void addPost(final Post post) {
+
+
+        MediaController.getInstance().saveBitmap(post.getImage());
+
 
         RestManager.getInstance().uploadImage(new FileUploadRequest(post.getImage().getUrl(), post.getImage().getType()), new Callback<List<Image>>() {
             @Override
@@ -193,10 +207,15 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void loadPosts(final String idOffset, final int offset, final int count, final boolean reload, boolean fromCache) {
-        if (loadingPosts) {
+    public void loadPosts(final String idOffset, final int offset, final int count, final boolean reload, final boolean offlineMode) {
+        if (loadingPosts || offlineMode && MediaController.getrTree() == null) {
             return;
         }
+        //TODO rethink this.
+//        if (offlineMode && MediaController.getrTree() == null) {
+//            NotificationCenter.getInstance().postNotificationName(NotificationCenter.stopRefreshingView);
+//            return;
+//        }
         loadingPosts = true;
         Location location = LocationManagerHelper.getInstance().getLastLocation();
         if (location == null) {
@@ -211,6 +230,44 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         postRequest.setIdOffset(idOffset);
         postRequest.setOffset(offset);
         postRequest.setDistance(Constants.RADIUS);
+        if (offlineMode) {
+            loadLocalPosts(postRequest, reload);
+        } else {
+            loadPostFromServer(postRequest, reload);
+        }
+
+
+    }
+
+    private void loadLocalPosts(final PostRequest postRequest, final boolean reload) {
+        List<Post> results = new ArrayList<>();
+        RTree<Post, Geometry> rTree = MediaController.getrTree();
+        if (rTree == null) {
+            return;
+        }
+        List<Entry<Post, Geometry>> entries = rTree.search(
+                Geometries.point(postRequest.getLongitude(), postRequest.getLatitude()), Constants.MAX_DISTANCE_DEGREE)
+                .toList().toBlocking().single();
+        for (Entry<Post, Geometry> entry : entries) {
+            Post post = entry.value();
+            results.add(post);
+        }
+        int start = postRequest.getOffset();
+        int end = postRequest.getOffset() + postRequest.getCount();
+        if (end > results.size()) {
+            end = results.size();
+        }
+        if (!results.isEmpty()) {
+            results = results.subList(start, end);
+        }
+        PostResponse postResponse = new PostResponse();
+        postResponse.setPosts(results);
+        processLoadedPosts(postResponse, reload);
+
+    }
+
+
+    private void loadPostFromServer(final PostRequest postRequest, final boolean reload) {
         RestManager.getInstance().findNearPosts(postRequest, new Callback<PostResponse>() {
             @Override
             public void onResponse(Response<PostResponse> response, Retrofit retrofit) {
@@ -224,8 +281,6 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 loadVKPhotos(postRequest, reload);
             }
         });
-
-
     }
 
 
@@ -252,7 +307,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void loadPostsMock(final int offset, final int count, boolean reload, boolean fromCache) {
+    public void loadPostsMock(final int offset, final int count, boolean reload) {
         if (loadingPosts) {
             return;
         }
@@ -273,12 +328,11 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public void processLoadedPosts(PostResponse postResponse, boolean reload) {
         if (reload) {
             posts.clear();
-            postsMap.clear();
         }
         posts.addAll(postResponse.getPosts());
-        for (Post post : posts) {
-            postsMap.putIfAbsent(post.getId(), post);
-        }
+//        for (Post post : posts) {
+//            postsMap.putIfAbsent(post.getId(), post);
+//        }
         loadingPosts = false;
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!postResponse.getPosts().isEmpty() || reload) {
@@ -333,5 +387,50 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     public void setLastVenue(Venue lastVenue) {
         this.lastVenue = lastVenue;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public Post createPost(String dir, String photo, double latitude, double longitude, Date date) {
+        Post post = new Post();
+        post.setId(photo);
+        Coordinates coordinates = new Coordinates();
+        coordinates.setType("Point");
+        coordinates.setCoordinates(Arrays.asList(longitude, latitude));
+        post.setCoordinates(coordinates);
+        post.setText("");
+        post.setCreatedDate(date.getTime());
+        Venue venue = new Venue();
+        venue.setCoordinates(coordinates);
+        venue.setName("Local");
+        venue.setAddress("");
+        post.setVenue(venue);
+
+        File file = new File(dir, photo);
+        String photoUrl = dir + File.separator + photo;
+        Image image = new Image();
+        image.setUrl(photoUrl);
+        image.setSize(file.length());
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        // TODO THIS Do not allow decode the file.
+//            options.inJustDecodeBounds = true;
+
+//Returns null, sizes are in the options variable
+        Bitmap bitmap = BitmapFactory.decodeFile(photoUrl, options);
+        int width = options.outWidth;
+        int height = options.outHeight;
+//If you want, the MIME type will also be decoded (if possible)
+        String type = options.outMimeType;
+//            String type = getMimeType(photoUrl
+
+        image.setWidth(width);
+        image.setHeight(height);
+        post.setImages(Arrays.asList(image, image));
+        return post;
+
+
     }
 }

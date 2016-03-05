@@ -17,8 +17,10 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -26,33 +28,54 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 
+import com.github.davidmoten.rtree.Entry;
+import com.github.davidmoten.rtree.RTree;
+import com.github.davidmoten.rtree.geometry.Geometries;
+import com.github.davidmoten.rtree.geometry.Geometry;
+
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
+import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.Post;
 
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.UserConfig;
 import org.telegram.utils.Constants;
+import org.telegram.utils.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.UUID;
 
 public class MediaController implements NotificationCenter.NotificationCenterDelegate {
+
+    private static RTree<Post, Geometry> rTree;
 
 
     public static int[] readArgs = new int[3];
 
     public interface FileDownloadProgressListener {
         void onFailedDownload(String fileName);
+
         void onSuccessDownload(String fileName);
+
         void onProgressDownload(String fileName, float progress);
+
         void onProgressUpload(String fileName, float progress, boolean isEncrypted);
+
         int getObserverTag();
     }
 
@@ -182,6 +205,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     private InternalObserver internalObserver = null;
     private int startObserverToken = 0;
     private StopMediaObserverRunnable stopMediaObserverRunnable = null;
+
     private final class StopMediaObserverRunnable implements Runnable {
         public int currentObserverToken = 0;
 
@@ -207,9 +231,11 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             }
         }
     }
+
     private String[] mediaProjections = null;
 
     private static volatile MediaController Instance = null;
+
     public static MediaController getInstance() {
         MediaController localInstance = Instance;
         if (localInstance == null) {
@@ -252,7 +278,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }
 
         if (Build.VERSION.SDK_INT >= 16) {
-            mediaProjections = new String[] {
+            mediaProjections = new String[]{
                     MediaStore.Images.ImageColumns.DATA,
                     MediaStore.Images.ImageColumns.DISPLAY_NAME,
                     MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
@@ -262,7 +288,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                     MediaStore.Images.ImageColumns.HEIGHT
             };
         } else {
-            mediaProjections = new String[] {
+            mediaProjections = new String[]{
                     MediaStore.Images.ImageColumns.DATA,
                     MediaStore.Images.ImageColumns.DISPLAY_NAME,
                     MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
@@ -310,7 +336,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     private int getCurrentDownloadMask() {
         if (ConnectionsManager.isConnectedToWiFi()) {
             return wifiDownloadMask;
-        } else if(ConnectionsManager.isRoaming()) {
+        } else if (ConnectionsManager.isRoaming()) {
             return roamingDownloadMask;
         } else {
             return mobileDataDownloadMask;
@@ -476,7 +502,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     public void didReceivedNotification(int id, Object... args) {
         if (id == NotificationCenter.FileDidFailedLoad) {
             listenerInProgress = true;
-            String fileName = (String)args[0];
+            String fileName = (String) args[0];
             ArrayList<WeakReference<FileDownloadProgressListener>> arrayList = loadingFileObservers.get(fileName);
             if (arrayList != null) {
                 for (WeakReference<FileDownloadProgressListener> reference : arrayList) {
@@ -489,10 +515,10 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             }
             listenerInProgress = false;
             processLaterArrays();
-            checkDownloadFinished(fileName, (Integer)args[1]);
+            checkDownloadFinished(fileName, (Integer) args[1]);
         } else if (id == NotificationCenter.FileDidLoaded) {
             listenerInProgress = true;
-            String fileName = (String)args[0];
+            String fileName = (String) args[0];
             ArrayList<WeakReference<FileDownloadProgressListener>> arrayList = loadingFileObservers.get(fileName);
             if (arrayList != null) {
                 for (WeakReference<FileDownloadProgressListener> reference : arrayList) {
@@ -508,10 +534,10 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             checkDownloadFinished(fileName, 0);
         } else if (id == NotificationCenter.FileLoadProgressChanged) {
             listenerInProgress = true;
-            String fileName = (String)args[0];
+            String fileName = (String) args[0];
             ArrayList<WeakReference<FileDownloadProgressListener>> arrayList = loadingFileObservers.get(fileName);
             if (arrayList != null) {
-                Float progress = (Float)args[1];
+                Float progress = (Float) args[1];
                 for (WeakReference<FileDownloadProgressListener> reference : arrayList) {
                     if (reference.get() != null) {
                         reference.get().onProgressDownload(fileName, progress);
@@ -522,7 +548,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             processLaterArrays();
         }
     }
-
 
 
     public static void saveFile(String fullPath, Context context, final int type, final String name) {
@@ -575,7 +600,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                             destFile = new File(f, name);
                         }
 
-                        if(!destFile.exists()) {
+                        if (!destFile.exists()) {
                             destFile.createNewFile();
                         }
                         FileChannel source = null;
@@ -641,9 +666,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     }
 
 
-
-
-
     public static boolean isWebp(Uri uri) {
         ParcelFileDescriptor parcelFD = null;
         FileInputStream input = null;
@@ -656,7 +678,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                 String str = new String(header);
                 if (str != null) {
                     str = str.toLowerCase();
-                    if (str.startsWith("riff") && str.endsWith("webp")){
+                    if (str.startsWith("riff") && str.endsWith("webp")) {
                         return true;
                     }
                 }
@@ -681,8 +703,6 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }
         return false;
     }
-
-
 
 
     public void toggleSaveToGallery() {
@@ -724,6 +744,91 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
     public boolean canSaveToGallery() {
         return saveToGallery;
+    }
+
+    //TODO why it is static
+    //TODO what is it guid. I need guid in postNotification. I should pass this parameter in args to say to which activiy I send the notification, because many activities could subscribe to the same notification, but not all of them must receive the response
+    public static void loadGeoTaggedGalleryPhotos(final int guid) {
+        if (rTree != null) {
+            AndroidUtilities.runOnUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.offlinePostsLoaded);
+                }
+            });
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                RTree<Post, Geometry> rTree = RTree.create();
+                String cameraFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/" + "Camera/";
+
+                // TODO filter files list. and in parallel check time of the last update?
+//               TODO  Or update rTree one per week ! (per day). OR if the number of files is changed. new photo added or something deleted. !!
+                String[] fileNames = new File(cameraFolder).list(new FilenameFilter() {
+                    public boolean accept(File dir, String name) {
+                        return name.toLowerCase().endsWith(Constants.EXTENSION_JPG) ||
+                                name.toLowerCase().endsWith(Constants.EXTENSION_JPEG)
+                                || name.toLowerCase().endsWith(Constants.EXTENSION_PNG);
+                    }
+                });
+                for (String fileName : fileNames) {
+                    ExifInterface exif;
+                    try {
+                        exif = new ExifInterface(cameraFolder + File.separator + fileName);
+                    } catch (IOException e) {
+                        //TODO handle exception.
+                        e.printStackTrace();
+                        continue;
+                    }
+                    String datetime = exif.getAttribute(ExifInterface.TAG_DATETIME);
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss", Locale.getDefault());
+                    Date date;
+                    try {
+                        date = simpleDateFormat.parse(datetime);
+                    } catch (ParseException e) {
+                        //TODO handle exception
+                        e.printStackTrace();
+                        continue;
+                    }
+                    float[] coordinates = new float[2];
+                    boolean result = exif.getLatLong(coordinates);
+                    if (result) {
+                        Post post = PostsController.getInstance().createPost(cameraFolder, fileName, coordinates[0], coordinates[1], date);
+                        rTree = rTree.add(Entry.entry(post, Geometries.point(coordinates[1], coordinates[0])));
+                    }
+                }
+                setrTree(rTree);
+
+                AndroidUtilities.runOnUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        NotificationCenter.getInstance().postNotificationName(NotificationCenter.offlinePostsLoaded);
+                    }
+                });
+
+
+//                AndroidUtilities.runOnUIThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
+//                        if (!postResponse.getPosts().isEmpty() || reload) {
+//                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
+//                        } else {
+////            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);  //TODO hide progress view does not work !!!
+//                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished);
+//                        }
+//
+//                    }
+//                });
+            }
+        }).start();
+    }
+
+    private static void setrTree(RTree<Post, Geometry> rTree) {
+        MediaController.rTree = rTree;
+
     }
 
     public static void loadGalleryPhotosAlbums(final int guid) {
@@ -869,5 +974,76 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }).start();
     }
 
+    public boolean validateImage(Image image) {
+        return (image.getWidth() > Constants.PHOTO_WIDTH_MIN) && ((image.getSize() / 1014) / 1024 <= 10);
+    }
 
+
+    //TODO works not properly. int increase the size of the file.
+    public void saveBitmap(Image image) {
+        FileOutputStream out = null;
+        try {
+            File telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.WGO);
+            telegramPath.mkdirs();
+            File imagePath = new File(telegramPath, Constants.WGO_IMAGE);
+            imagePath.mkdirs();
+
+            File resizedImage = new File(imagePath, UUID.randomUUID().toString() + ".jpg");
+            out = new FileOutputStream(resizedImage);
+            int width = image.getWidth();
+            int height = image.getHeight();
+            if (image.getWidth() > Constants.PHOTO_WIDTH_MAX) {
+                width = Constants.PHOTO_WIDTH_MAX;
+                float scale = (float) image.getWidth() / (float) Constants.PHOTO_WIDTH_MAX; // scale calculate
+                height = (int) (height / scale);
+            }
+
+//            BitmapFactory.Options options = new BitmapFactory.Options();
+
+//            Bitmap bitmap = BitmapFactory.decodeFile(image.getUrl(), options);
+            //options.inScaled = false; ?? better quality
+//            http://stackoverflow.com/questions/4821488/bad-image-quality-after-resizing-scaling-bitmap
+
+            Bitmap resized = Bitmap.createScaledBitmap(image.getBitmap(), width, height, true);
+            Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.PNG;
+            String type = image.getType();
+            if (!StringUtils.isEmpty(type) &&
+                    (type.toLowerCase().contains("jpeg") || type.toLowerCase().contains("jpg"))) {
+                compressFormat = Bitmap.CompressFormat.JPEG;
+            }
+
+//            http://www.hongkiat.com/blog/jpeg-optimization-guide/
+
+//            Low – 10%
+//                    Medium – 30%
+//                    High – 60%
+//                    Very High – 80%
+//                    Maximum – 100%
+//                    Even in Adobe Photoshop 60% image quality is considered ‘high’. Many web developers will vouch between 50% – 70% is a safe range to stick with.
+            resized.compress(compressFormat, Constants.PHOTO_QUALITY, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+
+            image.setBitmap(resized);
+            image.setUrl(resizedImage.getAbsolutePath());
+            image.setWidth(width);
+            image.setHeight(height);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }
+
+
+    public static RTree<Post, Geometry> getrTree() {
+        return rTree;
+    }
 }

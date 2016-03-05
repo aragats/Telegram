@@ -17,7 +17,9 @@ import android.view.ViewGroup;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.RecyclerView;
+
 import ru.aragats.wgo.dto.Post;
+
 import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.LocationActivityAragats;
@@ -57,7 +59,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        int count = PostsController.getInstance().posts.size();
+        int count = PostsController.getInstance().getPosts().size();
         if (count == 0 && PostsController.getInstance().isLoadingPosts()) {
             return 0;
         }
@@ -70,10 +72,10 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
     public Post getItem(int i) {
 
-        if (i < 0 || i >= PostsController.getInstance().posts.size()) {
+        if (i < 0 || i >= PostsController.getInstance().getPosts().size()) {
             return null;
         }
-        return PostsController.getInstance().posts.get(i);
+        return PostsController.getInstance().getPosts().get(i);
 
     }
 
@@ -98,7 +100,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
         if (viewHolder.getItemViewType() == 0) {
             PostCell cell = (PostCell) viewHolder.itemView;
             cell.useSeparator = (i != getItemCount() - 1);
-            Post post = PostsController.getInstance().posts.get(i);
+            Post post = PostsController.getInstance().getPosts().get(i);
             if (AndroidUtilities.isTablet()) {
                 cell.setPostSelected(!StringUtils.isEmpty(post.getId()) && post.getId().equals(openedPostId));
             }
@@ -166,7 +168,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int i) {
-        if (i == PostsController.getInstance().posts.size()) {
+        if (i == PostsController.getInstance().getPosts().size()) {
             return 1; //LoadingCell
         }
         return 0; //PostCell

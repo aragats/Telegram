@@ -1480,6 +1480,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             if (!file.exists()) {
                 return;
             }
+//            long megaBytes = (file.length()/1024)/1024;
+            long bytes = file.length();
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             // TODO THIS Do not allow decode the file.
@@ -1497,7 +1499,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            MediaStore.Files.probeContentType(path);
 
             //
-            bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+//            bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
 
 
             Post post = new Post();
@@ -1508,6 +1510,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             image.setHeight(height);
             image.setBitmap(bitmap);
             image.setType(type);
+            image.setSize(bytes);
 //            image = ImageServiceMock.getRandomImage();
             List<Image> images = new ArrayList<>();
             images.add(image); // preview
