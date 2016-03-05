@@ -21,14 +21,7 @@ public class VKPhotoResponseToPostListConverter extends AbstractConverter<PhotoR
         if (source.getCount() == 0) {
             return result;
         }
-        for (PhotoItem photoItem : source.getItems()) {
-            try {
-                result.add(photoItemToPostConverter.convert(photoItem));
-            } catch (NullPointerException ex) {
-                ex.printStackTrace();
-                // TODO handle exception
-            }
-        }
+        result.addAll(photoItemToPostConverter.convert(source.getItems()));
         return result;
 
     }

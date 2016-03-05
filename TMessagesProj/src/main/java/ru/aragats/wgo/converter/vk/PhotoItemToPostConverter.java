@@ -19,7 +19,11 @@ import ru.aragats.wgo.dto.vk.PhotoItem;
 public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post> {
     @Override
     public Post convertIntern(PhotoItem source) {
-        //TODO validate height width and url if we can not build Post then return null and exlude it from the post list.
+        //TODO validate height width and url if we can not build Post then return null and exclude it from the post list.
+        if (source.getHeight() == null || source.getWidth() == null || StringUtils.isEmpty(source.getPhoto604())
+                || StringUtils.isEmpty(source.getPhoto807()) || StringUtils.isEmpty(source.getPhoto1280())) {
+            return null;
+        }
         Post result = new Post();
         result.setId("" + source.getId());
         result.setCreatedDate(((long) source.getDate() * 1000));
@@ -36,7 +40,6 @@ public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post>
 
         List<Image> images = new ArrayList<>();
         Image previewImage = new Image();
-        //TODO if height or width  == 0 then throw this item
         previewImage.setHeight(source.getHeight());
         previewImage.setWidth(source.getWidth());
         previewImage.setUrl(source.getPhoto604());
@@ -46,11 +49,7 @@ public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post>
         Image image = new Image();
         image.setHeight(source.getHeight());
         image.setWidth(source.getWidth());
-        if(!StringUtils.isEmpty(source.getPhoto1280())) {
-            image.setUrl(source.getPhoto1280());
-        } else {
-            image.setUrl(source.getPhoto604());
-        }
+        image.setUrl(source.getPhoto1280());
         images.add(image);
 
 

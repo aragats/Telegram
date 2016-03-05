@@ -25,6 +25,8 @@ import org.telegram.utils.Constants;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +35,8 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.comparator.PostDateComparator;
+import ru.aragats.wgo.converter.vk.VKPhotoResponseToPostListConverter;
 import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.FileUploadRequest;
 import ru.aragats.wgo.dto.Image;
@@ -41,11 +45,10 @@ import ru.aragats.wgo.dto.PostRequest;
 import ru.aragats.wgo.dto.PostResponse;
 import ru.aragats.wgo.dto.User;
 import ru.aragats.wgo.dto.Venue;
+import ru.aragats.wgo.dto.vk.VKPhotoResponse;
 import ru.aragats.wgo.rest.manager.RestManager;
 import ru.aragats.wgo.rest.mock.PostServiceMock;
 import ru.aragats.wgo.rest.mock.UserServiceMock;
-import ru.aragats.wgo.converter.vk.VKPhotoResponseToPostListConverter;
-import ru.aragats.wgo.dto.vk.VKPhotoResponse;
 
 //import org.telegram.messenger.TLRPC;
 
@@ -57,7 +60,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     private Venue lastVenue;
 
     private List<Post> posts = new ArrayList<>();
-//    public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
+    public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
 
     private boolean loadingPosts = false;
 
@@ -296,6 +299,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                     postResponse.setPosts(new ArrayList<Post>());
                 }
 
+                postResponse.setSource("VK");
                 processLoadedPosts(postResponse, reload);
             }
 
@@ -328,11 +332,19 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public void processLoadedPosts(PostResponse postResponse, boolean reload) {
         if (reload) {
             posts.clear();
+            postsMap.clear();
         }
         posts.addAll(postResponse.getPosts());
-//        for (Post post : posts) {
-//            postsMap.putIfAbsent(post.getId(), post);
-//        }
+        //TODO this exclude duplicated post from VK. because VK do not return specified count of posts.
+        for (Post post : postResponse.getPosts()) {
+            postsMap.putIfAbsent(post.getId(), post);
+        }
+        //TODO rethink ti. not the best solution for VK. VK do not return specified number of posts !! !
+        if (postResponse.getSource() != null && postResponse.getSource().equals("VK")) {
+            posts.clear();
+            posts.addAll(postsMap.values());
+            Collections.sort(posts, new PostDateComparator());
+        }
         loadingPosts = false;
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!postResponse.getPosts().isEmpty() || reload) {

@@ -10,6 +10,8 @@ import java.util.List;
 public class PostResponse {
     private List<Post> posts = new ArrayList<>();
     private String error;
+    //TODO make it enum !!
+    private String source;
 
 
     public List<Post> getPosts() {
@@ -26,5 +28,13 @@ public class PostResponse {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

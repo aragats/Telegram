@@ -29,7 +29,10 @@ public abstract class AbstractConverter<S, T> {
         List<T> result = new ArrayList<>();
         for (S src : sources) {
             if (src != null) {
-                result.add(convert(src));
+                T target = convert(src);
+                if (target != null) {
+                    result.add(target);
+                }
             }
         }
         return result;
