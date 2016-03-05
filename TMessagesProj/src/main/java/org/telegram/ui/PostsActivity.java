@@ -832,6 +832,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             refreshPosts(force);
         } else if (id == NotificationCenter.offlinePostsLoaded) {
+            layoutManager.scrollToPosition(0);
             startRefreshingProgressView();
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
@@ -860,6 +861,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 }
             }
             this.offlineMode = false;
+            layoutManager.scrollToPosition(0);
             refreshPosts(force);
         }
     }
