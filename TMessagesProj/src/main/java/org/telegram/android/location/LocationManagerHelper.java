@@ -1,6 +1,8 @@
 package org.telegram.android.location;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -10,12 +12,11 @@ import android.os.Bundle;
 
 import org.telegram.utils.StringUtils;
 
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.dto.Coordinates;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import ru.aragats.wgo.ApplicationLoader;
 
 /**
  * Created by aragats on 15/09/15.
@@ -49,7 +50,7 @@ public class LocationManagerHelper {
                 //TODO is often ??
                 // Called when a new location is found by the network location provider.
 //                makeUseOfNewLocation(location);
-                Location loc = getLastLocation();
+//                Location loc = getLastLocation();
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -176,6 +177,16 @@ public class LocationManagerHelper {
 //            e.printStackTrace();
             //TODO logger
             return "";
+        }
+    }
+
+
+    public boolean isGoogleMapsInstalled() {
+        try {
+            ApplicationInfo info = ApplicationLoader.applicationContext.getPackageManager().getApplicationInfo("com.google.android.apps.maps", 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
         }
     }
 }

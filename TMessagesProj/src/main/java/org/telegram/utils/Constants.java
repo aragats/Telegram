@@ -25,6 +25,7 @@ public class Constants {
 
     public static final String RESTRICTED_AREA = "restricted_area";
     public static final String RADIUS_ARG = "radius";
+    public static final String SEARCH_PLACES_ENABLE_ARG = "search_places_enable";
 
 
     // sizes from VK

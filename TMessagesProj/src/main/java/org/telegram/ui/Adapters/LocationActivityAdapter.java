@@ -30,6 +30,7 @@ public class LocationActivityAdapter extends BaseLocationAdapter {
 
     private Context mContext;
     private int overScrollHeight;
+    private boolean searchPlacesEnabled;
     private SendLocationCell sendLocationCell;
     private Location gpsLocation;
     private Location customLocation;
@@ -41,6 +42,10 @@ public class LocationActivityAdapter extends BaseLocationAdapter {
 
     public void setOverScrollHeight(int value) {
         overScrollHeight = value;
+    }
+
+    public void setSearchPlacesEnabled(boolean searchPlacesEnabled) {
+        this.searchPlacesEnabled = searchPlacesEnabled;
     }
 
     public void setGpsLocation(Location location) {
@@ -69,6 +74,9 @@ public class LocationActivityAdapter extends BaseLocationAdapter {
 
     @Override
     public int getCount() {
+        if (!searchPlacesEnabled) {
+            return 2;
+        }
         if (searching || !searching && places.isEmpty()) {
             return 4;
         }
@@ -164,5 +172,9 @@ public class LocationActivityAdapter extends BaseLocationAdapter {
     @Override
     public boolean hasStableIds() {
         return true;
+    }
+
+    public boolean isCustomLocation() {
+        return customLocation != null;
     }
 }

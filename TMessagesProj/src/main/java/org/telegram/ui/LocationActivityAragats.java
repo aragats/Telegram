@@ -122,12 +122,16 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
     private final static int map_list_menu_satellite = 3;
     private final static int map_list_menu_hybrid = 4;
 
+
+    private boolean searchPlacesEnable;
+
     public interface LocationActivityDelegate {
         void didSelectLocation(TLRPC.MessageMedia location);
     }
 
     public LocationActivityAragats(Bundle args) {
         super(args);
+        searchPlacesEnable = getArguments().getBoolean(Constants.SEARCH_PLACES_ENABLE_ARG, false);
     }
 
     @Override
@@ -423,6 +427,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
             listView = new ListView(context);
             listView.setAdapter(adapter = new LocationActivityAdapter(context));
+            adapter.setSearchPlacesEnabled(searchPlacesEnable);
             listView.setVerticalScrollBarEnabled(false);
             listView.setDividerHeight(0);
             listView.setDivider(null);
@@ -454,6 +459,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                             location.geo = new TLRPC.TL_geoPoint();
                             location.geo.lat = userLocation.getLatitude();
                             location.geo._long = userLocation.getLongitude();
+                            location.isCustomLocation = adapter.isCustomLocation();
                             delegate.didSelectLocation(location);
                         }
                         finishFragment();
@@ -461,6 +467,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                         TLRPC.TL_messageMediaVenue object = adapter.getItem(position);
                         if (object != null && delegate != null) {
                             object.geo = convertLocationToGeoPoint(userLocation);
+                            object.isCustomLocation = true;
                             delegate.didSelectLocation(object);
                         }
                         finishFragment();
@@ -620,6 +627,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     TLRPC.TL_messageMediaVenue object = searchAdapter.getItem(position);
                     if (object != null && delegate != null) {
                         object.geo = convertLocationToGeoPoint(userLocation);
+                        object.isCustomLocation = true;
                         delegate.didSelectLocation(object);
                     }
                     finishFragment();
@@ -654,8 +662,8 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
             //TODO in case of myLocation is null. it does not work !!!! Consider it !!!!
             // Circle area restriction.
-            boolean restrictedArea = getArguments().getBoolean("restricted_area", false);
-            final int radius = getArguments().getInt("radius", Constants.RADIUS);
+            boolean restrictedArea = getArguments().getBoolean(Constants.RESTRICTED_AREA, false);
+            final int radius = getArguments().getInt(Constants.RADIUS_ARG, Constants.RADIUS);
             if (restrictedArea) {
                 googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
@@ -859,7 +867,9 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         } else if (googleMap != null) {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (adapter != null) {
-                adapter.searchGooglePlacesWithQuery(null, myLocation);
+                if(searchPlacesEnable) {
+                    adapter.searchGooglePlacesWithQuery(null, myLocation);
+                }
                 adapter.setGpsLocation(myLocation);
             }
             if (!userLocationMoved) {

@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -59,8 +60,10 @@ import ru.aragats.wgo.R;
 
 import org.telegram.messenger.FileLog;
 
+import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.Post;
 
+import org.telegram.messenger.TLRPC;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -76,6 +79,8 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
+
+import java.util.Arrays;
 
 //TODO delte it or reuse.
 
@@ -126,9 +131,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     };
 
 
-    private final static int list_menu_synchronize = 1;
-    private final static int list_menu_map = 2;
+    private ActionBarMenuItem locationItem;
+    private static int itemId = 1;
 
+    private final static int list_menu_synchronize = itemId++;
+    private final static int list_menu_map = itemId++;
+    private final static int action_bar_menu_search = itemId++;
+    private final static int action_bar_menu_location = itemId++;
+    private final static int action_bar_menu_other = itemId++;
 
     private boolean offlineMode;
 
@@ -292,7 +302,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         ResourceLoader.loadRecources(context);
 
         ActionBarMenu menu = actionBar.createMenu();
-        ActionBarMenuItem item = menu.addItem(0, R.drawable.ic_ab_search).setIsSearchField(true).setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
+        ActionBarMenuItem item = menu.addItem(action_bar_menu_search, R.drawable.ic_ab_search).setIsSearchField(true).setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
             @Override
             public void onSearchExpand() {
                 searching = true;
@@ -365,7 +375,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         //TODO-TEMP search invisible
         item.setVisibility(View.INVISIBLE);
 
-        ActionBarMenuItem otherItem = menu.addItem(1, R.drawable.ic_ab_other);
+        locationItem = menu.addItem(action_bar_menu_location, R.drawable.ic_attach_location);
+
+        ActionBarMenuItem otherItem = menu.addItem(action_bar_menu_other, R.drawable.ic_ab_other);
         otherItem.addSubItem(list_menu_synchronize, LocaleController.getString("Synchronize", R.string.Synchronize), 0);
         otherItem.addSubItem(list_menu_map, LocaleController.getString("Map", R.string.Map), 0);
 
@@ -395,6 +407,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     System.out.println();
                 } else if (id == list_menu_map) {
                     System.out.println();
+                } else if (id == action_bar_menu_location) {
+                    openLocationChooser();
                 } else if (id == 1) {
                     System.out.println();
 //                    UserConfig.appLocked = !UserConfig.appLocked;
@@ -1046,5 +1060,53 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (progressView != null) {
             progressView.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void openLocationChooser() {
+        if (!isGoogleMapsInstalled()) {
+            return;
+        }
+        Bundle args = new Bundle();
+//        args.putBoolean(Constants.RESTRICTED_AREA, true);
+//        args.putInt(Constants.RADIUS_ARG, Constants.RADIUS);
+        args.putBoolean(Constants.SEARCH_PLACES_ENABLE_ARG, false);
+        LocationActivityAragats fragment = new LocationActivityAragats(args);
+        fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
+            @Override
+            public void didSelectLocation(TLRPC.MessageMedia location) {
+                Location lastSavedLocation = LocationManagerHelper.getInstance().getLastSavedLocation();
+                if (location.isCustomLocation) {
+                    locationItem.setIcon(R.drawable.ic_attach_location_white);
+                } else {
+                    locationItem.setIcon(R.drawable.ic_attach_location);
+                }
+                Coordinates coordinates = new Coordinates();
+                coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
+                coordinates.setType("Point");
+//                PostCreateActivity.this.userCoordinates = coordinates;
+//                Venue venue = new Venue();
+//                if (location.geoPlace != null) {
+//                    Coordinates placeCoordinates = new Coordinates();
+//                    placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
+//                    placeCoordinates.setType("Point");
+//                    venue.setCoordinates(placeCoordinates);
+//                } else {
+//                    venue.setCoordinates(coordinates);
+//                }
+//                venue.setFoursquareId(location.venue_id);
+//                if (!StringUtils.isEmpty(location.iconUrl)) {
+//                    Image image = new Image();
+//                    image.setUrl(location.iconUrl);
+//                    venue.setIcon(image);
+//                }
+//                venue.setName(location.title);
+//                venue.setAddress(location.address);
+//
+//                PostCreateActivity.this.venue = venue;
+//
+//                updateVenue();
+            }
+        });
+        presentFragment(fragment);
     }
 }

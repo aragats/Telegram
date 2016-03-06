@@ -9,14 +9,10 @@
 package org.telegram.ui;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -1072,34 +1068,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         return true;
     }
 
-    public boolean isGoogleMapsInstalled() {
-        try {
-            ApplicationInfo info = ApplicationLoader.applicationContext.getPackageManager().getApplicationInfo("com.google.android.apps.maps", 0);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            if (getParentActivity() == null) {
-                return false;
-            }
-            AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
-            builder.setMessage("Install Google Maps?");
-            builder.setCancelable(true);
-            builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.apps.maps"));
-                        getParentActivity().startActivityForResult(intent, 500);
-                    } catch (Exception e) {
-                        FileLog.e("tmessages", e);
-                    }
-                }
-            });
-            builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-            showDialog(builder.create());
-            return false;
-        }
-    }
-
     private void updateVisibleRows() {
         if (postListView == null) {
             return;
@@ -1403,6 +1371,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            notifyItemRemoved(posts.size() - (!endReached ? 0 : 1) - index);
             notifyItemRemoved(posts.size() - index);
         }
+
     }
 
 
@@ -1413,6 +1382,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         Bundle args = new Bundle();
         args.putBoolean(Constants.RESTRICTED_AREA, true);
         args.putInt(Constants.RADIUS_ARG, Constants.RADIUS);
+        args.putBoolean(Constants.SEARCH_PLACES_ENABLE_ARG, true);
         LocationActivityAragats fragment = new LocationActivityAragats(args);
         fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override

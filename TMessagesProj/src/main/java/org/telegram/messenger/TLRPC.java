@@ -72,6 +72,7 @@ public class TLRPC {
         public String venue_id;
         //TODO-aragats
         public String iconUrl;
+        public boolean isCustomLocation;
 
     }
 

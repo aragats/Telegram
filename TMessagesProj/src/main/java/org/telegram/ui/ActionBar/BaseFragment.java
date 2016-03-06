@@ -9,15 +9,19 @@
 package org.telegram.ui.ActionBar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.telegram.android.LocaleController;
+import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 
@@ -207,6 +211,41 @@ public class BaseFragment {
 
     public boolean needAddActionBar() {
         return true;
+    }
+
+    //TODO generic Dialog for other cases.
+    public Dialog buildInstallGoogleMapsDialog() {
+        if (getParentActivity() == null) {
+            return null;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
+        builder.setMessage("Install Google Maps?");
+        builder.setCancelable(true);
+        builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.apps.maps"));
+                    getParentActivity().startActivityForResult(intent, 500);
+                } catch (Exception e) {
+                    FileLog.e("tmessages", e);
+                }
+            }
+        });
+        builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
+        return builder.create();
+    }
+
+    public boolean isGoogleMapsInstalled() {
+        boolean googleInstalled = LocationManagerHelper.getInstance().isGoogleMapsInstalled();
+        if (googleInstalled) {
+            return true;
+        }
+        Dialog dialog = buildInstallGoogleMapsDialog();
+        if (dialog != null) {
+            showDialog(dialog);
+        }
+        return false;
     }
 
     public Dialog showDialog(Dialog dialog) {
