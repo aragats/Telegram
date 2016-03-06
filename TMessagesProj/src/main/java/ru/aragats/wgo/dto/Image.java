@@ -2,10 +2,12 @@ package ru.aragats.wgo.dto;
 
 import android.graphics.Bitmap;
 
+import java.io.Serializable;
+
 /**
  * Created by aragats on 09/05/15.
  */
-public class Image {
+public class Image implements Serializable{
 
     private String key;
     private String url;
@@ -15,7 +17,7 @@ public class Image {
     //TODO enum // contentType !!!
     private String type;
     // TODO TEMP. Use other Image class. make it Transient.
-    private Bitmap bitmap;
+    private transient Bitmap bitmap;
 
     public String getUrl() {
         return url;

@@ -850,7 +850,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             boolean force = false;
             if (!this.offlineMode) {
                 force = true;
-                if (!MediaController.isRTreeloaded()) {
+                if (!MediaController.getInstance().isRTreeloaded()) {
                     if (progressView != null && postListView != null) {
                         progressView.setVisibility(View.VISIBLE);
                         postListView.setVisibility(View.INVISIBLE);

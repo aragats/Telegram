@@ -1,9 +1,11 @@
 package ru.aragats.wgo.dto;
 
+import java.io.Serializable;
+
 /**
  * Created by aragats on 09/05/15.
  */
-public class Venue {
+public class Venue  implements Serializable{
     private String id;
     private String foursquareId;
     private String name;

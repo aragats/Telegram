@@ -1,12 +1,13 @@
 package ru.aragats.wgo.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by aragats on 09/05/15.
  */
-public class Coordinates {
+public class Coordinates  implements Serializable{
     //TODO enum. probably.
     private String type;
     private List<Double> coordinates = new ArrayList<Double>();

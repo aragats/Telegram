@@ -3,12 +3,13 @@ package ru.aragats.wgo.dto;
 
 import org.telegram.utils.CollectionUtils;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by aragats on 27/12/14.
  */
-public class Post {
+public class Post implements Serializable{
 
     private String id;
     private String text;

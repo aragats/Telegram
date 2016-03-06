@@ -208,11 +208,11 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     public void loadPosts(final String idOffset, final int offset, final int count, final boolean reload, final boolean offlineMode) {
-        if (loadingPosts || offlineMode && MediaController.getrTree() == null) {
+        if (loadingPosts || offlineMode && MediaController.getInstance().getRTree() == null) {
             return;
         }
         //TODO rethink this.
-//        if (offlineMode && MediaController.getrTree() == null) {
+//        if (offlineMode && MediaController.getRTree() == null) {
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.stopRefreshingView);
 //            return;
 //        }
@@ -241,7 +241,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     private void loadLocalPosts(final PostRequest postRequest, final boolean reload) {
         List<Post> results = new ArrayList<>();
-        RTree<Post, Geometry> rTree = MediaController.getrTree();
+        RTree<Post, Geometry> rTree = MediaController.getInstance().getRTree();
         if (rTree == null) {
             return;
         }

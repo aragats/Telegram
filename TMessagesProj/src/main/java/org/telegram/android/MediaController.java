@@ -41,6 +41,7 @@ import ru.aragats.wgo.dto.Post;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.UserConfig;
+import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
@@ -49,6 +50,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -57,13 +60,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
 public class MediaController implements NotificationCenter.NotificationCenterDelegate {
 
-    private static RTree<Post, Geometry> rTree;
-    private static boolean rTreeloaded;
+    private RTree<Post, Geometry> rTree;
+    private boolean rTreeloaded;
 
 
     public static int[] readArgs = new int[3];
@@ -165,6 +169,9 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     public int roamingDownloadMask = 0;
     private int lastCheckMask = 0;
 
+
+    private long rTreeLastDateUpdate = 0;
+
     private boolean saveToGallery = true;
 
     private HashMap<String, ArrayList<WeakReference<FileDownloadProgressListener>>> loadingFileObservers = new HashMap<>();
@@ -260,6 +267,9 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         wifiDownloadMask = preferences.getInt("wifiDownloadMask", AUTODOWNLOAD_MASK_PHOTO);
         roamingDownloadMask = preferences.getInt("roamingDownloadMask", 0);
         saveToGallery = preferences.getBoolean("save_gallery", false);
+
+
+        rTreeLastDateUpdate = preferences.getLong("rTreeLastDateUpdate", 0);
 
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidFailedLoad);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidLoaded);
@@ -394,6 +404,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         ApplicationLoader.applicationHandler.postDelayed(stopMediaObserverRunnable, 5000);
     }
 
+    //TODO find out why we need it ? Probaly ther is better way to keep up to date RTREE with local files.
     public void processMediaObserver(Uri uri) {
         try {
             Point size = AndroidUtilities.getRealScreenSize();
@@ -750,7 +761,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     //TODO why it is static
     //TODO what is it guid. I need guid in postNotification. I should pass this parameter in args to say to which activiy I send the notification, because many activities could subscribe to the same notification, but not all of them must receive the response
     public static void loadGeoTaggedGalleryPhotos(final int guid) {
-        if (rTree != null || isRTreeloaded()) {
+        if (getInstance().rTree != null || getInstance().isRTreeloaded()) {
             AndroidUtilities.runOnUIThread(new Runnable() {
                 @Override
                 public void run() {
@@ -762,46 +773,53 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         new Thread(new Runnable() {
             @Override
             public void run() {
-                RTree<Post, Geometry> rTree = RTree.create();
-                String cameraFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/" + "Camera/";
+                List<Post> posts = new ArrayList<Post>();
+                RTree<Post, Geometry> rTree = getInstance().restoreRTree();
+                if (rTree == null) {
+                    rTree = RTree.create();
+                    String cameraFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/" + "Camera/";
 
-                // TODO filter files list. and in parallel check time of the last update?
+                    // TODO filter files list. and in parallel check time of the last update?
 //               TODO  Or update rTree one per week ! (per day). OR if the number of files is changed. new photo added or something deleted. !!
-                String[] fileNames = new File(cameraFolder).list(new FilenameFilter() {
-                    public boolean accept(File dir, String name) {
-                        return name.toLowerCase().endsWith(Constants.EXTENSION_JPG) ||
-                                name.toLowerCase().endsWith(Constants.EXTENSION_JPEG)
-                                || name.toLowerCase().endsWith(Constants.EXTENSION_PNG);
+                    String[] fileNames = new File(cameraFolder).list(new FilenameFilter() {
+                        public boolean accept(File dir, String name) {
+                            return name.toLowerCase().endsWith(Constants.EXTENSION_JPG) ||
+                                    name.toLowerCase().endsWith(Constants.EXTENSION_JPEG)
+                                    || name.toLowerCase().endsWith(Constants.EXTENSION_PNG);
+                        }
+                    });
+                    for (String fileName : fileNames) {
+                        ExifInterface exif;
+                        try {
+                            exif = new ExifInterface(cameraFolder + File.separator + fileName);
+                        } catch (IOException e) {
+                            //TODO handle exception.
+                            e.printStackTrace();
+                            continue;
+                        }
+                        String datetime = exif.getAttribute(ExifInterface.TAG_DATETIME);
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss", Locale.getDefault());
+                        Date date;
+                        try {
+                            date = simpleDateFormat.parse(datetime);
+                        } catch (ParseException e) {
+                            //TODO handle exception
+                            e.printStackTrace();
+                            continue;
+                        }
+                        float[] coordinates = new float[2];
+                        boolean result = exif.getLatLong(coordinates);
+                        if (result) {
+                            Post post = PostsController.getInstance().createPost(cameraFolder, fileName, coordinates[0], coordinates[1], date);
+                            rTree = rTree.add(Entry.entry(post, Geometries.point(coordinates[1], coordinates[0])));
+                            posts.add(post);
+                        }
                     }
-                });
-                for (String fileName : fileNames) {
-                    ExifInterface exif;
-                    try {
-                        exif = new ExifInterface(cameraFolder + File.separator + fileName);
-                    } catch (IOException e) {
-                        //TODO handle exception.
-                        e.printStackTrace();
-                        continue;
-                    }
-                    String datetime = exif.getAttribute(ExifInterface.TAG_DATETIME);
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss", Locale.getDefault());
-                    Date date;
-                    try {
-                        date = simpleDateFormat.parse(datetime);
-                    } catch (ParseException e) {
-                        //TODO handle exception
-                        e.printStackTrace();
-                        continue;
-                    }
-                    float[] coordinates = new float[2];
-                    boolean result = exif.getLatLong(coordinates);
-                    if (result) {
-                        Post post = PostsController.getInstance().createPost(cameraFolder, fileName, coordinates[0], coordinates[1], date);
-                        rTree = rTree.add(Entry.entry(post, Geometries.point(coordinates[1], coordinates[0])));
-                    }
+                    //TODO it in other thread - saving the file.
                 }
-                setrTree(rTree);
-
+//                restoreObject(Constants.LOCAL_POSTS_FILENAME);
+                getInstance().setRTree(rTree);
+                getInstance().saveLocalPosts(posts);
                 AndroidUtilities.runOnUIThread(new Runnable() {
                     @Override
                     public void run() {
@@ -827,10 +845,57 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }).start();
     }
 
-    private static void setrTree(RTree<Post, Geometry> rTree) {
-        MediaController.rTree = rTree;
+    private void setRTree(RTree<Post, Geometry> rTree) {
+        MediaController.getInstance().rTree = rTree;
         rTreeloaded = true;
+    }
 
+
+    public void saveLocalPosts(final List<Post> posts) {
+        if (CollectionUtils.isEmpty(posts)) {
+            return;
+        }
+        long diff = new Date().getTime() - getInstance().rTreeLastDateUpdate;
+        if (diff > Constants.TIME_DIFFERENCE) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    saveObject(Constants.LOCAL_POSTS_FILENAME, posts);
+                    SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    rTreeLastDateUpdate = new Date().getTime();
+                    editor.putLong("rTreeLastDateUpdate", rTreeLastDateUpdate);
+                    editor.commit();
+
+                }
+            }).start();
+        }
+    }
+
+    public RTree<Post, Geometry> restoreRTree() {
+        long diff = new Date().getTime() - getInstance().rTreeLastDateUpdate;
+        //if difference big then return nul to force app to read images again.
+        if (diff > Constants.TIME_DIFFERENCE) {
+            return null;
+        }
+        Object object = restoreObject(Constants.LOCAL_POSTS_FILENAME);
+        if (object instanceof ArrayList) {
+            List objects = (ArrayList) object;
+            if (CollectionUtils.isEmpty(objects)) {
+                return null;
+            }
+            RTree<Post, Geometry> rTree = RTree.create();
+            for (Object obj : objects) {
+                if (obj instanceof Post) {
+                    Post post = (Post) obj;
+                    List<Double> coordinates = post.getCoordinates().getCoordinates();
+                    rTree = rTree.add(Entry.entry(post, Geometries.point(coordinates.get(0), coordinates.get(1))));
+                }
+            }
+
+            return rTree;
+        }
+        return null;
     }
 
     public static void loadGalleryPhotosAlbums(final int guid) {
@@ -1044,12 +1109,41 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
     }
 
+    public static void saveObject(String fileName, Object object) {
+        FileOutputStream outputStream;
+        try {
+            outputStream = ApplicationLoader.applicationContext.openFileOutput(fileName, Context.MODE_PRIVATE);
+            ObjectOutputStream os = new ObjectOutputStream(outputStream);
+            os.writeObject(object);
+            os.close();
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    public static RTree<Post, Geometry> getrTree() {
+    //    ApplicationLoader.applicationContext.getFilesDir() -  to get list of all files.
+    public Object restoreObject(String fileName) {
+        try {
+            FileInputStream fis = ApplicationLoader.applicationContext.openFileInput(fileName);
+            ObjectInputStream is = new ObjectInputStream(fis);
+            Object object = is.readObject();
+            is.close();
+            fis.close();
+            return object;
+        } catch (Exception e) {
+            //TODO handle exception.
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public RTree<Post, Geometry> getRTree() {
         return rTree;
     }
 
-    public static boolean isRTreeloaded() {
+    public boolean isRTreeloaded() {
         return rTreeloaded;
     }
 }

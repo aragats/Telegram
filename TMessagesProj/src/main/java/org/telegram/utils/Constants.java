@@ -47,4 +47,9 @@ public class Constants {
     public static final String EXTENSION_PNG = ".png";
 
     public static long PROGRESS_DIALOG_TIMEOUT = 500;
+
+
+    public static String LOCAL_POSTS_FILENAME = "rtree";
+
+    public static long TIME_DIFFERENCE = 1 * 24 * 60 * 60 * 1000; // 1 Day.
 }
