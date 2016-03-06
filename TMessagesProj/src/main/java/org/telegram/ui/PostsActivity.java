@@ -126,6 +126,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     };
 
 
+    private final static int list_menu_synchronize = 1;
+    private final static int list_menu_map = 2;
+
+
     private boolean offlineMode;
 
     //TODO-legacy. update according to new version.
@@ -361,6 +365,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         //TODO-TEMP search invisible
         item.setVisibility(View.INVISIBLE);
 
+        ActionBarMenuItem otherItem = menu.addItem(1, R.drawable.ic_ab_other);
+        otherItem.addSubItem(list_menu_synchronize, LocaleController.getString("Synchronize", R.string.Synchronize), 0);
+        otherItem.addSubItem(list_menu_map, LocaleController.getString("Map", R.string.Map), 0);
 
         if (searchString != null) {
             actionBar.setBackButtonImage(R.drawable.ic_ab_back);
@@ -384,7 +391,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     if (parentLayout != null) {
                         parentLayout.getDrawerLayoutContainer().openDrawer(false);
                     }
+                } else if (id == list_menu_synchronize) {
+                    System.out.println();
+                } else if (id == list_menu_map) {
+                    System.out.println();
                 } else if (id == 1) {
+                    System.out.println();
 //                    UserConfig.appLocked = !UserConfig.appLocked;
 //                    UserConfig.saveConfig(false);
 //                    updatePasscodeButton();

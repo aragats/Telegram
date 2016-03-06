@@ -173,6 +173,7 @@
     <string name="NoPosts">Es gibt nicht die neuesten Beiträge in Ihrer Nähe.</string>
     <string name="NothingHappens">Nichts ist hier los.</string>
     <string name="EnableGPS">Bitte aktivieren Sie GPS auf Ihrem Handy.</string>
+    <string name="Synchronize">Synchronize</string>
     <!--Create post-->
     <string name="AddPhotoHint">Wählen Sie Foto</string>
     <string name="Place">Ort</string>
