@@ -97,6 +97,15 @@ public class LocationManagerHelper {
         return l;
     }
 
+    public boolean isLocationServiceEnabled() {
+        LocationManager lm = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
+        return (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) && lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+    }
+
+//    lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+//            lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+//    lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER);
+
     public Location getLastSavedLocation() {
         return lastSavedLocation;
     }

@@ -119,7 +119,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private Runnable refreshProgressRun = new Runnable() {
         @Override
         public void run() {
-            if (PostsController.getInstance().isLoadingPosts()) {
+            if (PostsController.getInstance().isLoadingPosts() && swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(true);
             }
         }
@@ -235,6 +235,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.offlinePostsLoaded);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsRefresh);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.undefinedLocation);
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.locationServiceDisabled);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.loadPostsError);
@@ -252,6 +253,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             ContactsController.getInstance().checkInviteText();
             postsLoaded = true;
         }
+        if (!LocationManagerHelper.getInstance().isLocationServiceEnabled()) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.locationServiceDisabled);
+        }
         return true;
     }
 
@@ -265,6 +269,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.offlinePostsLoaded);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsRefresh);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.undefinedLocation);
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.locationServiceDisabled);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.loadPostsError);
@@ -697,8 +702,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     }
 
     @Override
+    public void onPause() {
+        LocationManagerHelper.getInstance().stopLocationListener();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        LocationManagerHelper.getInstance().runLocationListener();
         if (postsAdapter != null) {
             postsAdapter.notifyDataSetChanged();
         }
@@ -737,7 +748,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 //        }
         if (id == NotificationCenter.stopRefreshingView) {
             stopRefreshingProgressView();
-        } else if (id == NotificationCenter.undefinedLocation) {
+        } else if (id == NotificationCenter.locationServiceDisabled || id == NotificationCenter.undefinedLocation) {
 //            Toast.makeText(((Context) getParentActivity()), "Please, enable gps on your phone", Toast.LENGTH_SHORT).show();
             stopRefreshingProgressView();
             Activity context = getParentActivity();
@@ -1017,7 +1028,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     private void stopRefreshingProgressView() {
         handler.removeCallbacks(refreshProgressRun);
-        swipeRefreshLayout.setRefreshing(false);
-
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+        if (progressView != null) {
+            progressView.setVisibility(View.INVISIBLE);
+        }
     }
 }
