@@ -53,4 +53,6 @@ public class Constants {
     public static String LOCAL_POSTS_FILENAME = "rtree";
 
     public static long TIME_DIFFERENCE = 1 * 24 * 60 * 60 * 1000; // 1 Day.
+
+    public static String POINT = "Point";
 }

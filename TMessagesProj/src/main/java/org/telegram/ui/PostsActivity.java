@@ -651,7 +651,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 }
                 //TODO fix it. to often run load posts.
                 if (visibleItemCount > 0) {
-                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().getPosts().size() - 1 && !mIsScrollingUp) {
+                    if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().getPosts().size() - 1 && !mIsScrollingUp && !PostsController.getInstance().getPosts().isEmpty()) {
                         String offset = PostsController.getInstance().getPosts().get(PostsController.getInstance().getPosts().size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
                         startRefreshingProgressView();
                         PostsController.getInstance().loadPosts(offset, PostsController.getInstance().getPosts().size(), Constants.POST_COUNT, false, offlineMode);
@@ -1074,37 +1074,21 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override
             public void didSelectLocation(TLRPC.MessageMedia location) {
-                Location lastSavedLocation = LocationManagerHelper.getInstance().getLastSavedLocation();
-                if (location.isCustomLocation) {
-                    locationItem.setIcon(R.drawable.ic_attach_location_white);
-                } else {
+                //TODO I think i do not need last saved location. I can just put "network" provider into Location isntance
+                Location lastSavedLocation = LocationManagerHelper.getInstance().getLastSavedOrLastLocation();
+                if (!location.isCustomLocation || lastSavedLocation == null) {
                     locationItem.setIcon(R.drawable.ic_attach_location);
+                    LocationManagerHelper.getInstance().setCustomLocation(null);
+                    // TODO save additional request if the same coordinates are chosen ?? But man can move. so current location could change
+                    refreshPosts(true);
+                    return;
                 }
-                Coordinates coordinates = new Coordinates();
-                coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
-                coordinates.setType("Point");
-//                PostCreateActivity.this.userCoordinates = coordinates;
-//                Venue venue = new Venue();
-//                if (location.geoPlace != null) {
-//                    Coordinates placeCoordinates = new Coordinates();
-//                    placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
-//                    placeCoordinates.setType("Point");
-//                    venue.setCoordinates(placeCoordinates);
-//                } else {
-//                    venue.setCoordinates(coordinates);
-//                }
-//                venue.setFoursquareId(location.venue_id);
-//                if (!StringUtils.isEmpty(location.iconUrl)) {
-//                    Image image = new Image();
-//                    image.setUrl(location.iconUrl);
-//                    venue.setIcon(image);
-//                }
-//                venue.setName(location.title);
-//                venue.setAddress(location.address);
-//
-//                PostCreateActivity.this.venue = venue;
-//
-//                updateVenue();
+                Location customLocation = new Location(lastSavedLocation.getProvider());
+                customLocation.setLatitude(location.geo.lat);
+                customLocation.setLongitude(location.geo._long);
+                LocationManagerHelper.getInstance().setCustomLocation(customLocation);
+                locationItem.setIcon(R.drawable.ic_attach_location_white);
+                refreshPosts(true);
             }
         });
         presentFragment(fragment);

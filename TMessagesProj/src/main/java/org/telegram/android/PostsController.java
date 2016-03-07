@@ -217,7 +217,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //            return;
 //        }
         loadingPosts = true;
-        Location location = LocationManagerHelper.getInstance().getLastLocation();
+        Location location = LocationManagerHelper.getInstance().getLocation4TimeLine();
         if (location == null) {
             loadingPosts = false; // TODO
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
@@ -317,7 +317,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             return;
         }
         loadingPosts = true;
-        Location location = LocationManagerHelper.getInstance().getLastLocation();
+        Location location = LocationManagerHelper.getInstance().getLocation4TimeLine();
         if (location == null) {
             loadingPosts = false;
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
@@ -360,7 +360,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     public void loadCurrentVenue(String loc) {
-        Location location = LocationManagerHelper.getInstance().getLastLocation();
+        Location location = LocationManagerHelper.getInstance().getLocation4TimeLine();
         if (location == null) {
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
         }

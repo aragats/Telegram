@@ -29,6 +29,8 @@ public class LocationManagerHelper {
 
     private Location lastSavedLocation;
 
+    private Location customLocation;
+
     public static LocationManagerHelper getInstance() {
         LocationManagerHelper localInstance = Instance;
         if (localInstance == null) {
@@ -98,6 +100,13 @@ public class LocationManagerHelper {
         return l;
     }
 
+    public Location getLocation4TimeLine() {
+        if(customLocation != null) {
+            return customLocation;
+        }
+        return getLastLocation();
+    }
+
     public boolean isLocationServiceEnabled() {
         LocationManager lm = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
         return (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) && lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
@@ -109,6 +118,13 @@ public class LocationManagerHelper {
 
     public Location getLastSavedLocation() {
         return lastSavedLocation;
+    }
+
+    public Location getLastSavedOrLastLocation() {
+        if(lastSavedLocation != null) {
+            return lastSavedLocation;
+        }
+        return getLastLocation();
     }
 
 
@@ -188,5 +204,13 @@ public class LocationManagerHelper {
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
+    }
+
+    public Location getCustomLocation() {
+        return customLocation;
+    }
+
+    public void setCustomLocation(Location customLocation) {
+        this.customLocation = customLocation;
     }
 }
