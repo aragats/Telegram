@@ -39,12 +39,12 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
         void didLoadedSearchResult(ArrayList<TLRPC.TL_messageMediaVenue> places);
     }
 
-    private RequestQueue requestQueue;
+    protected RequestQueue requestQueue;
     protected boolean searching;
     protected ArrayList<TLRPC.TL_messageMediaVenue> places = new ArrayList<>();
     protected ArrayList<String> iconUrls = new ArrayList<>();
-    private Location lastSearchLocation;
-    private BaseLocationAdapterDelegate delegate;
+    protected Location lastSearchLocation;
+    protected BaseLocationAdapterDelegate delegate;
     private Timer searchTimer;
 
     public BaseLocationAdapter() {

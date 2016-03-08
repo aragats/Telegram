@@ -1062,6 +1062,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         }
     }
 
+    //http://stackoverflow.com/questions/5375654/how-to-implement-google-maps-search-by-address-in-android  search Google Maps
     private void openLocationChooser() {
         if (!isGoogleMapsInstalled()) {
             return;

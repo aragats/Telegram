@@ -55,4 +55,6 @@ public class Constants {
     public static long TIME_DIFFERENCE = 1 * 24 * 60 * 60 * 1000; // 1 Day.
 
     public static String POINT = "Point";
+
+    public static final int MAX_RESULTS = 10;
 }
