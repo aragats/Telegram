@@ -1085,8 +1085,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     return;
                 }
                 Location customLocation = new Location(lastSavedLocation.getProvider());
-                customLocation.setLatitude(location.geo.lat);
-                customLocation.setLongitude(location.geo._long);
+                double lat = location.geo.lat;
+                double lng = location.geo._long;
+                if (location.geoPlace != null) {
+                    lat = location.geoPlace.lat;
+                    lng = location.geoPlace._long;
+                }
+                customLocation.setLatitude(lat);
+                customLocation.setLongitude(lng);
                 LocationManagerHelper.getInstance().setCustomLocation(customLocation);
                 locationItem.setIcon(R.drawable.ic_attach_location_white);
                 refreshPosts(true);

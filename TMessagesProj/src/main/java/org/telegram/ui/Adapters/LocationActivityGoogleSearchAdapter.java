@@ -49,6 +49,7 @@ public class LocationActivityGoogleSearchAdapter extends LocationActivitySearchA
         }
         searching = true;
         //TODO run in the thread
+//        LocationManagerHelper.getInstance().predictPlaceByName(query);
         List<Address> addresses = LocationManagerHelper.getInstance().getAddressesFromLocationName(query, Constants.MAX_RESULTS);
         places = (ArrayList<TLRPC.TL_messageMediaVenue>) convertAddresses(addresses);
         searching = false;

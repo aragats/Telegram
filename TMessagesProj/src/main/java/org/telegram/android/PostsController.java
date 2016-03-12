@@ -233,7 +233,8 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         if (offlineMode) {
             loadLocalPosts(postRequest, reload);
         } else {
-            loadPostFromServer(postRequest, reload);
+//            loadPostFromServer(postRequest, reload);
+            loadVKPhotos(postRequest, reload);
         }
 
 

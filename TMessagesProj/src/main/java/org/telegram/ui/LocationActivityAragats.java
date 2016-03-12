@@ -63,6 +63,7 @@ import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.Adapters.BaseLocationAdapter;
 import org.telegram.ui.Adapters.LocationActivityAdapter;
+import org.telegram.ui.Adapters.LocationActivityGoogleSearchAdapter;
 import org.telegram.ui.Adapters.LocationActivitySearchAdapter;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
@@ -606,6 +607,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             searchListView.setVisibility(View.GONE);
             searchListView.setDividerHeight(0);
             searchListView.setDivider(null);
+//            searchListView.setAdapter(searchAdapter = new LocationActivityGoogleSearchAdapter(context));
             searchListView.setAdapter(searchAdapter = new LocationActivitySearchAdapter(context));
             frameLayout.addView(searchListView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.LEFT | Gravity.TOP));
             searchListView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -868,7 +870,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (adapter != null) {
                 if(searchPlacesEnable) {
-                    adapter.searchGooglePlacesWithQuery(null, myLocation);
+                    adapter.searchGooglePlacesWithQuery(null, myLocation, Constants.RADIUS_CHECKIN, Constants.FOURSQUARE_CHECKIN);
                 }
                 adapter.setGpsLocation(myLocation);
             }

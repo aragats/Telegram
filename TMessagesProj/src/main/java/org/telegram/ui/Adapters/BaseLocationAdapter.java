@@ -88,7 +88,7 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
                         @Override
                         public void run() {
                             lastSearchLocation = null;
-                            searchGooglePlacesWithQuery(query, coordinate);
+                            searchGooglePlacesWithQuery(query, coordinate, Constants.RADIUS_BROWSER, Constants.FOURSQUARE_BROWSER);
                         }
                     });
                 }
@@ -96,7 +96,7 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
         }
     }
 
-    public void searchGooglePlacesWithQuery(final String query, final Location coordinate) {
+    public void searchGooglePlacesWithQuery(final String query, final Location coordinate, final int radius, final String intent) {
         if (lastSearchLocation != null && coordinate.distanceTo(lastSearchLocation) < 200) {
             return;
         }
@@ -107,8 +107,8 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
         }
         try {
             searching = true;
-            String url = String.format(Locale.US, "https://api.foursquare.com/v2/venues/search/?v=%s&locale=en&limit=25&client_id=%s&client_secret=%s&ll=%s&radius=%s",
-                    BuildVars.FOURSQUARE_API_VERSION, BuildVars.FOURSQUARE_API_ID, BuildVars.FOURSQUARE_API_KEY, String.format(Locale.US, "%f,%f", coordinate.getLatitude(), coordinate.getLongitude()), Constants.RADIUS);
+            String url = String.format(Locale.US, "https://api.foursquare.com/v2/venues/search/?v=%s&locale=en&limit=25&client_id=%s&client_secret=%s&ll=%s&radius=%s&intent=%s",
+                    BuildVars.FOURSQUARE_API_VERSION, BuildVars.FOURSQUARE_API_ID, BuildVars.FOURSQUARE_API_KEY, String.format(Locale.US, "%f,%f", coordinate.getLatitude(), coordinate.getLongitude()), radius, intent);
             if (query != null && query.length() > 0) {
                 url += "&query=" + URLEncoder.encode(query, "UTF-8");
             }

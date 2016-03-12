@@ -34,6 +34,8 @@ public class LocationManagerHelper {
 
     private Geocoder geocoder;
 
+//    private GoogleApiClient mGoogleApiClient;
+
     public static LocationManagerHelper getInstance() {
         LocationManagerHelper localInstance = Instance;
         if (localInstance == null) {
@@ -48,6 +50,18 @@ public class LocationManagerHelper {
     }
 
     private LocationManagerHelper() {
+//        mGoogleApiClient = new GoogleApiClient
+//                .Builder(ApplicationLoader.applicationContext)
+////                .enableAutoManage((FragmentActivity) ApplicationLoader.applicationContext, 0, null)
+//                .addApi(Places.GEO_DATA_API)
+//                .addApi(Places.PLACE_DETECTION_API)
+////                .addConnectionCallbacks(null)
+////                .addOnConnectionFailedListener(null)
+//                .build();
+//        if (mGoogleApiClient != null) {
+//            mGoogleApiClient.connect();
+//        }
+
         geocoder = new Geocoder(ApplicationLoader.applicationContext, Locale.ENGLISH);
         // Define a listener that responds to location updates
 
@@ -130,6 +144,84 @@ public class LocationManagerHelper {
         }
         return getLastLocation();
     }
+
+
+//    private ArrayList<PlaceAutocomplete> getPredictions(CharSequence constraint) {
+//        if (mGoogleApiClient != null) {
+//            Log.i(TAG, "Executing autocomplete query for: " + constraint);
+//            PendingResult<AutocompletePredictionBuffer> results =
+//                    Places.GeoDataApi
+//                            .getAutocompletePredictions(mGoogleApiClient, constraint.toString(),
+//                                    mBounds, mPlaceFilter);
+//            // Wait for predictions, set the timeout.
+//            AutocompletePredictionBuffer autocompletePredictions = results
+//                    .await(60, TimeUnit.SECONDS);
+//            final Status status = autocompletePredictions.getStatus();
+//            if (!status.isSuccess()) {
+//                Toast.makeText(getContext(), "Error: " + status.toString(),
+//                        Toast.LENGTH_SHORT).show();
+//                Log.e(TAG, "Error getting place predictions: " + status
+//                        .toString());
+//                autocompletePredictions.release();
+//                return null;
+//            }
+//
+//            Log.i(TAG, "Query completed. Received " + autocompletePredictions.getCount()
+//                    + " predictions.");
+//            Iterator<AutocompletePrediction> iterator = autocompletePredictions.iterator();
+//            ArrayList resultList = new ArrayList<>(autocompletePredictions.getCount());
+//            while (iterator.hasNext()) {
+//                AutocompletePrediction prediction = iterator.next();
+//                resultList.add(new PlaceAutocomplete(prediction.getPlaceId(),
+//                        prediction.getDescription()));
+//            }
+//            // Buffer release
+//            autocompletePredictions.release();
+//            return resultList;
+//        }
+//        Log.e(TAG, "Google API client is not connected.");
+//        return null;
+//    }
+
+
+//    public void predictPlaceByName(String query) {
+//
+//        if (!mGoogleApiClient.isConnected()) {
+//            return;
+//        }
+//
+//        LatLngBounds latLngBounds = new LatLngBounds(
+//                new LatLng(52.222485, 12.755897),
+//                new LatLng(52.893462, 13.739561));
+////        PendingResult<AutocompletePredictionBuffer> result =
+////                Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, query,
+////                        latLngBounds, null);
+//
+//        Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, query, latLngBounds, null)
+//                .setResultCallback(
+//                        new ResultCallback<AutocompletePredictionBuffer>() {
+//                            @Override
+//                            public void onResult(AutocompletePredictionBuffer buffer) {
+//
+//                                if (buffer == null)
+//                                    return;
+//
+//                                if (buffer.getStatus().isSuccess()) {
+//                                    for (AutocompletePrediction prediction : buffer) {
+//                                        prediction.getPlaceId();
+//                                        prediction.getDescription();
+//                                        //Add as a new item to avoid IllegalArgumentsException when buffer is released
+////                                        add( new AutoCompletePlace( prediction.getPlaceId(), prediction.getDescription() ) );
+//                                    }
+//                                }
+//
+//                                //Prevent memory leak by releasing buffer
+//                                buffer.release();
+//                            }
+//                        }, 60, TimeUnit.SECONDS);
+////
+//        return;
+//    }
 
     //TODO run in the thread
     //

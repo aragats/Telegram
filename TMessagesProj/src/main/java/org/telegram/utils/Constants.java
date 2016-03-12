@@ -20,6 +20,10 @@ public class Constants {
     public static int POST_COUNT = 20;
 
     public static final int RADIUS = 800; // meters 8000 for VK
+    public static final int RADIUS_BROWSER = 100_000;
+    public static final int RADIUS_CHECKIN = 800;
+    public static final String FOURSQUARE_BROWSER = "browse";
+    public static final String FOURSQUARE_CHECKIN = "checkin";
     public static final double MAX_DISTANCE_DEGREE = 0.01;
 
 
