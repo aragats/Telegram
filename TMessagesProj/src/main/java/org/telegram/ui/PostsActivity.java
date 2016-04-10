@@ -1079,6 +1079,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 //        args.putInt(Constants.RADIUS_ARG, Constants.RADIUS);
         args.putBoolean(Constants.SEARCH_PLACES_ENABLE_ARG, false);
         LocationActivityAragats fragment = new LocationActivityAragats(args);
+        Location customLocation = LocationManagerHelper.getInstance().getCustomLocation();
+        if (customLocation != null) {
+            fragment.setCustomLocation(customLocation);
+        }
         fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override
             public void didSelectLocation(TLRPC.MessageMedia location) {

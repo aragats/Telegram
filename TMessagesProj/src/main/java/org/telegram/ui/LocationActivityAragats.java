@@ -107,6 +107,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
     private Location myLocation;
     private Location userLocation;
+    private Location customLocation;
     private int markerTop;
 
     private Post post;
@@ -640,6 +641,10 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 userLocation = new Location("network");
                 userLocation.setLatitude(20.659322);
                 userLocation.setLongitude(-11.406250);
+                if (customLocation != null) {
+                    userLocation = customLocation;
+                    adapter.setCustomLocation(userLocation);
+                }
             }
 
             frameLayout.addView(actionBar);
@@ -869,13 +874,18 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         } else if (googleMap != null) {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (adapter != null) {
-                if(searchPlacesEnable) {
+                if (searchPlacesEnable) {
                     adapter.searchGooglePlacesWithQuery(null, myLocation, Constants.RADIUS_CHECKIN, Constants.FOURSQUARE_CHECKIN);
                 }
                 adapter.setGpsLocation(myLocation);
             }
             if (!userLocationMoved) {
-                userLocation = new Location(location);
+                if (customLocation != null) {
+                    userLocation = customLocation; // again assign but already done earlier.
+                    latLng = new LatLng(customLocation.getLatitude(), customLocation.getLongitude());
+                } else {
+                    userLocation = new Location(location);
+                }
                 if (firstWas) {
                     CameraUpdate position = CameraUpdateFactory.newLatLng(latLng);
                     googleMap.animateCamera(position);
@@ -953,5 +963,14 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         geo.lat = userLocation.getLatitude();
         geo._long = userLocation.getLongitude();
         return geo;
+    }
+
+
+    public void setCustomLocation(Location customLocation) {
+        this.customLocation = customLocation;
+    }
+
+    public Location getCustomLocation() {
+        return customLocation;
     }
 }
