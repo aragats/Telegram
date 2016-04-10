@@ -37,6 +37,7 @@ import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
+import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.ui.Components.URLSpanNoUnderline;
 import org.telegram.utils.StringUtils;
 
@@ -864,7 +865,7 @@ public class PostCell extends BaseCell {
 //        ColorDrawable cd = new ColorDrawable(0xFFFFFFFF);
 //        Drawable currentBackgroundDrawable = ResourceLoader.backgroundBlue;
 //        Drawable currentBackgroundDrawable = getContext().getResources().getDrawable(R.drawable.pin);;
-        Drawable currentBackgroundDrawable = getContext().getResources().getDrawable(R.drawable.floating_states);
+        Drawable currentBackgroundDrawable = ResourceLoader.floating_states;
 //        currentBackgroundDrawable = backgroundMediaDrawableOutSelected;
 
 
@@ -873,6 +874,14 @@ public class PostCell extends BaseCell {
 
         // set background for message
         currentBackgroundDrawable.draw(canvas);
+
+
+        Drawable currentImageBackgroundDrawable = ResourceLoader.backgroundBlue;
+//        Drawable currentImageBackgroundDrawable = ResourceLoader.backgroundMediaDrawableOut;
+        setDrawableBounds(currentImageBackgroundDrawable, photoImage.getImageX(), photoImage.getImageY(), photoWidth, photoHeight);
+
+        // set background for image
+        currentImageBackgroundDrawable.draw(canvas);
 
         if (isSelected) {
             canvas.drawRect(0, 0, getMeasuredWidth(), getMeasuredHeight(), backPaint);

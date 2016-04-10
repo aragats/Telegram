@@ -36,6 +36,7 @@ public class ResourceLoader {
     public static Drawable backgroundBlack;
     public static Drawable backgroundBlue;
     public static Drawable mediaBackgroundDrawable;
+    public static Drawable floating_states;
 
     public static Drawable geoInDrawable;
     public static Drawable geoOutDrawable;
@@ -72,6 +73,7 @@ public class ResourceLoader {
             broadcastMediaDrawable = context.getResources().getDrawable(R.drawable.broadcast4);
             backgroundBlack = context.getResources().getDrawable(R.drawable.system_black);
             backgroundBlue = context.getResources().getDrawable(R.drawable.system_blue);
+            floating_states = context.getResources().getDrawable(R.drawable.floating_states);
 
             audioStatesDrawable[0][0] = context.getResources().getDrawable(R.drawable.play_w2);
             audioStatesDrawable[0][1] = context.getResources().getDrawable(R.drawable.play_w2_pressed);
