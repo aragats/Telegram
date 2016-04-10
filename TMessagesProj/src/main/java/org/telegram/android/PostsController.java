@@ -33,6 +33,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.comparator.PostDateComparator;
+import ru.aragats.wgo.comparator.PostDistanceComparator;
 import ru.aragats.wgo.converter.vk.VKPhotoResponseToPostListConverter;
 import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.FileUploadRequest;
@@ -250,20 +251,39 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 Geometries.point(postRequest.getLongitude(), postRequest.getLatitude()), Constants.MAX_DISTANCE_DEGREE)
                 .toList().toBlocking().single();
 
-        int start = postRequest.getOffset();
-        int end = postRequest.getOffset() + postRequest.getCount();
-        if (end > entries.size()) {
-            end = entries.size();
-        }
-        if (!entries.isEmpty()) {
-            entries = entries.subList(start, end);
-        }
+//        Collections.sort(entries, new Comparator<Entry<Post, Geometry>>() {
+//            @Override
+//            public int compare(Entry<Post, Geometry> lhs, Entry<Post, Geometry> rhs) {
+//                return rhs.value().;
+//            }
+//        });
 
+
+        Location userLocation = LocationManagerHelper.getInstance().getLastSavedLocation();
+
+        //TODO duplicate in PostCell. But not for case when load data from server.
         for (Entry<Post, Geometry> entry : entries) {
             Post post = entry.value();
+            if (userLocation != null && post.getPostCoordinates() != null) {
+                Coordinates coordinates = post.getPostCoordinates();
+                Location location = new Location("network");
+                location.setLongitude(coordinates.getCoordinates().get(0));
+                location.setLatitude(coordinates.getCoordinates().get(1));
+                float distance = location.distanceTo(userLocation);
+                post.setDistance(distance);
+            }
             results.add(post);
         }
+        Collections.sort(results, new PostDistanceComparator());
 
+        int start = postRequest.getOffset();
+        int end = postRequest.getOffset() + postRequest.getCount();
+        if (end > results.size()) {
+            end = results.size();
+        }
+        if (!results.isEmpty()) {
+            results = results.subList(start, end);
+        }
 
         PostResponse postResponse = new PostResponse();
         postResponse.setPosts(results);

@@ -7,14 +7,14 @@ import ru.aragats.wgo.dto.Post;
 /**
  * Created by aragats on 05/03/16.
  */
-public class PostDateComparator implements Comparator<Post> {
+public class PostDistanceComparator implements Comparator<Post> {
     @Override
     public int compare(Post lhs, Post rhs) {
-        long leftDate = lhs.getCreatedDate();
-        long rightDate = rhs.getCreatedDate();
-        if (rightDate > leftDate) {
+        float leftDistance = lhs.getDistance();
+        float rightDistance = rhs.getDistance();
+        if (leftDistance > rightDistance) {
             return 1;
-        } else if (rightDate < leftDate) {
+        } else if (leftDistance < rightDistance) {
             return -1;
         } else {
             return 0;

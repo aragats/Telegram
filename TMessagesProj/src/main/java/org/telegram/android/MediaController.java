@@ -760,8 +760,8 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
     //TODO why it is static
     //TODO what is it guid. I need guid in postNotification. I should pass this parameter in args to say to which activiy I send the notification, because many activities could subscribe to the same notification, but not all of them must receive the response
-    public static void loadGeoTaggedGalleryPhotos(final int guid) {
-        if (getInstance().rTree != null || getInstance().isRTreeloaded()) {
+    public static void loadGeoTaggedGalleryPhotos(final int guid, final boolean forceReSync) {
+        if (!forceReSync && (getInstance().rTree != null || getInstance().isRTreeloaded())) {
             AndroidUtilities.runOnUIThread(new Runnable() {
                 @Override
                 public void run() {
@@ -774,7 +774,10 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             @Override
             public void run() {
                 List<Post> posts = new ArrayList<Post>();
-                RTree<Post, Geometry> rTree = getInstance().restoreRTree();
+                RTree<Post, Geometry> rTree = null;
+                if (!forceReSync) {
+                    rTree = getInstance().restoreRTree();
+                }
                 if (rTree == null) {
                     rTree = RTree.create();
                     String cameraFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/" + "Camera/";
@@ -819,7 +822,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                 }
 //                restoreObject(Constants.LOCAL_POSTS_FILENAME);
                 getInstance().setRTree(rTree);
-                getInstance().saveLocalPosts(posts);
+                getInstance().saveLocalPosts(posts, forceReSync);
                 AndroidUtilities.runOnUIThread(new Runnable() {
                     @Override
                     public void run() {
@@ -851,12 +854,12 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void saveLocalPosts(final List<Post> posts) {
+    public void saveLocalPosts(final List<Post> posts, final boolean forceReSync) {
         if (CollectionUtils.isEmpty(posts)) {
             return;
         }
         long diff = new Date().getTime() - getInstance().rTreeLastDateUpdate;
-        if (diff > Constants.TIME_DIFFERENCE) {
+        if (forceReSync || diff > Constants.TIME_DIFFERENCE) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {

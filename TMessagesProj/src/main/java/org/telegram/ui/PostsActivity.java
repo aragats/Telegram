@@ -258,7 +258,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         }
 
         if (offlineMode) {
-            MediaController.loadGeoTaggedGalleryPhotos(classGuid);
+            MediaController.loadGeoTaggedGalleryPhotos(classGuid, false);
         }
         LocationManagerHelper.getInstance().runLocationListener();
 
@@ -404,9 +404,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         parentLayout.getDrawerLayoutContainer().openDrawer(false);
                     }
                 } else if (id == list_menu_synchronize) {
-                    System.out.println();
+                    if (offlineMode) {
+                        showProgressView();
+                        MediaController.loadGeoTaggedGalleryPhotos(0, true);
+                    } else {
+                        refreshPosts(true);
+                    }
                 } else if (id == list_menu_map) {
-                    System.out.println();
+                    openLocationChooser();
                 } else if (id == action_bar_menu_location) {
                     openLocationChooser();
                 } else if (id == 1) {
@@ -819,6 +824,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             stopRefreshingProgressView();
         } else if (id == NotificationCenter.postsNeedReload) {
+//            hideProgressView();
             boolean scrollToTop = false;
             if (args != null && args.length != 0) {
                 scrollToTop = (boolean) args[0];
@@ -827,11 +833,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 layoutManager.scrollToPosition(0);
             }
             if (postsAdapter != null) {
-                if (postsAdapter.isDataSetChanged()) {
+//                if (postsAdapter.isDataSetChanged()) {
                     postsAdapter.notifyDataSetChanged();
-                } else {
-                    updateVisibleRows(PostsController.UPDATE_MASK_NEW_MESSAGE);
-                }
+//                } else {
+//                    updateVisibleRows(PostsController.UPDATE_MASK_NEW_MESSAGE);
+//                }
             }
             if (postsSearchAdapter != null) {
                 postsSearchAdapter.notifyDataSetChanged();
@@ -889,7 +895,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         postListView.setVisibility(View.INVISIBLE);
                     }
                 }
-                MediaController.loadGeoTaggedGalleryPhotos(0);
+                MediaController.loadGeoTaggedGalleryPhotos(0, false);
             }
 
 
@@ -914,6 +920,20 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (PostsController.getInstance().getPosts().isEmpty() || force) {
             startRefreshingProgressView();
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
+        }
+    }
+
+    private void showProgressView() {
+        if (progressView != null && postListView != null) {
+            progressView.setVisibility(View.VISIBLE);
+            postListView.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void hideProgressView() {
+        if (progressView != null && postListView != null) {
+            progressView.setVisibility(View.INVISIBLE);
+            postListView.setVisibility(View.VISIBLE);
         }
     }
 

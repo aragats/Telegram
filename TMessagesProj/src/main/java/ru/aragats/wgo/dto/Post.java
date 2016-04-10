@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by aragats on 27/12/14.
  */
-public class Post implements Serializable{
+public class Post implements Serializable {
 
     private String id;
     private String text;
@@ -18,6 +18,9 @@ public class Post implements Serializable{
     //wall, preview, original (almost). increase resolution. ????
     private List<Image> images;
     private long createdDate;
+
+//  transient
+    private transient float distance;
 
 
     public Post() {
@@ -111,5 +114,14 @@ public class Post implements Serializable{
 
     public void setImages(List<Image> images) {
         this.images = images;
+    }
+
+
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
     }
 }
