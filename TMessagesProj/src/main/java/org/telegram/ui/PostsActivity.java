@@ -819,6 +819,13 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             stopRefreshingProgressView();
         } else if (id == NotificationCenter.postsNeedReload) {
+            boolean scrollToTop = false;
+            if (args != null && args.length != 0) {
+                scrollToTop = (boolean) args[0];
+            }
+            if (scrollToTop) {
+                layoutManager.scrollToPosition(0);
+            }
             if (postsAdapter != null) {
                 if (postsAdapter.isDataSetChanged()) {
                     postsAdapter.notifyDataSetChanged();
@@ -869,7 +876,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             refreshPosts(force);
         } else if (id == NotificationCenter.offlinePostsLoaded) {
-            layoutManager.scrollToPosition(0);
+//            layoutManager.scrollToPosition(0);
             startRefreshingProgressView();
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
@@ -898,7 +905,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 }
             }
             this.offlineMode = false;
-            layoutManager.scrollToPosition(0);
+//            layoutManager.scrollToPosition(0);
             refreshPosts(force);
         }
     }

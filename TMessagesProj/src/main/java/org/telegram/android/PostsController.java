@@ -350,7 +350,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         loadingPosts = false;
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!postResponse.getPosts().isEmpty() || reload) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload, reload);
         } else {
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);  //TODO hide progress view does not work !!!
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished);
@@ -439,7 +439,6 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //If you want, the MIME type will also be decoded (if possible)
 //        String type = options.outMimeType;
 //            String type = getMimeType(photoUrl
-
 
 
         image.setWidth(AndroidUtilities.getPhotoSize());
