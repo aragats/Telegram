@@ -375,7 +375,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         //TODO-TEMP search invisible
         item.setVisibility(View.INVISIBLE);
 
-        locationItem = menu.addItem(action_bar_menu_location, R.drawable.ic_attach_location);
+        locationItem = menu.addItem(action_bar_menu_location, R.drawable.ic_attach_location_grey);
 
         ActionBarMenuItem otherItem = menu.addItem(action_bar_menu_other, R.drawable.ic_ab_other);
         otherItem.addSubItem(list_menu_synchronize, LocaleController.getString("Synchronize", R.string.Synchronize), 0);
@@ -1089,7 +1089,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 //TODO I think i do not need last saved location. I can just put "network" provider into Location isntance
                 Location lastSavedLocation = LocationManagerHelper.getInstance().getLastSavedOrLastLocation();
                 if (!location.isCustomLocation || lastSavedLocation == null) {
-                    locationItem.setIcon(R.drawable.ic_attach_location);
+                    locationItem.setIcon(R.drawable.ic_attach_location_grey);
                     LocationManagerHelper.getInstance().setCustomLocation(null);
                     // TODO save additional request if the same coordinates are chosen ?? But man can move. so current location could change
                     refreshPosts(true);
