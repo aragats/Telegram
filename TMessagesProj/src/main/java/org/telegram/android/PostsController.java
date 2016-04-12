@@ -58,6 +58,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     private Venue lastVenue;
 
     private List<Post> posts = new ArrayList<>();
+    private int nextOffset;
     public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
 
     private boolean loadingPosts = false;
@@ -218,6 +219,9 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //            return;
 //        }
         loadingPosts = true;
+        if (offset == 0) {
+            nextOffset = offset;
+        }
         Location location = LocationManagerHelper.getInstance().getLocation4TimeLine();
         if (location == null) {
             loadingPosts = false; // TODO
@@ -232,6 +236,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         postRequest.setOffset(offset);
         postRequest.setDistance(Constants.RADIUS);
         if (offlineMode) {
+            nextOffset = 0;
             loadLocalPosts(postRequest, reload);
         } else {
 //            loadPostFromServer(postRequest, reload);
@@ -293,6 +298,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     private void loadPostFromServer(final PostRequest postRequest, final boolean reload) {
+        nextOffset = 0;
         RestManager.getInstance().findNearPosts(postRequest, new Callback<PostResponse>() {
             @Override
             public void onResponse(Response<PostResponse> response, Retrofit retrofit) {
@@ -322,6 +328,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 }
 
                 postResponse.setSource("VK");
+                nextOffset = postRequest.getOffset() + postRequest.getCount();
                 processLoadedPosts(postResponse, reload);
             }
 
@@ -425,6 +432,13 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     public List<Post> getPosts() {
         return posts;
+    }
+
+    public int getOffset() {
+        if (nextOffset > 0) {
+            return nextOffset;
+        }
+        return posts.size();
     }
 
     public Post createPost(String dir, String photo, double latitude, double longitude, Date date) {

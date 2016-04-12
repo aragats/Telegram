@@ -659,7 +659,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                     if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().getPosts().size() - 1 && !mIsScrollingUp && !PostsController.getInstance().getPosts().isEmpty()) {
                         String offset = PostsController.getInstance().getPosts().get(PostsController.getInstance().getPosts().size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
                         startRefreshingProgressView();
-                        PostsController.getInstance().loadPosts(offset, PostsController.getInstance().getPosts().size(), Constants.POST_COUNT, false, offlineMode);
+                        PostsController.getInstance().loadPosts(offset, PostsController.getInstance().getOffset(), Constants.POST_COUNT, false, offlineMode);
                     }
                 }
 
