@@ -654,6 +654,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     if (currentPost != null) {
                         currentFileNames[0] = Utilities.MD5(currentPost.getImage().getUrl()) + ".jpg";
                         f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);
+                        //in case of image is locale file and we do not have it in cache, because it is localy in mobile phone.
+                        if (!f.exists()) {
+                            f = new File(currentPost.getImage().getUrl());
+                        }
                     }
 
                     if (f != null && f.exists()) {
@@ -814,7 +818,12 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         currentFileNames[0] = Utilities.MD5(currentPost.getImage().getUrl()) + ".jpg";
                         f = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), currentFileNames[0]);
 //                        text = currentPost.getText();
+                        //in case of image is locale file and we do not have it in cache, because it is localy in mobile phone.
+                        if (!f.exists()) {
+                            f = new File(currentPost.getImage().getUrl());
+                        }
                     }
+
 
                     if (f != null && f.exists()) {
                         Intent intent = new Intent(Intent.ACTION_SEND);
