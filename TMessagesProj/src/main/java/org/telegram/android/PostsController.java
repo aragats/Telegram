@@ -308,7 +308,9 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
             @Override
             public void onFailure(Throwable t) {
+//                loadingPosts = false; // TODO false or true ??? if continue then true otherwise false. False if finish. true if goes to VK
 //                NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
+
                 loadVKPhotos(postRequest, reload);
             }
         });
@@ -316,6 +318,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     private void loadVKPhotos(final PostRequest postRequest, final boolean reload) {
+        loadingPosts = true;
         RestManager.getInstance().findNearVKPhotos(postRequest, new Callback<VKPhotoResponse>() {
             @Override
             public void onResponse(Response<VKPhotoResponse> response, Retrofit retrofit) {
@@ -334,6 +337,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
             @Override
             public void onFailure(Throwable t) {
+                loadingPosts = false;
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
             }
         });
@@ -396,10 +400,6 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     public boolean isLoadingPosts() {
         return loadingPosts;
-    }
-
-    public void setLoadingPosts(boolean loadingPosts) {
-        this.loadingPosts = loadingPosts;
     }
 
     public User getUser(String id) {

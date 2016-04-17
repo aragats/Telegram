@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -102,6 +103,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private ProgressBar progressView;
     private LinearLayout emptyView;
     private ImageView floatingButton;
+    private TextView textViewForEmptyView;
+
 
     private int prevPosition;
     private int prevTop;
@@ -561,35 +564,52 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         });
 
-        TextView textView = new TextView(context);
-//        textView.setText(LocaleController.getString("NoChats", R.string.NoChats));
-//        Es gibt nicht die neuesten Beiträge in Ihrer Nähe.
-//        textView.setText(LocaleController.getString("NoPosts", R.string.NoPosts));
-        textView.setText(LocaleController.getString("NothingHappens", R.string.NothingHappens));
-        textView.setTextColor(0xff959595);
-        textView.setGravity(Gravity.CENTER);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshPosts(false);
-            }
-        });
-        emptyView.addView(textView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+//        TextView textView = new TextView(context);
+//        textView.setText(LocaleController.getString("NothingHappens", R.string.NothingHappens));
+//        textView.setTextColor(0xff959595);
+//        textView.setGravity(Gravity.CENTER);
+//        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
+//        textView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                refreshPosts(false);
+//            }
+//        });
+//        emptyView.addView(textView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 
-        textView = new TextView(context);
+        textViewForEmptyView = new TextView(context);
 //        String help = LocaleController.getString("NoChatsHelp", R.string.NoChatsHelp);
 //        if (AndroidUtilities.isTablet() && !AndroidUtilities.isSmallTablet()) {
 //            help = help.replace("\n", " ");
 //        }
 //        textView.setText(LocaleController.getString("NothingHappens", R.string.NothingHappens));
-        textView.setText(LocaleController.getString("NoPosts", R.string.NoPosts));
-        textView.setTextColor(0xff959595);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-        textView.setGravity(Gravity.CENTER);
-        textView.setPadding(AndroidUtilities.dp(8), AndroidUtilities.dp(6), AndroidUtilities.dp(8), 0);
-        textView.setLineSpacing(AndroidUtilities.dp(2), 1);
-        emptyView.addView(textView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+        textViewForEmptyView.setText(LocaleController.getString("LoadDataFailed", R.string.LoadDataFailed));
+        textViewForEmptyView.setTextColor(0xff959595);
+        textViewForEmptyView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        textViewForEmptyView.setGravity(Gravity.CENTER);
+        textViewForEmptyView.setPadding(AndroidUtilities.dp(8), AndroidUtilities.dp(6), AndroidUtilities.dp(8), AndroidUtilities.dp(6));
+        textViewForEmptyView.setLineSpacing(AndroidUtilities.dp(2), 1);
+        emptyView.addView(textViewForEmptyView, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+
+        Button tryAgainButton = new Button(context);
+        tryAgainButton.setTransformationMethod(null);
+        tryAgainButton.setText(LocaleController.getString("TryAgain", R.string.TryAgain));
+        tryAgainButton.setTextColor(0xff377aae);
+//        tryAgainButton.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf")); // ??
+        tryAgainButton.setBackgroundColor(0xffd7e8f7); // background is font color of the text in address subtitle
+        tryAgainButton.setGravity(Gravity.CENTER);
+        tryAgainButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        tryAgainButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshPosts(false);
+            }
+        });
+
+
+        emptyView.addView(tryAgainButton, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+//        emptyView.addView(tryAgainButton);
+
 
         progressView = new ProgressBar(context);
         progressView.setVisibility(View.INVISIBLE);
@@ -801,27 +821,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 showDialog(builder.create());
             }
         } else if (id == NotificationCenter.postRequestFinished) {
-            //TODO duplicates
-            if (postListView != null) {
-                try {
-                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().getPosts().isEmpty()) {
-                        searchEmptyView.setVisibility(View.INVISIBLE);
-                        emptyView.setVisibility(View.INVISIBLE);
-                        postListView.setEmptyView(progressView);
-                    } else {
-                        progressView.setVisibility(View.INVISIBLE);
-                        if (searching && searchWas) {
-                            emptyView.setVisibility(View.INVISIBLE);
-                            postListView.setEmptyView(searchEmptyView);
-                        } else {
-                            searchEmptyView.setVisibility(View.INVISIBLE);
-                            postListView.setEmptyView(emptyView);
-                        }
-                    }
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e); //TODO fix it in other way?
-                }
-            }
+            //TODO duplicate NotificationCenter.loadPostsError
+            notifyDateSetChanged();
+            updateViewLayers(false);
             stopRefreshingProgressView();
         } else if (id == NotificationCenter.postsNeedReload) {
 //            hideProgressView();
@@ -829,46 +831,19 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             if (args != null && args.length != 0) {
                 scrollToTop = (boolean) args[0];
             }
+
             if (scrollToTop) {
                 layoutManager.scrollToPosition(0);
             }
-            if (postsAdapter != null) {
-//                if (postsAdapter.isDataSetChanged()) {
-                    postsAdapter.notifyDataSetChanged();
-//                } else {
-//                    updateVisibleRows(PostsController.UPDATE_MASK_NEW_MESSAGE);
-//                }
-            }
-            if (postsSearchAdapter != null) {
-                postsSearchAdapter.notifyDataSetChanged();
-            }
-            // TODO duplicates
-            if (postListView != null) {
-                try {
-                    if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().getPosts().isEmpty()) {
-                        searchEmptyView.setVisibility(View.INVISIBLE);
-                        emptyView.setVisibility(View.INVISIBLE);
-                        postListView.setEmptyView(progressView);
-                    } else {
-//                        postListView.setVisibility(View.INVISIBLE);
-                        progressView.setVisibility(View.INVISIBLE);
-                        if (searching && searchWas) {
-                            emptyView.setVisibility(View.INVISIBLE);
-                            postListView.setEmptyView(searchEmptyView);
-                        } else {
-                            searchEmptyView.setVisibility(View.INVISIBLE);
-                            postListView.setEmptyView(emptyView);
-                        }
-                    }
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e); //TODO fix it in other way?
-                }
-            }
+            notifyDateSetChanged();
+            updateViewLayers(false);
             stopRefreshingProgressView();
         } else if (id == NotificationCenter.loadPostsError) {
+            //TODO duplicate  NNotificationCenter.postRequestFinished
+            notifyDateSetChanged();
+            updateViewLayers(true);
             stopRefreshingProgressView();
             Toast.makeText(((Context) getParentActivity()), "Load posts Error", Toast.LENGTH_SHORT).show();
-
         } else if (id == NotificationCenter.emojiDidLoaded) {
             if (postListView != null) {
                 updateVisibleRows(0);
@@ -895,6 +870,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         postListView.setVisibility(View.INVISIBLE);
                     }
                 }
+                PostsController.getInstance().getPosts().clear();
                 MediaController.loadGeoTaggedGalleryPhotos(0, false);
             }
 
@@ -912,6 +888,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             this.offlineMode = false;
 //            layoutManager.scrollToPosition(0);
+            PostsController.getInstance().getPosts().clear();
             refreshPosts(force);
         }
     }
@@ -1130,5 +1107,54 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
         });
         presentFragment(fragment);
+    }
+
+
+    private void updateViewLayers(boolean withError) {
+        if (postListView != null) {
+            try {
+                if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().getPosts().isEmpty()) {
+                    searchEmptyView.setVisibility(View.INVISIBLE);
+                    emptyView.setVisibility(View.INVISIBLE);
+                    postListView.setEmptyView(progressView);
+                } else {
+//                        postListView.setVisibility(View.INVISIBLE);
+                    progressView.setVisibility(View.INVISIBLE);
+                    if (searching && searchWas) {
+                        emptyView.setVisibility(View.INVISIBLE);
+                        postListView.setEmptyView(searchEmptyView);
+                    } else {
+                        searchEmptyView.setVisibility(View.INVISIBLE);
+                        postListView.setEmptyView(emptyView);
+                    }
+                    if (PostsController.getInstance().getPosts().isEmpty()) {
+                        // if with or without errors.
+                        if (withError) {
+                            textViewForEmptyView.setText(LocaleController.getString("LoadDataFailed", R.string.LoadDataFailed));
+                        } else {
+                            textViewForEmptyView.setText(LocaleController.getString("NoPosts", R.string.NoPosts));
+
+                        }
+
+                    }
+                }
+            } catch (Exception e) {
+                FileLog.e("tmessages", e); //TODO fix it in other way?
+            }
+        }
+    }
+
+
+    private void notifyDateSetChanged() {
+        if (postsAdapter != null) {
+//                if (postsAdapter.isDataSetChanged()) {
+            postsAdapter.notifyDataSetChanged();
+//                } else {
+//                    updateVisibleRows(PostsController.UPDATE_MASK_NEW_MESSAGE);
+//                }
+        }
+        if (postsSearchAdapter != null) {
+            postsSearchAdapter.notifyDataSetChanged();
+        }
     }
 }

@@ -174,6 +174,8 @@
     <string name="NothingHappens">Nothing is going on here.</string>
     <string name="EnableGPS">Please enable GPS on your phone.</string>
     <string name="Synchronize">Synchronize</string>
+    <string name="TryAgain">Try again</string>
+    <string name="LoadDataFailed">Cannot load data. Please check your network connection.</string>
     <!--Create post-->
     <string name="AddPhotoHint">Choose photo</string>
     <string name="Place">Place</string>
