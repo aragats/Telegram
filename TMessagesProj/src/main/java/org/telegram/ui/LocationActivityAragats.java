@@ -694,7 +694,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
                     CircleOptions circleOptions = new CircleOptions()
                             .center(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
-                            .radius(Constants.RADIUS)
+                            .radius(radius)
                             .strokeWidth(1)
                             .strokeColor(Color.BLUE)
                             .fillColor(Color.parseColor("#300084d3")); //#500084d3  #506bc8ff - blue  #501cff5c - green

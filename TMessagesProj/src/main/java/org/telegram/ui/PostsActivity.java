@@ -1101,7 +1101,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         LocationActivityAragats fragment = new LocationActivityAragats(args);
         Location customLocation = LocationManagerHelper.getInstance().getCustomLocation();
         if (customLocation != null) {
-            fragment.setCustomLocation(customLocation);
+            fragment.setCustomLocation(new Location(customLocation));
         }
         fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override
