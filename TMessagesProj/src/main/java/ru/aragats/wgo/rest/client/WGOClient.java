@@ -2,13 +2,12 @@ package ru.aragats.wgo.rest.client;
 
 import java.io.IOException;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import ru.aragats.wgo.dto.PostResponse;
-import ru.aragats.wgo.dto.Request;
 import ru.aragats.wgo.rest.service.WGOService;
 
 /**
@@ -54,8 +53,8 @@ public class WGOClient {
 
         call.enqueue(new Callback<PostResponse>() {
             @Override
-            public void onResponse(Response<PostResponse> response, Retrofit retrofit) {
-                if (response.isSuccess()) {
+            public void onResponse(Call<PostResponse> call, Response<PostResponse> response) {
+                if (response.isSuccessful()) {
                     // tasks available
                     System.out.println("Error =" + response.body().getError() + " Posts = " + response.body().getPosts());
 
@@ -65,11 +64,12 @@ public class WGOClient {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<PostResponse> call, Throwable t) {
                 System.out.println("Failure");
                 // something went completely south (like no internet connection)
 //                                 Log.d("Error", t.getMessage());
             }
+
         });
 
 

@@ -1,16 +1,13 @@
 package ru.aragats.wgo.rest.manager;
 
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.RequestBody;
-
 import java.io.File;
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.Callback;
-import ru.aragats.wgo.rest.client.RestClient;
-import ru.aragats.wgo.rest.client.VKRestClient;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
 import ru.aragats.wgo.dto.FileUploadRequest;
 import ru.aragats.wgo.dto.Image;
 import ru.aragats.wgo.dto.Post;
@@ -18,6 +15,8 @@ import ru.aragats.wgo.dto.PostRequest;
 import ru.aragats.wgo.dto.PostResponse;
 import ru.aragats.wgo.dto.VenuePostsRequest;
 import ru.aragats.wgo.dto.vk.VKPhotoResponse;
+import ru.aragats.wgo.rest.client.RestClient;
+import ru.aragats.wgo.rest.client.VKRestClient;
 
 /**
  * Created by aragats on 05/12/15.
@@ -65,13 +64,25 @@ public class RestManager {
         // TODO Validate parameters. After saving could be that parameters will be cleaned.
         // TODO  java.lang.NullPointerException: Attempt to invoke virtual method 'char[] java.lang.String.toCharArray()' on a null object reference
         File file = new File(request.getFilePath());
+        // was
+//        RequestBody fileBody = RequestBody.create(MediaType.parse(request.getContentType()), file);
+////        MultipartBuilder multipartBuilder = new MultipartBuilder("95416089-b2fd-4eab-9a14-166bb9c5788b");
+//        MultipartBuilder multipartBuilder = new MultipartBuilder();
+//        multipartBuilder.addFormDataPart("file", file.getName(), fileBody);
+//        multipartBuilder.addFormDataPart("description", "value");
+//        multipartBuilder.type(MultipartBuilder.FORM);
+//        RequestBody fileRequestBody = multipartBuilder.build();
+        //was
+
+        //new 2.0.2 TODO test Retrofit 2.0.2
         RequestBody fileBody = RequestBody.create(MediaType.parse(request.getContentType()), file);
 //        MultipartBuilder multipartBuilder = new MultipartBuilder("95416089-b2fd-4eab-9a14-166bb9c5788b");
-        MultipartBuilder multipartBuilder = new MultipartBuilder();
+        MultipartBody.Builder multipartBuilder = new MultipartBody.Builder();
         multipartBuilder.addFormDataPart("file", file.getName(), fileBody);
         multipartBuilder.addFormDataPart("description", "value");
-        multipartBuilder.type(MultipartBuilder.FORM);
+        multipartBuilder.setType(MultipartBody.FORM);
         RequestBody fileRequestBody = multipartBuilder.build();
+
         return restClient.getRestService().uploadImage(fileRequestBody);
     }
 

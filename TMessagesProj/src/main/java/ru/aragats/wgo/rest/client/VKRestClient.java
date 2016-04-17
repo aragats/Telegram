@@ -1,7 +1,7 @@
 package ru.aragats.wgo.rest.client;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import ru.aragats.wgo.rest.service.VKService;
 
 /**

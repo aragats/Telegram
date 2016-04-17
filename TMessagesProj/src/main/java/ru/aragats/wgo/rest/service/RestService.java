@@ -1,15 +1,15 @@
 package ru.aragats.wgo.rest.service;
 
-import com.squareup.okhttp.RequestBody;
 
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.http.Body;
-import retrofit.http.GET;
-import retrofit.http.POST;
-import retrofit.http.Path;
-import retrofit.http.Query;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 import ru.aragats.wgo.dto.Image;
 import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.PostResponse;

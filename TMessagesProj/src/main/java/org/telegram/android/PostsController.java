@@ -28,9 +28,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.comparator.PostDateComparator;
 import ru.aragats.wgo.comparator.PostDistanceComparator;
@@ -140,13 +141,13 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
         RestManager.getInstance().uploadImage(new FileUploadRequest(post.getImage().getUrl(), post.getImage().getType()), new Callback<List<Image>>() {
             @Override
-            public void onResponse(Response<List<Image>> response, Retrofit retrofit) {
+            public void onResponse(Call<List<Image>> call, Response<List<Image>> response) {
                 post.setImages(response.body()); // TODO chek whether images are not empty
                 savePost(post);
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<List<Image>> call, Throwable t) {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.savePostError);
             }
         });
@@ -156,15 +157,16 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     private void savePost(final Post post) {
         RestManager.getInstance().savePost(post, new Callback<String>() {
             @Override
-            public void onResponse(Response<String> response, Retrofit retrofit) {
+            public void onResponse(Call<String> call, Response<String> response) {
                 post.setId(response.body());
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<String> call, Throwable t) {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.savePostError);
             }
+
         });
     }
 
@@ -301,18 +303,19 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         nextOffset = 0;
         RestManager.getInstance().findNearPosts(postRequest, new Callback<PostResponse>() {
             @Override
-            public void onResponse(Response<PostResponse> response, Retrofit retrofit) {
+            public void onResponse(Call<PostResponse> call, Response<PostResponse> response) {
                 //        after getting response.
                 processLoadedPosts(response.body(), reload);
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<PostResponse> call, Throwable t) {
 //                loadingPosts = false; // TODO false or true ??? if continue then true otherwise false. False if finish. true if goes to VK
 //                NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
 
                 loadVKPhotos(postRequest, reload);
             }
+
         });
     }
 
@@ -321,7 +324,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         loadingPosts = true;
         RestManager.getInstance().findNearVKPhotos(postRequest, new Callback<VKPhotoResponse>() {
             @Override
-            public void onResponse(Response<VKPhotoResponse> response, Retrofit retrofit) {
+            public void onResponse(Call<VKPhotoResponse> call, Response<VKPhotoResponse> response) {
                 //        after getting response.
                 PostResponse postResponse = new PostResponse();
                 postResponse.setPosts(vkPhotoResponseConverter.convert(response.body() != null ?
@@ -336,7 +339,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<VKPhotoResponse> call, Throwable t) {
                 loadingPosts = false;
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
             }
