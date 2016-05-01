@@ -34,6 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
 import ru.aragats.wgo.comparator.PostDateComparator;
 import ru.aragats.wgo.comparator.PostDistanceComparator;
 import ru.aragats.wgo.converter.vk.VKPhotoResponseToPostListConverter;
@@ -506,7 +507,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         post.setCreatedDate(date.getTime());
         Venue venue = new Venue();
         venue.setCoordinates(coordinates);
-        venue.setName("Local");
+        venue.setName("");
         venue.setAddress("");
         post.setVenue(venue);
 

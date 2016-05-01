@@ -177,6 +177,7 @@
     <string name="Synchronize">Synchronize</string>
     <string name="TryAgain">Versuch es noch einmal</string>
     <string name="LoadDataFailed">Daten können nicht geladen. Bitte überprüfen Sie Ihre Netzwerkverbindung.</string>
+    <string name="NoVenue">Kein Ort</string>
     <!--Create post-->
     <string name="AddPhotoHint">Wählen Sie Foto</string>
     <string name="Place">Ort</string>

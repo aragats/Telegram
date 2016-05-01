@@ -177,6 +177,7 @@
     <string name="Synchronize">Synchronize</string>
     <string name="TryAgain">Try again</string>
     <string name="LoadDataFailed">Cannot load data. Please check your network connection.</string>
+    <string name="NoVenue">No Venue</string>
     <!--Create post-->
     <string name="AddPhotoHint">Choose photo</string>
     <string name="Place">Place</string>

@@ -454,7 +454,7 @@ public class PostCell extends BaseCell {
             nameString = post.getVenue() != null ? post.getVenue().getName() : "";
 
             // if nameString is empty then we should not use address in the addressString, but only coordinates, because in this case address goes to name field.
-            if (StringUtils.isEmpty(nameString)) {
+            if (StringUtils.isEmpty(nameString) || StringUtils.isEmpty(address)) {
                 addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff808080>%s</c>", distanceStr)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
             } else {
                 addressString = Emoji.replaceEmoji(AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>%s:</c> <c#ff808080>%s</c>", address, distanceStr)), addressPaint.getFontMetricsInt(), AndroidUtilities.dp(20));
@@ -482,12 +482,13 @@ public class PostCell extends BaseCell {
 
         //  here was building name string
 
-
-        nameString = post.getVenue() != null ? post.getVenue().getName() : "";
         if (StringUtils.isEmpty(nameString)) {
             nameString = address;
 //            nameString = LocaleController.getString("HiddenName", R.string.HiddenName);
 //            nameString = LocaleController.getString("Place", R.string.Place);
+        }
+        if (StringUtils.isEmpty(nameString)) {
+            nameString = LocaleController.getString("NoVenue", R.string.NoVenue);
         }
 
         int nameWidth;
