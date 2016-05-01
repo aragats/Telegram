@@ -251,7 +251,15 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     NotificationCenter.getInstance().postNotificationName(NotificationCenter.switchToOnlineMode);
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (position == 3) {
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.switchToOfflineMode);
+                    drawerLayoutContainer.closeDrawer(false);
+//
+//                    Bundle bundle = new Bundle();
+//                    bundle.putBoolean("offlineMode", true);
+//                    presentFragment(new PostsActivity(bundle));
+//                    drawerLayoutContainer.closeDrawer(false);
 
+                } else if (position == 5) {
                     try {
                         Intent intent = new Intent(Intent.ACTION_SEND);
                         intent.setType("text/plain");
@@ -262,7 +270,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     }
                     drawerLayoutContainer.closeDrawer(false);
 
-                } else if (position == 5) {
+                } else if (position == 6) {
                     try {
                         Intent pickIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(LocaleController.getString("TelegramFaqUrl", R.string.WGOFaqUrl)));
                         startActivityForResult(pickIntent, 500);
@@ -270,14 +278,6 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                         FileLog.e("tmessages", e);
                     }
                     drawerLayoutContainer.closeDrawer(false);
-                } else if (position == 6) {
-                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.switchToOfflineMode);
-                    drawerLayoutContainer.closeDrawer(false);
-//
-//                    Bundle bundle = new Bundle();
-//                    bundle.putBoolean("offlineMode", true);
-//                    presentFragment(new PostsActivity(bundle));
-//                    drawerLayoutContainer.closeDrawer(false);
                 }
             }
         });

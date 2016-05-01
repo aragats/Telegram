@@ -170,6 +170,7 @@
     <string name="updateBuild">536</string>
     <!--Posts-->
     <string name="Posts">Beiträge</string>
+    <string name="MyPosts">Meine Fotos</string>
     <string name="NoPosts">Es gibt nicht die neuesten Beiträge in Ihrer Nähe.</string>
     <string name="NothingHappens">Nichts ist hier los.</string>
     <string name="EnableGPS">Bitte aktivieren Sie GPS auf Ihrem Handy.</string>

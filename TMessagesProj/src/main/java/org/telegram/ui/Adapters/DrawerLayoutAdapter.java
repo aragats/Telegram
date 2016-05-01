@@ -88,12 +88,11 @@ public class DrawerLayoutAdapter extends BaseAdapter {
 //                actionCell.setTextAndIcon(LocaleController.getString("AragatsPosts", R.string.AragatsPosts), R.drawable.menu_broadcast);
                 actionCell.setTextAndIcon(LocaleController.getString("Posts", R.string.Posts), R.drawable.menu_broadcast);
             } else if (i == 3) {
-                actionCell.setTextAndIcon(LocaleController.getString("InviteFriends", R.string.InviteFriends), R.drawable.menu_invite);
+                actionCell.setTextAndIcon(LocaleController.getString("MyPosts", R.string.MyPosts), R.drawable.ic_attach_gallery);
             } else if (i == 5) {
-                actionCell.setTextAndIcon(LocaleController.getString("TelegramFaq", R.string.WGOFaq), R.drawable.menu_help);
-
+                actionCell.setTextAndIcon(LocaleController.getString("InviteFriends", R.string.InviteFriends), R.drawable.menu_invite);
             } else if (i == 6) {
-                actionCell.setTextAndIcon(LocaleController.getString("Posts", R.string.Posts), R.drawable.menu_broadcast);
+                actionCell.setTextAndIcon(LocaleController.getString("TelegramFaq", R.string.WGOFaq), R.drawable.menu_help);
             }
         }
 
