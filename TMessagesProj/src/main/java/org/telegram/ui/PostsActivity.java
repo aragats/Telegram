@@ -255,7 +255,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.locationServiceDisabled);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.loadPostsError);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         }
@@ -289,7 +288,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.locationServiceDisabled);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.loadPostsError);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
         }
@@ -821,10 +819,16 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 showDialog(builder.create());
             }
         } else if (id == NotificationCenter.postRequestFinished) {
-            //TODO duplicate NotificationCenter.loadPostsError
+            boolean withError = false;
+            if (args != null && args.length != 0) {
+                withError = (boolean) args[0];
+            }
             notifyDateSetChanged();
-            updateViewLayers(false);
+            updateViewLayers(withError);
             stopRefreshingProgressView();
+            if(withError) {
+                Toast.makeText(((Context) getParentActivity()), "Load posts error", Toast.LENGTH_SHORT).show();
+            }
         } else if (id == NotificationCenter.postsNeedReload) {
 //            hideProgressView();
             boolean scrollToTop = false;
@@ -838,12 +842,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             notifyDateSetChanged();
             updateViewLayers(false);
             stopRefreshingProgressView();
-        } else if (id == NotificationCenter.loadPostsError) {
-            //TODO duplicate  NNotificationCenter.postRequestFinished
-            notifyDateSetChanged();
-            updateViewLayers(true);
-            stopRefreshingProgressView();
-            Toast.makeText(((Context) getParentActivity()), "Load posts Error", Toast.LENGTH_SHORT).show();
         } else if (id == NotificationCenter.emojiDidLoaded) {
             if (postListView != null) {
                 updateVisibleRows(0);
@@ -870,6 +868,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         postListView.setVisibility(View.INVISIBLE);
                     }
                 }
+                PostsController.getInstance().cancelAllCalls();
                 PostsController.getInstance().getPosts().clear();
                 MediaController.loadGeoTaggedGalleryPhotos(0, false);
             }
@@ -888,6 +887,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
             this.offlineMode = false;
 //            layoutManager.scrollToPosition(0);
+            PostsController.getInstance().cancelAllCalls();
             PostsController.getInstance().getPosts().clear();
             refreshPosts(force);
         }

@@ -25,13 +25,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.comparator.PostDateComparator;
 import ru.aragats.wgo.comparator.PostDistanceComparator;
@@ -84,6 +85,15 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     public static final int UPDATE_MASK_ALL = UPDATE_MASK_AVATAR | UPDATE_MASK_STATUS | UPDATE_MASK_NAME | UPDATE_MASK_CHAT_AVATAR | UPDATE_MASK_CHAT_NAME | UPDATE_MASK_CHAT_MEMBERS | UPDATE_MASK_USER_PRINT | UPDATE_MASK_USER_PHONE | UPDATE_MASK_READ_DIALOG_MESSAGE | UPDATE_MASK_PHONE;
 
 
+    /**
+     * The set of all call currently being processed by this PostController. A Call
+     * will be in this set if it is waiting in any queue or currently being processed by
+     * any dispatcher.
+     */
+    //TODO think about making CallQueue like it is in RequestQueue.
+    private final Set<Call<?>> currentCalls = new HashSet<Call<?>>();
+
+
     private static volatile PostsController Instance = null;
 
     public static PostsController getInstance() {
@@ -112,6 +122,28 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     }
 
+    private void addCall(Call<?> call) {
+        currentCalls.add(call);
+    }
+
+    //finish call
+    private void removeCall(Call<?> call) {
+        currentCalls.remove(call);
+    }
+
+    public void cancelAllCalls() {
+        for (Call<?> call : currentCalls) {
+            call.cancel();
+        }
+        loadingPosts = false;
+    }
+
+    private void cancelCall(Call<?> call) {
+        boolean result = currentCalls.remove(call);
+        if (result) {
+            call.cancel();
+        }
+    }
 
     public void updateConfig() {
 
@@ -301,30 +333,39 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     private void loadPostFromServer(final PostRequest postRequest, final boolean reload) {
         nextOffset = 0;
-        RestManager.getInstance().findNearPosts(postRequest, new Callback<PostResponse>() {
+        final Call<PostResponse> call = RestManager.getInstance().findNearPosts(postRequest, new Callback<PostResponse>() {
             @Override
             public void onResponse(Call<PostResponse> call, Response<PostResponse> response) {
+                removeCall(call);
                 //        after getting response.
                 processLoadedPosts(response.body(), reload);
+
             }
 
             @Override
             public void onFailure(Call<PostResponse> call, Throwable t) {
+                removeCall(call);
 //                loadingPosts = false; // TODO false or true ??? if continue then true otherwise false. False if finish. true if goes to VK
-//                NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
+//                boolean withError = true;
+//                if (t != null && t.getMessage().equals("Cancelled")) {
+//                    withError = false;
+//                }
+//                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished, withError);
 
                 loadVKPhotos(postRequest, reload);
             }
 
         });
+        addCall(call);
     }
 
 
     private void loadVKPhotos(final PostRequest postRequest, final boolean reload) {
         loadingPosts = true;
-        RestManager.getInstance().findNearVKPhotos(postRequest, new Callback<VKPhotoResponse>() {
+        final Call<VKPhotoResponse> call = RestManager.getInstance().findNearVKPhotos(postRequest, new Callback<VKPhotoResponse>() {
             @Override
             public void onResponse(Call<VKPhotoResponse> call, Response<VKPhotoResponse> response) {
+                removeCall(call);
                 //        after getting response.
                 PostResponse postResponse = new PostResponse();
                 postResponse.setPosts(vkPhotoResponseConverter.convert(response.body() != null ?
@@ -340,10 +381,20 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
             @Override
             public void onFailure(Call<VKPhotoResponse> call, Throwable t) {
+                removeCall(call);
                 loadingPosts = false;
-                NotificationCenter.getInstance().postNotificationName(NotificationCenter.loadPostsError);
+                boolean withError = true;
+                if (t != null && t.getMessage().equals("Canceled")) {
+                    withError = false;
+                }
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished, withError);
             }
         });
+        addCall(call);
+
+
+        // it works and it forces onFailure java.io.IOException: Canceled
+//        call.cancel(); //
     }
 
 

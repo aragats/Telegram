@@ -46,8 +46,11 @@ public class RestManager {
     }
 
 
-    public void findNearPosts(PostRequest request, Callback<PostResponse> callback) {
-        findNearPostsCall(request).enqueue(callback);
+    // TODO tem try it.
+    public Call<PostResponse> findNearPosts(PostRequest request, Callback<PostResponse> callback) {
+        Call<PostResponse> call = findNearPostsCall(request);
+        call.enqueue(callback);
+        return call;
     }
 
     private Call<PostResponse> findNearPostsCall(PostRequest request) {
@@ -56,8 +59,10 @@ public class RestManager {
     }
 
 
-    public void uploadImage(FileUploadRequest request, Callback<List<Image>> callback) {
-        uploadImage(request).enqueue(callback);
+    public Call<List<Image>> uploadImage(FileUploadRequest request, Callback<List<Image>> callback) {
+        Call<List<Image>> call = uploadImage(request);
+        call.enqueue(callback);
+        return call;
     }
 
     private Call<List<Image>> uploadImage(FileUploadRequest request) {
@@ -88,8 +93,10 @@ public class RestManager {
 
 
     // findPostsAtVenue
-    public void findPostsAtVenue(VenuePostsRequest request, Callback<PostResponse> callback) {
-        findPostsAtVenueCall(request).enqueue(callback);
+    public Call<PostResponse> findPostsAtVenue(VenuePostsRequest request, Callback<PostResponse> callback) {
+        Call<PostResponse> call = findPostsAtVenueCall(request);
+        call.enqueue(callback);
+        return call;
     }
 
     private Call<PostResponse> findPostsAtVenueCall(VenuePostsRequest request) {
@@ -97,8 +104,10 @@ public class RestManager {
     }
 
     // savePost
-    public void savePost(Post post, Callback<String> callback) {
-        savePostCall(post).enqueue(callback);
+    public Call<String> savePost(Post post, Callback<String> callback) {
+        Call<String> call = savePostCall(post);
+        call.enqueue(callback);
+        return call;
     }
 
     private Call<String> savePostCall(Post post) {
@@ -153,8 +162,10 @@ public class RestManager {
 //    http://192.168.0.100:8080/api/posts/find/near?lng=13.0116908&lat=52.3898987&distance=1000&count=20.0&offset=sds
 
 
-    public void findNearVKPhotos(PostRequest request, Callback<VKPhotoResponse> callback) {
-        findNearVKPhotos(request).enqueue(callback);
+    public Call<VKPhotoResponse> findNearVKPhotos(PostRequest request, Callback<VKPhotoResponse> callback) {
+        Call<VKPhotoResponse> call = findNearVKPhotos(request);
+        call.enqueue(callback);
+        return call;
     }
 
     private Call<VKPhotoResponse> findNearVKPhotos(PostRequest request) {

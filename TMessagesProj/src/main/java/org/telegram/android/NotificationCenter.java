@@ -35,7 +35,7 @@ public class NotificationCenter {
     public static final int offlinePostsLoaded = totalEvents++;
 
     public static final int savePostError = totalEvents++;
-    public static final int loadPostsError = totalEvents++;
+//    public static final int loadPostsError = totalEvents++;
 
     public static final int didReceivedNewPosts = totalEvents++; //TODO
     public static final int updateInterfaces = totalEvents++; //TODO

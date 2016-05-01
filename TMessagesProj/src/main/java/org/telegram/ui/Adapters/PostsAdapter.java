@@ -66,6 +66,9 @@ public class PostsAdapter extends RecyclerView.Adapter {
 //        if (!PostsController.getInstance().dialogsEndReached) {
 //            count++;
 //        }
+        if (count != 0) {
+            count++; // loading cell
+        }
         currentCount = count;
         return count;
     }
@@ -166,9 +169,10 @@ public class PostsAdapter extends RecyclerView.Adapter {
         }
     }
 
+    //TODO loading here to work.
     @Override
     public int getItemViewType(int i) {
-        if (i == PostsController.getInstance().getPosts().size()) {
+        if (i != 0 && i == PostsController.getInstance().getPosts().size()) {
             return 1; //LoadingCell
         }
         return 0; //PostCell
