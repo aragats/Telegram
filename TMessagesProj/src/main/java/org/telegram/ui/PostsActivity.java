@@ -600,6 +600,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         tryAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgressView();
                 refreshPosts(false);
             }
         });
@@ -676,7 +677,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 if (visibleItemCount > 0) {
                     if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().getPosts().size() - 1 && !mIsScrollingUp && !PostsController.getInstance().getPosts().isEmpty()) {
                         String offset = PostsController.getInstance().getPosts().get(PostsController.getInstance().getPosts().size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
-                        startRefreshingProgressView();
+//                        startRefreshingProgressView();
                         PostsController.getInstance().loadPosts(offset, PostsController.getInstance().getOffset(), Constants.POST_COUNT, false, offlineMode);
                     }
                 }
@@ -826,7 +827,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             notifyDateSetChanged();
             updateViewLayers(withError);
             stopRefreshingProgressView();
-            if(withError) {
+            if (withError) {
                 Toast.makeText(((Context) getParentActivity()), "Load posts error", Toast.LENGTH_SHORT).show();
             }
         } else if (id == NotificationCenter.postsNeedReload) {
@@ -856,17 +857,14 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             refreshPosts(force);
         } else if (id == NotificationCenter.offlinePostsLoaded) {
 //            layoutManager.scrollToPosition(0);
-            startRefreshingProgressView();
+//            startRefreshingProgressView();
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
             boolean force = false;
             if (!this.offlineMode) {
                 force = true;
                 if (!MediaController.getInstance().isRTreeloaded()) {
-                    if (progressView != null && postListView != null) {
-                        progressView.setVisibility(View.VISIBLE);
-                        postListView.setVisibility(View.INVISIBLE);
-                    }
+                    showProgressView();
                 }
                 PostsController.getInstance().cancelAllCalls();
                 PostsController.getInstance().getPosts().clear();
@@ -880,22 +878,19 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             boolean force = false;
             if (this.offlineMode) {
                 force = true;
-                if (progressView != null && postListView != null) {
-                    progressView.setVisibility(View.VISIBLE);
-                    postListView.setVisibility(View.INVISIBLE);
-                }
+                showProgressView();
+                PostsController.getInstance().cancelAllCalls();
+                PostsController.getInstance().getPosts().clear();
             }
             this.offlineMode = false;
 //            layoutManager.scrollToPosition(0);
-            PostsController.getInstance().cancelAllCalls();
-            PostsController.getInstance().getPosts().clear();
             refreshPosts(force);
         }
     }
 
     private void refreshPosts(boolean force) {
         if (PostsController.getInstance().getPosts().isEmpty() || force) {
-            startRefreshingProgressView();
+//            startRefreshingProgressView();
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
         }
     }
@@ -904,6 +899,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (progressView != null && postListView != null) {
             progressView.setVisibility(View.VISIBLE);
             postListView.setVisibility(View.INVISIBLE);
+            emptyView.setVisibility(View.INVISIBLE);
         }
     }
 
