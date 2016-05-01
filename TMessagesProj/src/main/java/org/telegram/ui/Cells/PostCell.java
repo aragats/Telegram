@@ -380,8 +380,10 @@ public class PostCell extends BaseCell {
 
         if (!LocaleController.isRTL) {
             nameLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
+//            nameLeft = AndroidUtilities.dp(AndroidUtilities.isTablet() ? 13 : 9);
         } else {
             nameLeft = AndroidUtilities.dp(14);
+//            nameLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.isTablet() ? 65 : 61);
         }
 
         //TODO could be NPE postCoordinates !!!
@@ -524,10 +526,12 @@ public class PostCell extends BaseCell {
         int addressWidth = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.leftBaseline + 16);
 
         if (!LocaleController.isRTL) {
+//            addressLeft = AndroidUtilities.dp(AndroidUtilities.isTablet() ? 13 : 9);
             addressLeft = AndroidUtilities.dp(AndroidUtilities.leftBaseline);
             avatarLeft = AndroidUtilities.dp(AndroidUtilities.isTablet() ? 13 : 9);
             textLeft = AndroidUtilities.dp(9);
         } else {
+//            addressLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.isTablet() ? 65 : 61);
             addressLeft = AndroidUtilities.dp(16);
             avatarLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.isTablet() ? 65 : 61);
             textLeft = getMeasuredWidth() - AndroidUtilities.dp(61);
@@ -707,6 +711,7 @@ public class PostCell extends BaseCell {
                 // orientation of image in the center of the screen.
                 int x = (getMeasuredWidth() - photoWidth) / 2;
                 photoImage.setImageCoords(x, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
+//                photoImage.setImageCoords(x, avatarTop + AndroidUtilities.dp(45), photoWidth, photoHeight);
 
 
                 photoImage.setForcePreview(false);

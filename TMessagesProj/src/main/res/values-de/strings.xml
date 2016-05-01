@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--Translation by iLLogical2007, DanielGroeger and everyone from https://github.com/DrKLO/Telegram/pull/129 whom I didn't notice -->
-
+    <!--Veranstaltungen rund um Ludwigsfelde-->
 <resources>
     <string name="AppName">WGO</string>
     <string name="AppFullName">Was ist los?</string>
-    <string name="AppHintText">Wirklich! Was ist los in Ihrer Nähe?</string>
+    <string name="AppHintText">Wirklich! Was ist los in Ihrer Nähe?</string> <!--Veranstaltungen rund um Ludwigsfelde-->
     <string name="LanguageName">Deutsch</string>
     <string name="LanguageNameInEnglish">German</string>
     <string name="LanguageCode">de</string>
