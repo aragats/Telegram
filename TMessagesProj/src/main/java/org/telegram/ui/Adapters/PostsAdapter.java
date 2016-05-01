@@ -20,6 +20,7 @@ import org.telegram.android.support.widget.RecyclerView;
 
 import ru.aragats.wgo.dto.Post;
 
+import org.telegram.ui.Cells.EmptyCell;
 import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.LocationActivityAragats;
@@ -94,6 +95,8 @@ public class PostsAdapter extends RecyclerView.Adapter {
             view = new PostCell(mContext);
         } else if (viewType == 1) {
             view = new LoadingCell(mContext);
+        } else if (viewType == 2) {
+            view = new EmptyCell(mContext);
         }
         return new Holder(view);
     }
@@ -173,7 +176,11 @@ public class PostsAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int i) {
         if (i != 0 && i == PostsController.getInstance().getPosts().size()) {
-            return 1; //LoadingCell
+            if (PostsController.getInstance().isLoadingPosts()) {
+                return 1; //LoadingCell
+            } else {
+                return 2; //EmptyCell
+            }
         }
         return 0; //PostCell
     }
