@@ -813,7 +813,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                         float[] coordinates = new float[2];
                         boolean result = exif.getLatLong(coordinates);
                         if (result) {
-                            Post post = PostsController.getInstance().createPost(cameraFolder, fileName, coordinates[0], coordinates[1], date);
+                            Post post = PostsController.getInstance().createPost(cameraFolder, fileName, coordinates[0], coordinates[1], date, true);
                             rTree = rTree.add(Entry.entry(post, Geometries.point(coordinates[1], coordinates[0])));
                             posts.add(post);
                         }

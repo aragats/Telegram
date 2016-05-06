@@ -21,6 +21,7 @@ public class Post implements Serializable {
 
 //  transient
     private transient float distance;
+    private transient boolean  local;
 
 
     public Post() {
@@ -123,5 +124,13 @@ public class Post implements Serializable {
 
     public void setDistance(float distance) {
         this.distance = distance;
+    }
+
+    public boolean isLocal() {
+        return local;
+    }
+
+    public void setLocal(boolean local) {
+        this.local = local;
     }
 }

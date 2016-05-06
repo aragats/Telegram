@@ -1180,6 +1180,9 @@ public class PostCell extends BaseCell {
 
 
     private int calculateSizeForOfflineImage(int size, Post post) {
+        if (!post.isLocal()) {
+            return size;
+        }
         //        int size = (int) (800 / AndroidUtilities.density);
         if (post.getPreviewImage().getSize() > 8 * Constants.IMAGE_1_MB) {
             size = size / 3; // TODO it reduces the size and we have less sized image to display in UI. !!!

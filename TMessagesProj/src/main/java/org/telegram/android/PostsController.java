@@ -518,8 +518,9 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         return posts.size();
     }
 
-    public Post createPost(String dir, String photo, double latitude, double longitude, Date date) {
+    public Post createPost(String dir, String photo, double latitude, double longitude, Date date, boolean local) {
         Post post = new Post();
+        post.setLocal(local);
         post.setId(photo);
         Coordinates coordinates = new Coordinates();
         coordinates.setType("Point");
