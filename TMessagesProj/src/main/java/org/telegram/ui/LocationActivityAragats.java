@@ -213,6 +213,9 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 actionBar.setTitle(venue.getName());
                 if (!StringUtils.isEmpty(venue.getAddress())) {
                     actionBar.setSubtitle(venue.getAddress());
+                } else {
+                    List<Double> coordinates = venue.getCoordinates().getCoordinates();
+                    actionBar.setSubtitle(String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0)));
                 }
             } else {
 //                actionBar.setTitle(LocaleController.getString("ChatLocation", R.string.ChatLocation));

@@ -19,6 +19,7 @@ import com.github.davidmoten.rtree.geometry.Geometry;
 
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.utils.Constants;
+import org.telegram.utils.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,7 +35,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
 import ru.aragats.wgo.comparator.PostDateComparator;
 import ru.aragats.wgo.comparator.PostDistanceComparator;
 import ru.aragats.wgo.converter.vk.VKPhotoResponseToPostListConverter;
@@ -368,9 +368,12 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             public void onResponse(Call<VKPhotoResponse> call, Response<VKPhotoResponse> response) {
                 removeCall(call);
                 //        after getting response.
+                List<Post> posts = vkPhotoResponseConverter.convert(response.body() != null ?
+                        response.body().getResponse() : null);
+//                posts = filterVKPosts(posts);
                 PostResponse postResponse = new PostResponse();
-                postResponse.setPosts(vkPhotoResponseConverter.convert(response.body() != null ?
-                        response.body().getResponse() : null));
+                postResponse.setPosts(posts);
+
                 if (postResponse.getPosts() == null) {
                     postResponse.setPosts(new ArrayList<Post>());
                 }
@@ -396,6 +399,19 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
         // it works and it forces onFailure java.io.IOException: Canceled
 //        call.cancel(); //
+    }
+
+    private List<Post> filterVKPosts(List<Post> posts) {
+        if (posts == null) {
+            return null;
+        }
+        List<Post> result = new ArrayList<>();
+        for (Post post : posts) {
+            if (!StringUtils.isEmpty(post.getText())) {
+                result.add(post);
+            }
+        }
+        return result;
     }
 
 
@@ -434,6 +450,12 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             Collections.sort(posts, new PostDateComparator());
         }
         loadingPosts = false;
+
+        //TODO recursive
+//        if ((posts.size() < 3 || (posts.size() > 2 && postResponse.getPosts().isEmpty())) && !StringUtils.isEmpty(postResponse.getSource()) && postResponse.getSource().equals("VK")) {
+//            loadPosts(null, nextOffset, Constants.POST_COUNT, false, false);
+//        }
+
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!postResponse.getPosts().isEmpty() || reload) {
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload, reload);
