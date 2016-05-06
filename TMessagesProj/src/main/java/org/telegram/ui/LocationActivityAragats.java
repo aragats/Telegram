@@ -841,7 +841,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 //                    photo = user.photo.photo_small;
 //                }
 //                avatarImageView.setImage(post.getImage().getUrl(), "50_50", avatarDrawable);
-                avatarImageView.setImage(post.getPreviewImage().getUrl(), null, new AvatarDrawable());
+                avatarImageView.setImage(post.getPreviewImage().getUrl(), "50_50", new AvatarDrawable());
                 nameTextView.setText(post.getText());
             } else {
                 avatarImageView.setImageDrawable(null);

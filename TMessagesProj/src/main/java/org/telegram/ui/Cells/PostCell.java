@@ -39,6 +39,7 @@ import org.telegram.messenger.object.TextLayoutBlock;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.ui.Components.URLSpanNoUnderline;
+import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 import java.util.Locale;
@@ -803,8 +804,7 @@ public class PostCell extends BaseCell {
         //2. from postMediaCell . works faster
         int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
         //TODO mock. above correct version.
-//        int size = (int) (800 / AndroidUtilities.density);
-//        size = size / 2; // TODO it reduces the size and we have less sized image to display in UI. !!!
+//        size = calculateSizeForOfflineImage(size, post); // TODO temp. rethink it.  // TODO it reduces the size and we have less sized image to display in UI. !!!
         //TODO size parameter in filter influences on loading time. Than less than faster. File size does not effect. ??
         photoImage.setImage(post.getPreviewImageUrl(), String.format(Locale.US, "%d_%d", size, size), imageDrawable, null, (int) post.getPreviewImage().getSize()); // TODO fix it. Create drawable.
 
@@ -924,7 +924,6 @@ public class PostCell extends BaseCell {
 
             // draw line. temporaly I do not use it.
 //            canvas.drawLine(0, getMeasuredHeight() - 1, getMeasuredWidth(), getMeasuredHeight() - 1, linePaint);
-
 
 
             // OLD
@@ -1177,6 +1176,18 @@ public class PostCell extends BaseCell {
 
     public int getIndex() {
         return index;
+    }
+
+
+    private int calculateSizeForOfflineImage(int size, Post post) {
+        //        int size = (int) (800 / AndroidUtilities.density);
+        if (post.getPreviewImage().getSize() > 8 * Constants.IMAGE_1_MB) {
+            size = size / 3; // TODO it reduces the size and we have less sized image to display in UI. !!!
+        } else if (post.getPreviewImage().getSize() > Constants.IMAGE_1_MB) {
+            size = size / 2; // TODO it reduces the size and we have less sized image to display in UI. !!!
+
+        }
+        return size;
     }
 }
 

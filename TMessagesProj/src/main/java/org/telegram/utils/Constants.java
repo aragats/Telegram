@@ -61,4 +61,8 @@ public class Constants {
     public static String POINT = "Point";
 
     public static final int MAX_RESULTS = 10;
+
+
+    public static final int IMAGE_2_MB = 2 * 1024 * 1024; // 1 MB
+    public static final int IMAGE_1_MB =  1024 * 1024; // 1 MB
 }
