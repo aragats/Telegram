@@ -122,7 +122,7 @@ public class PostCell extends BaseCell {
     public boolean useSeparator = false;
 
     private int nameLeft;
-    private int nameTop = AndroidUtilities.dp(15);
+    private int nameTop = AndroidUtilities.dp(20);
     private StaticLayout nameLayout;
 
     private int timeLeft;
@@ -131,7 +131,7 @@ public class PostCell extends BaseCell {
     private StaticLayout timeLayout;
 
 
-    private int addressTop = AndroidUtilities.dp(34);
+    private int addressTop = AndroidUtilities.dp(39);
     //    private int addressTop = AndroidUtilities.dp(40);
     private int addressLeft;
     private StaticLayout addressLayout;
@@ -142,8 +142,8 @@ public class PostCell extends BaseCell {
 
     private int avatarLeft;
 
-    private int avatarTop = AndroidUtilities.dp(10);
-    private int avatarSize = AndroidUtilities.dp(46);
+    private int avatarTop = AndroidUtilities.dp(20);
+    private int avatarSize = AndroidUtilities.dp(36);
 
     private boolean isSelected;
 
@@ -264,15 +264,15 @@ public class PostCell extends BaseCell {
     //TODO setMeasure. size of post.
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), AndroidUtilities.dp(72) + (useSeparator ? 1 : 0));
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), AndroidUtilities.dp(85) + (useSeparator ? 1 : 0));
         int textHeight = 0;
         if (this.textLayoutBlock != null && this.textLayoutBlock.textLayout != null) {
             textHeight = this.textLayoutBlock.textLayout.getHeight();
         }
-        int marginHeight = AndroidUtilities.dp(82);
+        int marginHeight = AndroidUtilities.dp(85);
         if (StringUtils.isEmpty(post.getText())) {
             textHeight = 0;
-            marginHeight = AndroidUtilities.dp(72); //0 was
+            marginHeight = AndroidUtilities.dp(85); //0 was
         }
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), photoHeight + marginHeight + textHeight + (useSeparator ? 1 : 0));
 
@@ -710,7 +710,7 @@ public class PostCell extends BaseCell {
 //                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62) + this.textLayoutBlock.textLayout.getHeight(), photoWidth, photoHeight);
                 // orientation of image in the center of the screen.
                 int x = (getMeasuredWidth() - photoWidth) / 2;
-                photoImage.setImageCoords(x, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
+                photoImage.setImageCoords(x, avatarTop + AndroidUtilities.dp(47), photoWidth, photoHeight);
 //                photoImage.setImageCoords(x, avatarTop + AndroidUtilities.dp(45), photoWidth, photoHeight);
 
 
@@ -789,6 +789,7 @@ public class PostCell extends BaseCell {
 //            avatarImage.setBackgroundResource(R.drawable.round_grey);
         } else {
             avatarImage.setImageBitmap(getResources().getDrawable(R.drawable.pin));
+//            avatarImage.setImage("https://ss3.4sqi.net/img/categories_v2/education/residencehall_64.png", null, avatarDrawable, null, 0);
 //            avatarImage.setBackgroundResource(R.drawable.round_grey);
 //            avatarImage.setImageResource(R.drawable.pin);
 
@@ -920,8 +921,13 @@ public class PostCell extends BaseCell {
         }
 
         if (useSeparator) {
-            canvas.drawLine(0, getMeasuredHeight() - 1, getMeasuredWidth(), getMeasuredHeight() - 1, linePaint);
 
+            // draw line. temporaly I do not use it.
+//            canvas.drawLine(0, getMeasuredHeight() - 1, getMeasuredWidth(), getMeasuredHeight() - 1, linePaint);
+
+
+
+            // OLD
 //            if (LocaleController.isRTL) {
 //                canvas.drawLine(0, getMeasuredHeight() - 1, getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.leftBaseline), getMeasuredHeight() - 1, linePaint);
 //            } else {

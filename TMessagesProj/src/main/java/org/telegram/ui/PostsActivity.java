@@ -600,7 +600,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         tryAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showProgressView();
                 refreshPosts(false);
             }
         });
@@ -878,7 +877,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             boolean force = false;
             if (this.offlineMode) {
                 force = true;
-                showProgressView();
                 PostsController.getInstance().cancelAllCalls();
                 PostsController.getInstance().getPosts().clear();
             }
@@ -891,6 +889,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private void refreshPosts(boolean force) {
         if (PostsController.getInstance().getPosts().isEmpty() || force) {
 //            startRefreshingProgressView();
+            showProgressView();
             PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
         }
     }
