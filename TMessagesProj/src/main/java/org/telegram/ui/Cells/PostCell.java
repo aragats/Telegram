@@ -804,7 +804,7 @@ public class PostCell extends BaseCell {
         //2. from postMediaCell . works faster
         int size = (int) (AndroidUtilities.getPhotoSize() / AndroidUtilities.density);
         //TODO mock. above correct version.
-//        size = calculateSizeForOfflineImage(size, post); // TODO temp. rethink it.  // TODO it reduces the size and we have less sized image to display in UI. !!!
+        size = calculateSizeForOfflineImage(size, post); // TODO TEMP. rethink it.  // TODO it reduces the size and we have less sized image to display in UI. !!!
         //TODO size parameter in filter influences on loading time. Than less than faster. File size does not effect. ??
         photoImage.setImage(post.getPreviewImageUrl(), String.format(Locale.US, "%d_%d", size, size), imageDrawable, null, (int) post.getPreviewImage().getSize()); // TODO fix it. Create drawable.
 
