@@ -127,7 +127,7 @@ public class PostCell extends BaseCell {
     private StaticLayout nameLayout;
 
     private int timeLeft;
-    private int timeTop = AndroidUtilities.dp(15);
+    private int timeTop = AndroidUtilities.dp(20);
     //    private int timeTop = AndroidUtilities.dp(17);
     private StaticLayout timeLayout;
 
