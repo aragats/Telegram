@@ -676,6 +676,11 @@ public class PostCell extends BaseCell {
 
                 float scale = (float) previewImage.getWidth() / (float) photoWidth; // scale calculate
 
+//                if (previewImage.getWidth() < 800 && scale < 1) {
+//                    scale = 1;
+//                }
+
+
                 if (previewImage.getSize() == 0) { // size of the file.
                     previewImage.setSize(-1);
                 }

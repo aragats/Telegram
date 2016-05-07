@@ -11,6 +11,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.KeyValue;
 import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.PostResponse;
 
@@ -36,7 +37,7 @@ public interface RestService {
 
 
     @POST("/api/posts/save")
-    Call<String> savePost(@Body Post post);
+    Call<KeyValue> savePost(@Body Post post);
 
 
 

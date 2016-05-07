@@ -1049,6 +1049,22 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     }
 
 
+    public void deleteFile(String fileUrl) {
+        if (fileUrl == null) {
+            return;
+        }
+        try {
+            File file = new File(fileUrl);
+            if (file.exists()) {
+                file.delete();
+            }
+        } catch (Exception e) {
+            //TODO handle exception
+            e.printStackTrace();
+        }
+
+    }
+
     //TODO works not properly. int increase the size of the file.
     public void saveBitmap(Image image) {
         FileOutputStream out = null;
@@ -1062,11 +1078,26 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             out = new FileOutputStream(resizedImage);
             int width = image.getWidth();
             int height = image.getHeight();
-            if (image.getWidth() > Constants.PHOTO_WIDTH_MAX) {
+            if (width > Constants.PHOTO_WIDTH_MAX) {
                 width = Constants.PHOTO_WIDTH_MAX;
                 float scale = (float) image.getWidth() / (float) Constants.PHOTO_WIDTH_MAX; // scale calculate
                 height = (int) (height / scale);
             }
+
+
+//            if (width > height) {
+//                if (width > Constants.PHOTO_WIDTH_MAX) {
+//                    width = Constants.PHOTO_WIDTH_MAX;
+//                    float scale = (float) image.getWidth() / (float) Constants.PHOTO_WIDTH_MAX; // scale calculate
+//                    height = (int) (height / scale);
+//                }
+//            } else {
+//                if (height > Constants.PHOTO_HEIGHT_MAX) {
+//                    height = Constants.PHOTO_HEIGHT_MAX;
+//                    float scale = (float) image.getHeight() / (float) Constants.PHOTO_HEIGHT_MAX; // scale calculate
+//                    width = (int) (width / scale);
+//                }
+//            }
 
 //            BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -1075,12 +1106,13 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 //            http://stackoverflow.com/questions/4821488/bad-image-quality-after-resizing-scaling-bitmap
 
             Bitmap resized = Bitmap.createScaledBitmap(image.getBitmap(), width, height, true);
-            Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.PNG;
+            Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG; // always JPEG because if PNG then comress odes not work.
             String type = image.getType();
-            if (!StringUtils.isEmpty(type) &&
-                    (type.toLowerCase().contains("jpeg") || type.toLowerCase().contains("jpg"))) {
-                compressFormat = Bitmap.CompressFormat.JPEG;
-            }
+//            if (!StringUtils.isEmpty(type) &&
+//                    (type.toLowerCase().contains("jpeg") || type.toLowerCase().contains("jpg"))) {
+//                compressFormat = Bitmap.CompressFormat.JPEG;
+//            }
+
 
 //            http://www.hongkiat.com/blog/jpeg-optimization-guide/
 
@@ -1093,11 +1125,13 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             resized.compress(compressFormat, Constants.PHOTO_QUALITY, out); // bmp is your Bitmap instance
             // PNG is a lossless format, the compression factor (100) is ignored
 
+//            image.setType("jpg");
             image.setBitmap(resized);
             image.setUrl(resizedImage.getAbsolutePath());
             image.setWidth(width);
             image.setHeight(height);
         } catch (Exception e) {
+            //TODO handle exception
             e.printStackTrace();
         } finally {
             try {

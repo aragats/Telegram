@@ -41,6 +41,7 @@ import ru.aragats.wgo.converter.vk.VKPhotoResponseToPostListConverter;
 import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.FileUploadRequest;
 import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.KeyValue;
 import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.PostRequest;
 import ru.aragats.wgo.dto.PostResponse;
@@ -175,12 +176,14 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         RestManager.getInstance().uploadImage(new FileUploadRequest(post.getImage().getUrl(), post.getImage().getType()), new Callback<List<Image>>() {
             @Override
             public void onResponse(Call<List<Image>> call, Response<List<Image>> response) {
-                post.setImages(response.body()); // TODO chek whether images are not empty
+                MediaController.getInstance().deleteFile(post.getImage().getUrl());
+                post.setImages(response.body()); // TODO check whether images are not empty
                 savePost(post);
             }
 
             @Override
             public void onFailure(Call<List<Image>> call, Throwable t) {
+                MediaController.getInstance().deleteFile(post.getImage().getUrl());
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.savePostError);
             }
         });
@@ -188,15 +191,15 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
 
     private void savePost(final Post post) {
-        RestManager.getInstance().savePost(post, new Callback<String>() {
+        RestManager.getInstance().savePost(post, new Callback<KeyValue>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                post.setId(response.body());
+            public void onResponse(Call<KeyValue> call, Response<KeyValue> response) {
+                post.setId(response.body().getKey());
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<KeyValue> call, Throwable t) {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.savePostError);
             }
 
@@ -274,8 +277,8 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             nextOffset = 0;
             loadLocalPosts(postRequest, reload);
         } else {
-//            loadPostFromServer(postRequest, reload);
-            loadVKPhotos(postRequest, reload);
+            loadPostFromServer(postRequest, reload);
+//            loadVKPhotos(postRequest, reload);
         }
 
 
@@ -434,6 +437,9 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
     public void processLoadedPosts(PostResponse postResponse, boolean reload) {
+        if (postResponse.getPosts() == null) {
+            postResponse.setPosts(new ArrayList<Post>());
+        }
         if (reload) {
             posts.clear();
             postsMap.clear();

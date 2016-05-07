@@ -34,17 +34,26 @@ public class Constants {
 
     // sizes from VK
     public static final int PHOTO_WIDTH_2560 = 2560;
+    public static final int PHOTO_HEIGHT_1920 = 1920;
     public static final int PHOTO_WIDTH_1280 = 1280;
     public static final int PHOTO_WIDTH_807 = 807;
     public static final int PHOTO_WIDTH_604 = 604;
 
 
-    public static final int PHOTO_WIDTH_MAX = PHOTO_WIDTH_2560;
+    public static final int PHOTO_HEIGHT_1600 = 1600;
+
+
+    //    https://colorlib.com/wp/size-of-the-instagram-picture/  1080x1350  1080x566 1080x1080 - instagram
+    // width: 800 or 1080 or 1280 or 1920 or 2560
+    // height: 1000 or 1350 or 1600 or 2400 or 3200s
+    public static final int PHOTO_WIDTH_MAX = PHOTO_WIDTH_1280;
+    public static final int PHOTO_HEIGHT_MAX = PHOTO_HEIGHT_1600;
 
     public static final int PHOTO_WIDTH_MIN = PHOTO_WIDTH_604;
     public static final int PHOTO_HEIGHT_MIN = PHOTO_WIDTH_604;
 
-    public static final int PHOTO_QUALITY = 70;
+    //    http://photo.stackexchange.com/questions/30243/what-quality-to-choose-when-converting-to-jpg 40-60, 70-80, or 90-100
+    public static final int PHOTO_QUALITY = 70; // 70 - was recommendation.
 
 
     public static final String EXTENSION_JPG = ".jpg";
@@ -64,5 +73,5 @@ public class Constants {
 
 
     public static final int IMAGE_2_MB = 2 * 1024 * 1024; // 1 MB
-    public static final int IMAGE_1_MB =  1024 * 1024; // 1 MB
+    public static final int IMAGE_1_MB = 1024 * 1024; // 1 MB
 }

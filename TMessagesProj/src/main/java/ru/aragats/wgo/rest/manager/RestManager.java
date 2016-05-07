@@ -10,6 +10,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import ru.aragats.wgo.dto.FileUploadRequest;
 import ru.aragats.wgo.dto.Image;
+import ru.aragats.wgo.dto.KeyValue;
 import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.PostRequest;
 import ru.aragats.wgo.dto.PostResponse;
@@ -104,13 +105,13 @@ public class RestManager {
     }
 
     // savePost
-    public Call<String> savePost(Post post, Callback<String> callback) {
-        Call<String> call = savePostCall(post);
+    public Call<KeyValue> savePost(Post post, Callback<KeyValue> callback) {
+        Call<KeyValue> call = savePostCall(post);
         call.enqueue(callback);
         return call;
     }
 
-    private Call<String> savePostCall(Post post) {
+    private Call<KeyValue> savePostCall(Post post) {
         return restClient.getRestService().savePost(post);
     }
 
