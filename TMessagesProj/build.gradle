@@ -1,27 +1,29 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
-    }
-}
 apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
 }
-
+//com.google.android.gms:play-services-location
 dependencies {
     compile 'com.android.support:support-v4:22.1.+'
     compile 'com.google.android.gms:play-services:3.2.+'
+    //    compile 'com.google.android.gms:play-services:7.0.+'
+    //    compile 'com.google.android.gms:play-services-location:7.0.+' // new version that could be not compiled with minor version of android i use it because of Autocomplete Feature Google Mpas
     compile 'net.hockeyapp.android:HockeySDK:3.5.+'
     compile 'com.googlecode.mp4parser:isoparser:1.0.+'
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+    //retrofit
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
+    //    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2' //retrofit
+    //    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
+    compile 'com.github.davidmoten:rtree:0.7.6'
 }
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    compileSdkVersion 23
+    buildToolsVersion '23.0.1'
+
+    useLibrary 'org.apache.http.legacy' // FOT HTTP APACHE CLIENT
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -30,11 +32,16 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file("config/debug.keystore")
+//            storeFile file("config/debug.keystore")
+            storeFile file("config/debug.jks")
+            storePassword RELEASE_STORE_PASSWORD
+            keyAlias RELEASE_KEY_ALIAS
+            keyPassword RELEASE_KEY_PASSWORD
         }
 
         release {
-            storeFile file("config/release.keystore")
+//            storeFile file("config/release.keystore")
+            storeFile file("config/release.jks")
             storePassword RELEASE_STORE_PASSWORD
             keyAlias RELEASE_KEY_ALIAS
             keyPassword RELEASE_KEY_PASSWORD
@@ -79,8 +86,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 22
+        minSdkVersion 8 // was 8 but I change the library google play service to 8.0
+        targetSdkVersion 23
         versionCode 542
         versionName "2.9.1"
     }
