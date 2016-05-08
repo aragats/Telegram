@@ -1003,22 +1003,24 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
 
         if (emojiPopup != null && emojiPopup.isShowing()) {
             int newHeight = isWidthGreater ? keyboardHeightLand : keyboardHeight;
-            final WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) emojiPopup.getContentView().getLayoutParams();
+//            final WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) emojiPopup.getContentView().getLayoutParams(); // was
+            final FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) emojiPopup.getContentView().getLayoutParams();
             FileLog.e("tmessages", "update emoji height to = " + newHeight);
             if (layoutParams.width != AndroidUtilities.displaySize.x || layoutParams.height != newHeight) {
                 layoutParams.width = AndroidUtilities.displaySize.x;
                 layoutParams.height = newHeight;
-                WindowManager wm = (WindowManager) ApplicationLoader.applicationContext.getSystemService(Activity.WINDOW_SERVICE);
-                if (wm != null) {
-                    wm.updateViewLayout(emojiPopup.getContentView(), layoutParams);
-                    if (!keyboardVisible) {
-                        if (sizeNotifierLayout != null) {
-                            sizeNotifierLayout.setPadding(0, 0, 0, layoutParams.height);
-                            sizeNotifierLayout.requestLayout();
-                            onWindowSizeChanged(sizeNotifierLayout.getHeight() - sizeNotifierLayout.getPaddingBottom());
-                        }
+//                WindowManager wm = (WindowManager) ApplicationLoader.applicationContext.getSystemService(Activity.WINDOW_SERVICE);
+//                if (wm != null) {
+                emojiPopup.getContentView().setLayoutParams(layoutParams);
+//                    wm.updateViewLayout(emojiPopup.getContentView(), layoutParams); // was
+                if (!keyboardVisible) {
+                    if (sizeNotifierLayout != null) {
+                        sizeNotifierLayout.setPadding(0, 0, 0, layoutParams.height);
+                        sizeNotifierLayout.requestLayout();
+                        onWindowSizeChanged(sizeNotifierLayout.getHeight() - sizeNotifierLayout.getPaddingBottom());
                     }
                 }
+//                }
             }
         }
 
