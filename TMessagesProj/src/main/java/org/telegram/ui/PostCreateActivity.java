@@ -71,8 +71,12 @@ import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -154,7 +158,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     public boolean onFragmentCreate() {
         //TODO-temp
 //        PostsController.getInstance().loadCurrentVenue("location");
-        userCoordinates = convertLocationToCoordinates(LocationManagerHelper.getInstance().getLastLocation());
+        userCoordinates = LocationManagerHelper.convertLocationToCoordinates(LocationManagerHelper.getInstance().getLastLocation());
         if (userCoordinates != null && venue == null) {
             venue = new Venue();
             venue.setCoordinates(userCoordinates);
@@ -171,6 +175,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.didReceivedNewPosts);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.closeChats);
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.invalidPhoto);
 
         if (getArguments() != null) {
             SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
@@ -207,6 +212,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.didReceivedNewPosts);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.closeChats);
+        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.invalidPhoto);
 
 
         if (!AndroidUtilities.isTablet() && getParentActivity() != null) {
@@ -739,7 +745,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         String name;
         if (venue != null && !StringUtils.isEmpty(venue.getName())) {
             name = venue.getName();
-        } else if (userCoordinates != null) { //TODO Current Location is better to rename to Location. ??? May be is better to delete Place(Ort)
+        } else if (userCoordinates != null ||
+                (!CollectionUtils.isEmpty(posts) && posts.get(0) != null && posts.get(0).getCoordinates() != null)) { //TODO Current Location is better to rename to Location. ??? May be is better to delete Place(Ort)
             name = LocaleController.getString("CurrentLocation", R.string.CurrentLocation);
         } else {
             name = LocaleController.getString("Place", R.string.Place);
@@ -769,6 +776,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 List<Double> coordinates = venue.getCoordinates().getCoordinates();
                 addressString = String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0));
             }
+        } else if (!CollectionUtils.isEmpty(posts) && posts.get(0) != null && posts.get(0).getCoordinates() != null) {
+            List<Double> coordinates = posts.get(0).getCoordinates().getCoordinates();
+            addressString = String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0));
         } else if (userCoordinates != null) {
 //            addressString = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
 //                    userCoordinates.getCoordinates().get(0),
@@ -904,8 +914,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                postCreateActivityEnterView.setFieldText("");
 //            }
             progressDialog.dismiss();
-            Toast.makeText(getParentActivity(), "Error in saving post", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(getParentActivity(), "Error in saving post", Toast.LENGTH_LONG).show();
+        } else if (id == NotificationCenter.invalidPhoto) {
+            Toast.makeText(getParentActivity(), "Invalid photo. It is too old. Please use recent photo from the last 7 days.", Toast.LENGTH_LONG).show();
 
         }
     }
@@ -1000,9 +1011,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 //TODO save text before pause.
                 if (text != null) {
                     editor.putString(Constants.PREF_NEW_POST_TEXT, text);
+                } else {
+                    editor.remove(Constants.PREF_NEW_POST_TEXT);
                 }
                 if (!posts.isEmpty()) {
                     editor.putString(Constants.PREF_NEW_POST_PHOTO, posts.get(0).getPreviewImage().getUrl());
+                } else {
+                    editor.remove(Constants.PREF_NEW_POST_PHOTO);
                 }
                 editor.commit();
                 PostsController.getInstance().setLastVenue(venue);
@@ -1234,6 +1249,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                         Post post = cell.getPost();
                         posts.remove(post);
                         posts.clear();
+                        venue = new Venue();
+                        userCoordinates = LocationManagerHelper.convertLocationToCoordinates(LocationManagerHelper.getInstance().getLastLocation());
+                        venue.setCoordinates(userCoordinates);
+                        updateVenue();
                         postCreateAdapter.notifyDataSetChanged();
                     }
 
@@ -1384,6 +1403,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         args.putInt(Constants.RADIUS_ARG, Constants.RADIUS);
         args.putBoolean(Constants.SEARCH_PLACES_ENABLE_ARG, true);
         LocationActivityAragats fragment = new LocationActivityAragats(args);
+        Post post = getPost();
+        if (post != null && post.getCoordinates() != null) {
+            fragment.setCustomLocation(LocationManagerHelper.convertCoordinatesToLocation(post.getCoordinates()));
+        }
         fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override
             public void didSelectLocation(TLRPC.MessageMedia location) {
@@ -1490,11 +1513,62 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             //TODO-temp
 //            PostCreateActivity.this.post = new PostObject(post);
             //DELETE ALL to store only one
-            PostCreateActivity.this.posts.clear();
-            PostCreateActivity.this.posts.add(post);
 
+            updatePost(post);
+            PostCreateActivity.this.posts.clear();
+            if (validPost(post)) {
+                PostCreateActivity.this.posts.add(post);
+                if (post.getCoordinates() != null) {
+                    venue = new Venue();
+                    venue.setCoordinates(post.getCoordinates());
+                    updateVenue();
+                }
+            } else {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPhoto);
+            }
             postCreateAdapter.notifyDataSetChanged();
         }
+    }
+
+    private boolean validPost(Post post) {
+        return (new Date().getTime() - post.getCreatedDate()) < Constants.MAX_DATE_SHIFT;
+    }
+
+    private void updatePost(Post post) {
+        ExifInterface exif;
+        try {
+            exif = new ExifInterface(post.getImage().getUrl());
+        } catch (IOException e) {
+            //TODO handle exception.
+            e.printStackTrace();
+            return;
+        }
+        if (exif == null) {
+            return;
+        }
+//        new Date(new File(post.getImage().getUrl()).lastModified())
+        String datetime = exif.getAttribute(ExifInterface.TAG_DATETIME); // could be null
+        if (!StringUtils.isEmpty(datetime)) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_PATTERN, Locale.getDefault());
+            Date date;
+            try {
+                date = simpleDateFormat.parse(datetime);
+            } catch (ParseException e) {
+                //TODO handle exception
+                e.printStackTrace();
+                return;
+            }
+            post.setCreatedDate(date.getTime());
+        }
+        float[] coords = new float[2];
+        boolean result = exif.getLatLong(coords);
+        if (result) {
+            Coordinates coordinates = new Coordinates();
+            coordinates.setType(Constants.POINT);
+            coordinates.setCoordinates(Arrays.asList((double) coords[1], (double) coords[0]));
+            post.setCoordinates(coordinates);
+        }
+
     }
 
     // url = file path or whatever suitable URL you want.
@@ -1598,15 +1672,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
     }
 
-
-    private Coordinates convertLocationToCoordinates(Location location) {
-        if (location == null) {
-            return null;
+    private Post getPost() {
+        if (!CollectionUtils.isEmpty(posts)) {
+            return posts.get(0);
         }
-        Coordinates coordinates = new Coordinates();
-        coordinates.setCoordinates(Arrays.asList(location.getLongitude(), location.getLatitude()));
-        coordinates.setType("Point");
-        return coordinates;
+        return null;
     }
 
 }

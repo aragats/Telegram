@@ -9,6 +9,7 @@
 package org.telegram.android;
 
 import ru.aragats.wgo.ApplicationLoader;
+
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLog;
 
@@ -16,8 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class NotificationCenter {
-
-
 
 
     private static int totalEvents = 1;
@@ -35,7 +34,9 @@ public class NotificationCenter {
     public static final int offlinePostsLoaded = totalEvents++;
 
     public static final int savePostError = totalEvents++;
-//    public static final int loadPostsError = totalEvents++;
+    //    public static final int loadPostsError = totalEvents++;
+    public static final int invalidPhoto = totalEvents++;
+
 
     public static final int didReceivedNewPosts = totalEvents++; //TODO
     public static final int updateInterfaces = totalEvents++; //TODO

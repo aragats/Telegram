@@ -277,8 +277,8 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             nextOffset = 0;
             loadLocalPosts(postRequest, reload);
         } else {
-            loadPostFromServer(postRequest, reload);
-//            loadVKPhotos(postRequest, reload);
+//            loadPostFromServer(postRequest, reload);
+            loadVKPhotos(postRequest, reload);
         }
 
 

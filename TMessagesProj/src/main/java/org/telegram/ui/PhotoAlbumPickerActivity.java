@@ -31,9 +31,6 @@ import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
 import org.telegram.android.NotificationCenter;
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
-
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -47,11 +44,16 @@ import org.telegram.ui.Components.PhotoPickerBottomLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+
 public class PhotoAlbumPickerActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
     public interface PhotoAlbumPickerActivityDelegate {
         void didSelectPhotos(ArrayList<String> photos, ArrayList<String> captions, ArrayList<MediaController.SearchImage> webPhotos);
+
         boolean didSelectVideo(String path);
+
         void startPhotoSelectActivity();
     }
 

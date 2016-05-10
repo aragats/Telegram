@@ -780,7 +780,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                 }
                 if (rTree == null) {
                     rTree = RTree.create();
-                    String cameraFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/" + "Camera/";
+                    String cameraFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/" + "Camera/"; //TODO hard code???
 
                     // TODO filter files list. and in parallel check time of the last update?
 //               TODO  Or update rTree one per week ! (per day). OR if the number of files is changed. new photo added or something deleted. !!
@@ -801,7 +801,10 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
                             continue;
                         }
                         String datetime = exif.getAttribute(ExifInterface.TAG_DATETIME);
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss", Locale.getDefault());
+                        if (datetime == null) {
+                            continue;
+                        }
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT_PATTERN, Locale.getDefault());
                         Date date;
                         try {
                             date = simpleDateFormat.parse(datetime);

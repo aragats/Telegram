@@ -1,5 +1,8 @@
 package org.telegram.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 /**
  * Created by aragats on 15/05/15.
  */
@@ -69,9 +72,14 @@ public class Constants {
 
     public static String POINT = "Point";
 
+    public static long MAX_DATE_SHIFT = 7*24*60*60*1000;
+
     public static final int MAX_RESULTS = 10;
 
 
     public static final int IMAGE_2_MB = 2 * 1024 * 1024; // 1 MB
     public static final int IMAGE_1_MB = 1024 * 1024; // 1 MB
+
+    public static final String SIMPLE_DATE_FORMAT_PATTERN = "yyyy:MM:dd hh:mm:ss";
+    public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN, Locale.getDefault());
 }

@@ -35,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -126,6 +127,9 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
 
     private boolean searchPlacesEnable;
+    private boolean restrictedArea;
+    private int radius;
+
 
     public interface LocationActivityDelegate {
         void didSelectLocation(TLRPC.MessageMedia location);
@@ -134,6 +138,9 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
     public LocationActivityAragats(Bundle args) {
         super(args);
         searchPlacesEnable = getArguments().getBoolean(Constants.SEARCH_PLACES_ENABLE_ARG, false);
+        // Circle area restriction.
+        restrictedArea = getArguments().getBoolean(Constants.RESTRICTED_AREA, false);
+        radius = getArguments().getInt(Constants.RADIUS_ARG, Constants.RADIUS);
     }
 
     @Override
@@ -465,9 +472,15 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                             location.geo.lat = userLocation.getLatitude();
                             location.geo._long = userLocation.getLongitude();
                             location.isCustomLocation = adapter.isCustomLocation();
-                            delegate.didSelectLocation(location);
+                            // check whether is inside the radius only when there is the radius.
+                            boolean valid = validChosenLocation(LocationManagerHelper.convertGeoPointToLocation(location.geo));
+                            if (valid) {
+                                delegate.didSelectLocation(location);
+                                finishFragment();
+                            } else {
+                                Toast.makeText(getParentActivity(), "Invalid location. Choose the location inside the circle", Toast.LENGTH_LONG).show();
+                            }
                         }
-                        finishFragment();
                     } else {
                         TLRPC.TL_messageMediaVenue object = adapter.getItem(position);
                         if (object != null && delegate != null) {
@@ -577,6 +590,11 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                         adapter.setCustomLocation(null);
                         userLocationMoved = false;
                         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(myLocation.getLatitude(), myLocation.getLongitude())));
+                        // TODO back to location of the center ????? of the custom location. do I need it ?
+                        if (restrictedArea && customLocation != null) {
+                            adapter.setCustomLocation(customLocation);
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(customLocation.getLatitude(), customLocation.getLongitude())));
+                        }
                     }
                 }
             });
@@ -645,7 +663,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 userLocation.setLatitude(20.659322);
                 userLocation.setLongitude(-11.406250);
                 if (customLocation != null) {
-                    userLocation = customLocation;
+                    userLocation = new Location(customLocation);
                     adapter.setCustomLocation(userLocation);
                 }
             }
@@ -671,16 +689,20 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
 
             //TODO in case of myLocation is null. it does not work !!!! Consider it !!!!
-            // Circle area restriction.
-            boolean restrictedArea = getArguments().getBoolean(Constants.RESTRICTED_AREA, false);
-            final int radius = getArguments().getInt(Constants.RADIUS_ARG, Constants.RADIUS);
             if (restrictedArea) {
                 googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
+                        //TODO reuse validChosenLocation;
                         if (userLocation != null && myLocation != null) {
-                            if (myLocation.distanceTo(userLocation) > radius) {
-                                CameraUpdate position = CameraUpdateFactory.newLatLng(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
+                            Location centerLocation = myLocation;
+                            if (customLocation != null) {
+                                centerLocation = customLocation;
+                            }
+                            if (centerLocation.distanceTo(userLocation) > radius) {
+                                userLocation = new Location(centerLocation);
+                                adapter.setCustomLocation(userLocation); // ?
+                                CameraUpdate position = CameraUpdateFactory.newLatLng(new LatLng(centerLocation.getLatitude(), centerLocation.getLongitude()));
                                 googleMap.animateCamera(position);
                             }
                         }
@@ -688,6 +710,10 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 });
 
                 if (myLocation != null) {
+                    Location centerLocation = myLocation;
+                    if (customLocation != null) {
+                        centerLocation = customLocation;
+                    }
 //                googleMap.addCircle(new CircleOptions()
 //                        .center(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
 //                        .radius(Constants.RADIUS)
@@ -696,7 +722,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 //                        .strokeWidth(2));
 
                     CircleOptions circleOptions = new CircleOptions()
-                            .center(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
+                            .center(new LatLng(centerLocation.getLatitude(), centerLocation.getLongitude()))
                             .radius(radius)
                             .strokeWidth(1)
                             .strokeColor(Color.BLUE)
@@ -884,7 +910,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             }
             if (!userLocationMoved) {
                 if (customLocation != null) {
-                    userLocation = customLocation; // again assign but already done earlier.
+                    userLocation = new Location(customLocation); // again assign but already done earlier.
                     latLng = new LatLng(customLocation.getLatitude(), customLocation.getLongitude());
                 } else {
                     userLocation = new Location(location);
@@ -975,5 +1001,22 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
     public Location getCustomLocation() {
         return customLocation;
+    }
+
+
+    private boolean validChosenLocation(Location location) {
+        if (restrictedArea) {
+            if (location != null && myLocation != null) {
+                Location centerLocation = myLocation;
+                if (customLocation != null) {
+                    centerLocation = customLocation;
+                }
+                if (centerLocation.distanceTo(location) <= radius) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 }

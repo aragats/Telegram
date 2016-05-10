@@ -10,14 +10,18 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import org.telegram.messenger.TLRPC;
+import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.dto.Coordinates;
 
 /**
  * Created by aragats on 15/09/15.
@@ -109,7 +113,7 @@ public class LocationManagerHelper {
         List<String> providers = lm.getProviders(true);
         Location l = null;
         for (int i = providers.size() - 1; i >= 0; i--) {
-            l = lm.getLastKnownLocation(providers.get(i));
+            l = lm.getLastKnownLocation(providers.get(i)); // TODO potential error.
             if (l != null) {
                 break;
             }
@@ -327,4 +331,38 @@ public class LocationManagerHelper {
     public void setCustomLocation(Location customLocation) {
         this.customLocation = customLocation;
     }
+
+
+    public static Coordinates convertLocationToCoordinates(Location location) {
+        if (location == null) {
+            return null;
+        }
+        Coordinates coordinates = new Coordinates();
+        coordinates.setCoordinates(Arrays.asList(location.getLongitude(), location.getLatitude()));
+        coordinates.setType("Point");
+        return coordinates;
+    }
+
+    public static Location convertCoordinatesToLocation(Coordinates coordinates) {
+        if (coordinates == null || CollectionUtils.isEmpty(coordinates.getCoordinates())) {
+            return null;
+        }
+        List<Double> coords = coordinates.getCoordinates();
+        Location location = new Location("network");
+        location.setLatitude(coords.get(1));
+        location.setLongitude(coords.get(0));
+        return location;
+    }
+
+    public static Location convertGeoPointToLocation(TLRPC.GeoPoint geoPoint) {
+        if (geoPoint == null) {
+            return null;
+        }
+        Location location = new Location("network");
+        location.setLatitude(geoPoint.lat);
+        location.setLongitude(geoPoint._long);
+        return location;
+    }
+
+
 }
