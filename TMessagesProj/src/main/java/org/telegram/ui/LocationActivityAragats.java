@@ -272,7 +272,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     if (text.length() != 0) {
                         searchWas = true;
                     }
-                    searchAdapter.searchDelayed(text, userLocation);
+                    searchAdapter.searchDelayed(text, userLocation); //TODO It can be the case. getCenterLocation or leave it as a userLocation (custom moved location)
                 }
             });
             item.getSearchField().setHint(LocaleController.getString("Search", R.string.Search));
@@ -709,11 +709,8 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     }
                 });
 
-                if (myLocation != null) {
-                    Location centerLocation = myLocation;
-                    if (customLocation != null) {
-                        centerLocation = customLocation;
-                    }
+                Location centerLocation = getCenterLocation();
+                if (centerLocation != null) {
 //                googleMap.addCircle(new CircleOptions()
 //                        .center(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
 //                        .radius(Constants.RADIUS)
@@ -904,7 +901,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (adapter != null) {
                 if (searchPlacesEnable) {
-                    adapter.searchGooglePlacesWithQuery(null, myLocation, Constants.RADIUS_CHECKIN, Constants.FOURSQUARE_CHECKIN);
+                    adapter.searchGooglePlacesWithQuery(null, getCenterLocation(), Constants.RADIUS_CHECKIN, Constants.FOURSQUARE_CHECKIN);
                 }
                 adapter.setGpsLocation(myLocation);
             }
@@ -1018,5 +1015,14 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             return false;
         }
         return true;
+    }
+
+
+    private Location getCenterLocation() {
+        Location centerLocation = myLocation;
+        if (customLocation != null) {
+            centerLocation = customLocation;
+        }
+        return centerLocation;
     }
 }
