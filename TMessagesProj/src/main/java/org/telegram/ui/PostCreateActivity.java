@@ -101,6 +101,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     private FrameLayout avatarContainer;
 
     private ProgressDialog progressDialog;
+    private ActionBarMenuItem doneItem;
 
 
     private Post selectedObject;
@@ -284,16 +285,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     }
                     finishFragment();
                 } else if (id == done_button) {
-                    progressDialog.show();
                     Post post = buildPost();
-                    boolean valid = validatePost(post);
+                    boolean valid = validatePost(post, false);
                     if (valid) {
+                        progressDialog.show();
                         reBuildValidPost(post);
                         PostsController.getInstance().addPost(post);
-                    } else {
-                        progressDialog.hide();
                     }
-
                 } else if (id == attach_photo) {
                     attachPhotoHandle();
                 } else if (id == attach_gallery) {
@@ -377,7 +375,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 //        R.drawable.ic_send  - make it white icon then I can use it here. !!
 //        R.drawable.ic_done
-        menu.addItemWithWidth(done_button, R.drawable.ic_done, AndroidUtilities.dp(56));
+//        R.drawable.ic_done_gray is from ic_ab_done_gray
+        doneItem = menu.addItemWithWidth(done_button, R.drawable.ic_done_gray, AndroidUtilities.dp(56));
 
 //        headerItem = menu.addItem(0, R.drawable.ic_ab_other);
 //        //TODO mute temp
@@ -617,6 +616,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
             @Override
             public void onTextChanged(final CharSequence text, boolean bigChange) {
+                updateDoneIcon(); // TODO it is run to often
 //                if (mentionsAdapter != null) {
 //                    mentionsAdapter.searchUsernameOrHashtag(text.toString(), postCreateActivityEnterView.getCursorPosition(), messages);
 //                }
@@ -996,7 +996,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             didSelectPhotos(photos);
         }
         venue = venue != null ? venue : PostsController.getInstance().getLastVenue();
-        updateVenue();
+        updateIcons();
 
 
         postListView.setOnItemLongClickListener(onItemLongClickListener);
@@ -1029,10 +1029,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 } else {
                     editor.remove(Constants.PREF_NEW_POST_TEXT);
                 }
-                if (!posts.isEmpty()) {
+                if (!posts.isEmpty() && posts.get(0) != null && !StringUtils.isEmpty(posts.get(0).getImage().getUrl())) {
                     editor.putString(Constants.PREF_NEW_POST_PHOTO, posts.get(0).getPreviewImage().getUrl());
                 } else {
                     editor.remove(Constants.PREF_NEW_POST_PHOTO);
+                }
+                if (venue != null && venue.getCoordinates() != null && CollectionUtils.isEmpty(venue.getCoordinates().getCoordinates())) {
+                    // TODO !!! save venue
                 }
                 editor.commit();
                 PostsController.getInstance().setLastVenue(venue);
@@ -1267,7 +1270,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                         venue = new Venue();
                         userCoordinates = LocationManagerHelper.convertLocationToCoordinates(LocationManagerHelper.getInstance().getLastLocation());
                         venue.setCoordinates(userCoordinates);
-                        updateVenue();
+                        updateIcons();
                         postCreateAdapter.notifyDataSetChanged();
                     }
 
@@ -1462,7 +1465,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                            if (paused) {
 //                                scrollToTopOnResume = true;
 //                            }
-                updateVenue();
+                updateIcons();
             }
         });
         presentFragment(fragment);
@@ -1536,7 +1539,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 if (post.getCoordinates() != null) {
                     venue = new Venue();
                     venue.setCoordinates(post.getCoordinates());
-                    updateVenue();
+                    updateIcons();
                 }
             } else {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_DATE_OLD);
@@ -1545,29 +1548,41 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         }
     }
 
-    private boolean validatePost(Post post) {
+    private boolean validatePost(Post post, boolean withNotification) {
         if (post == null) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.INVALID_POST);
+            if (withNotification) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.INVALID_POST);
+            }
             return false;
         }
         if (StringUtils.isEmpty(post.getText())) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.POST_TEXT_EMPTY);
+            if (withNotification) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.POST_TEXT_EMPTY);
+            }
             return false;
         }
         if (!validateText(post.getText())) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.POST_TEXT_LENGTH);
+            if (withNotification) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.POST_TEXT_LENGTH);
+            }
             return false;
         }
         if (!validateDate(post.getCreatedDate())) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_DATE_OLD);
+            if (withNotification) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_DATE_OLD);
+            }
             return false;
         }
         if (!validateImage(post.getImage())) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_NOT_SET);
+            if (withNotification) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_NOT_SET);
+            }
             return false;
         }
         if (!validateVenue(post.getVenue())) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.VENUE_NOT_SET);
+            if (withNotification) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.VENUE_NOT_SET);
+            }
             return false;
         }
         return true;
@@ -1705,14 +1720,28 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
 
+    private void updateIcons() {
+        updateVenue();
+        updateDoneIcon();
+    }
+
+    private void updateDoneIcon() {
+        doneItem.setIcon(R.drawable.ic_done_gray); // default
+        doneItem.setEnabled(false);
+        Post post = buildPost();
+        boolean valid = validatePost(post, false);
+        if (valid) {
+            doneItem.setIcon(R.drawable.ic_done);
+            doneItem.setEnabled(true);
+        }
+    }
+
     private void updateVenue() {
         if (venue != null) {
             updateTitle();
             updateSubtitle();
             checkAndUpdateAvatar();
-
         }
-
     }
 
     private void clearStates() {

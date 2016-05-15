@@ -602,13 +602,13 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
         if (result.length() == 0) {
             return result;
         }
-        while (src.startsWith("\n")) {
-            src = src.substring(1);
+        while (result.startsWith("\n")) {
+            result = result.substring(1);
         }
-        while (src.endsWith("\n")) {
-            src = src.substring(0, src.length() - 1);
+        while (result.endsWith("\n")) {
+            result = result.substring(0, src.length() - 1);
         }
-        return src;
+        return result;
     }
 
 
