@@ -46,6 +46,8 @@ import ru.aragats.wgo.R;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 import org.telegram.ui.ActionBar.BaseFragment;
+import org.telegram.utils.Constants;
+import org.telegram.utils.StringUtils;
 
 /**
  * TODO-aragats
@@ -614,8 +616,8 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
     ///TODO change parameter to length instead of message
     private void updateCharCounter(String message) {
         //TODO when pass int to setText then you run setText(int) method that search resource with id.
-        this.charCounter.setText("" + (140 - message.length()));
-        if (message.length() > 140) {
+        this.charCounter.setText("" + (Constants.MAX_TEXT_LENGTH - message.length()));
+        if (message.length() > Constants.MAX_TEXT_LENGTH) {
             this.charCounter.setTextColor(Color.RED);
         } else {
             this.charCounter.setTextColor(Color.parseColor("#b2b2b2"));
@@ -969,6 +971,14 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
         return null;
     }
 
+    public String getFieldTrimmedText() {
+        String text = getFieldText();
+        if (text == null) {
+            text = "";
+        }
+        return getTrimmedString(text);
+    }
+
     public boolean isEmojiPopupShowing() {
         return emojiPopup != null && emojiPopup.isShowing();
     }
@@ -1057,5 +1067,9 @@ public class PostCreateActivityEnterView extends FrameLayoutFixed implements Not
         } else if (id == NotificationCenter.hideEmojiKeyboard) {
             hideEmojiPopup();
         }
+    }
+
+    public boolean isValid() {
+        return getFieldTrimmedText().length() <= Constants.MAX_TEXT_LENGTH;
     }
 }

@@ -54,17 +54,12 @@ import org.telegram.android.NotificationCenter;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
-
-import ru.aragats.wgo.dto.Post;
-import ru.aragats.wgo.dto.Venue;
-
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.Adapters.BaseLocationAdapter;
 import org.telegram.ui.Adapters.LocationActivityAdapter;
-import org.telegram.ui.Adapters.LocationActivityGoogleSearchAdapter;
 import org.telegram.ui.Adapters.LocationActivitySearchAdapter;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
@@ -79,6 +74,8 @@ import java.util.List;
 import java.util.Locale;
 
 import ru.aragats.wgo.R;
+import ru.aragats.wgo.dto.Post;
+import ru.aragats.wgo.dto.Venue;
 
 //TODO-aragats
 public class LocationActivityAragats extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
@@ -259,7 +256,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     mapViewClip.setVisibility(View.VISIBLE);
                     searchListView.setVisibility(View.GONE);
                     emptyTextLayout.setVisibility(View.GONE);
-                    searchAdapter.searchDelayed(null, null);
+                    searchAdapter.searchDelayed(null, null, radius);
                     return true;
                 }
 
@@ -272,7 +269,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                     if (text.length() != 0) {
                         searchWas = true;
                     }
-                    searchAdapter.searchDelayed(text, userLocation); //TODO It can be the case. getCenterLocation or leave it as a userLocation (custom moved location)
+                    searchAdapter.searchDelayed(text, userLocation, radius); //TODO It can be the case. getCenterLocation or leave it as a userLocation (custom moved location)
                 }
             });
             item.getSearchField().setHint(LocaleController.getString("Search", R.string.Search));
@@ -901,7 +898,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (adapter != null) {
                 if (searchPlacesEnable) {
-                    adapter.searchGooglePlacesWithQuery(null, getCenterLocation(), Constants.RADIUS_CHECKIN, Constants.FOURSQUARE_CHECKIN);
+                    adapter.searchGooglePlacesWithQuery(null, getCenterLocation(), radius, Constants.FOURSQUARE_CHECKIN);
                 }
                 adapter.setGpsLocation(myLocation);
             }

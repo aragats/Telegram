@@ -62,7 +62,7 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
         this.delegate = delegate;
     }
 
-    public void searchDelayed(final String query, final Location coordinate) {
+    public void searchDelayed(final String query, final Location coordinate, final int radius) {
         if (query == null || query.length() == 0) {
             places.clear();
             notifyDataSetChanged();
@@ -88,7 +88,7 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
                         @Override
                         public void run() {
                             lastSearchLocation = null;
-                            searchGooglePlacesWithQuery(query, coordinate, Constants.RADIUS_BROWSER, Constants.FOURSQUARE_BROWSER);
+                            searchGooglePlacesWithQuery(query, coordinate, radius, Constants.FOURSQUARE_CHECKIN);
                         }
                     });
                 }

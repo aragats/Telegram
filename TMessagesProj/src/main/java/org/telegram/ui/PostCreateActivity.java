@@ -16,7 +16,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -68,6 +67,7 @@ import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.ui.Components.SizeNotifierFrameLayout;
 import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.Constants;
+import org.telegram.utils.NotificationEnum;
 import org.telegram.utils.StringUtils;
 
 import java.io.File;
@@ -111,8 +111,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     //TODO - here are post for ???
+    // TODO make post insted of list of posts.
     protected ArrayList<Post> posts = new ArrayList<>();
     protected Venue venue;
+    //gps coordinates
     protected Coordinates userCoordinates;
 
 
@@ -175,7 +177,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.didReceivedNewPosts);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.closeChats);
-        NotificationCenter.getInstance().addObserver(this, NotificationCenter.invalidPhoto);
+        NotificationCenter.getInstance().addObserver(this, NotificationCenter.invalidPost);
 
         if (getArguments() != null) {
             SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
@@ -212,13 +214,53 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.didReceivedNewPosts);
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.closeChats);
-        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.invalidPhoto);
+        NotificationCenter.getInstance().removeObserver(this, NotificationCenter.invalidPost);
 
 
         if (!AndroidUtilities.isTablet() && getParentActivity() != null) {
             getParentActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
         AndroidUtilities.unlockOrientation(getParentActivity());
+    }
+
+
+    private Post buildPost() {
+        Post post = null;
+        if (!CollectionUtils.isEmpty(posts)) {
+            post = posts.get(0);
+            post.setVenue(venue);
+
+//                        //TODO invent better way. save prefix and suffix also ??  to build my custom utl instead of replacing from existing.
+//                        Image image = post.getVenue().getImage();
+//                        if(image != null && !StringUtils.isEmpty(image.getUrl())) {
+//                            image.setUrl(image.getUrl().replace("_64", "_bg_64"));
+//                            post.getVenue().setImage(image);
+//                        }
+            post.setCoordinates(userCoordinates); // TODO immer userCoordinates. So does not matter where post is attached ???
+            String text = postCreateActivityEnterView.getFieldTrimmedText();
+            post.setText(text);
+        }
+
+
+        return post;
+
+    }
+
+    // pass only valid post with venue and venue coordinates.
+    private void reBuildValidPost(Post post) {
+        if (post == null) {
+            return;
+        }
+        post.setCoordinates(venue.getCoordinates());
+        // if venue is not from Foursquare.
+        if (StringUtils.isEmpty(post.getVenue().getName())) {
+            List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
+            String defaultAddress = String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0));
+            String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
+                    coordinates, defaultAddress);
+            post.getVenue().setAddress(address);
+        }
+
     }
 
     @Override
@@ -242,55 +284,15 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     }
                     finishFragment();
                 } else if (id == done_button) {
-                    Toast.makeText(getParentActivity(), "DONE BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
-                    Post post = null;
-                    if (!CollectionUtils.isEmpty(posts) && posts.get(0) != null
-                            && venue != null && venue.getCoordinates() != null
-                            && userCoordinates != null) {
-                        post = posts.get(0);
-                        post.setVenue(venue);
-
-//                        //TODO invent better way. save prefix and suffix also ??  to build my custom utl instead of replacing from existing.
-//                        Image image = post.getVenue().getImage();
-//                        if(image != null && !StringUtils.isEmpty(image.getUrl())) {
-//                            image.setUrl(image.getUrl().replace("_64", "_bg_64"));
-//                            post.getVenue().setImage(image);
-//                        }
-                        post.setCoordinates(userCoordinates);
-                        String text = postCreateActivityEnterView.getFieldText();
-                        if (text != null) {
-                            text = text.trim();
-                        } else {
-                            text = "";
-                        }
-                        post.setText(text);
-                    }
-
-                    //TODO many check text, venue, coordinates and so on.
-                    if (post != null && post.getPostCoordinates() != null) {
-                        progressDialog.show();
-                        if (StringUtils.isEmpty(post.getVenue().getName())) {
-                            List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
-                            String defaultAddress = String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0)); // TODO the same value shoudld be int venue.getAddress();
-                            String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
-                                    coordinates, defaultAddress);
-                            post.getVenue().setAddress(address);
-                        }
-//                        AndroidUtilities.runOnUIThread(new Runnable() {
-//                            @Override
-//                            public void run() {
+                    progressDialog.show();
+                    Post post = buildPost();
+                    boolean valid = validatePost(post);
+                    if (valid) {
+                        reBuildValidPost(post);
                         PostsController.getInstance().addPost(post);
-//                                progressDialog.dismiss();
-//                                if (postCreateActivityEnterView != null) {
-//                                    postCreateActivityEnterView.hideEmojiPopup();
-//                                }
-//                                finishFragment();
-
-//                            }
-//                        }, 2000);
-
+                    } else {
+                        progressDialog.hide();
                     }
-
 
                 } else if (id == attach_photo) {
                     attachPhotoHandle();
@@ -742,14 +744,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (venueNameTextView == null) {
             return;
         }
-        String name;
+        String name = LocaleController.getString("CurrentLocation", R.string.CurrentLocation);
         if (venue != null && !StringUtils.isEmpty(venue.getName())) {
             name = venue.getName();
-        } else if (userCoordinates != null ||
-                (!CollectionUtils.isEmpty(posts) && posts.get(0) != null && posts.get(0).getCoordinates() != null)) { //TODO Current Location is better to rename to Location. ??? May be is better to delete Place(Ort)
-            name = LocaleController.getString("CurrentLocation", R.string.CurrentLocation);
-        } else {
-            name = LocaleController.getString("Place", R.string.Place);
         }
         venueNameTextView.setText(name);
 
@@ -776,14 +773,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 List<Double> coordinates = venue.getCoordinates().getCoordinates();
                 addressString = String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0));
             }
-        } else if (!CollectionUtils.isEmpty(posts) && posts.get(0) != null && posts.get(0).getCoordinates() != null) {
-            List<Double> coordinates = posts.get(0).getCoordinates().getCoordinates();
-            addressString = String.format(Locale.US, "(%f,%f)", coordinates.get(1), coordinates.get(0));
-        } else if (userCoordinates != null) {
-//            addressString = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
-//                    userCoordinates.getCoordinates().get(0),
-//                    userCoordinates.getCoordinates().get(1),
-//                    userCoordinates.getCoordinates().get(0) + ", " + userCoordinates.getCoordinates().get(1));
+        } else if (userCoordinates != null && !CollectionUtils.isEmpty(userCoordinates.getCoordinates())) {
             addressString = String.format(Locale.US, "(%f,%f)",
                     userCoordinates.getCoordinates().get(1), userCoordinates.getCoordinates().get(0));
         }
@@ -915,8 +905,33 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            }
             progressDialog.dismiss();
             Toast.makeText(getParentActivity(), "Error in saving post", Toast.LENGTH_LONG).show();
-        } else if (id == NotificationCenter.invalidPhoto) {
-            Toast.makeText(getParentActivity(), "Invalid photo. It is too old. Please use recent photo from the last 7 days.", Toast.LENGTH_LONG).show();
+        } else if (id == NotificationCenter.invalidPost) {
+            progressDialog.dismiss();
+            NotificationEnum reason = NotificationEnum.INVALID_POST;
+            if (args != null && args.length > 0) {
+                reason = (NotificationEnum) args[0];
+            }
+            String message = "Invalid post. Some parameters are missing.";
+            switch (reason) {
+                case PHOTO_DATE_OLD:
+                    //date
+                    message = "You picked old photo. Please use recent photo from the last 7 days.";
+                    break;
+                case POST_TEXT_EMPTY:
+                    message = "Empty text. Please describe the situation.";
+                    break;
+                case POST_TEXT_LENGTH:
+                    message = "The text is too long. Please maximum 140 characters.";
+                    break;
+                case PHOTO_NOT_SET:
+                    message = "The photo is not chosen. Please choose appropriate photo.";
+                    break;
+                case VENUE_NOT_SET:
+                    message = "The venue or coordinates is not chosen. Please choose appropriate venue or coordinates.";
+                    break;
+
+            }
+            Toast.makeText(getParentActivity(), message, Toast.LENGTH_LONG).show();
 
         }
     }
@@ -1413,7 +1428,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 Coordinates coordinates = new Coordinates();
                 coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
                 coordinates.setType("Point");
-                PostCreateActivity.this.userCoordinates = coordinates;
+//                PostCreateActivity.this.userCoordinates = coordinates; // TODO I do not need to change userCoordinates.
                 Venue venue = new Venue();
                 if (location.geoPlace != null) {
                     Coordinates placeCoordinates = new Coordinates();
@@ -1494,7 +1509,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             //
 //            bitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
 
-
+// Create post
             Post post = new Post();
 //            post.setId(PostServiceMock.generateString("1234567890", 5));
             Image image = new Image();
@@ -1516,7 +1531,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
             updatePost(post);
             PostCreateActivity.this.posts.clear();
-            if (validPost(post)) {
+            if (validateDate(post.getCreatedDate())) {
                 PostCreateActivity.this.posts.add(post);
                 if (post.getCoordinates() != null) {
                     venue = new Venue();
@@ -1524,15 +1539,58 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     updateVenue();
                 }
             } else {
-                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPhoto);
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_DATE_OLD);
             }
             postCreateAdapter.notifyDataSetChanged();
         }
     }
 
-    private boolean validPost(Post post) {
-        return (new Date().getTime() - post.getCreatedDate()) < Constants.MAX_DATE_SHIFT;
+    private boolean validatePost(Post post) {
+        if (post == null) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.INVALID_POST);
+            return false;
+        }
+        if (StringUtils.isEmpty(post.getText())) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.POST_TEXT_EMPTY);
+            return false;
+        }
+        if (!validateText(post.getText())) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.POST_TEXT_LENGTH);
+            return false;
+        }
+        if (!validateDate(post.getCreatedDate())) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_DATE_OLD);
+            return false;
+        }
+        if (!validateImage(post.getImage())) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_NOT_SET);
+            return false;
+        }
+        if (!validateVenue(post.getVenue())) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.VENUE_NOT_SET);
+            return false;
+        }
+        return true;
     }
+
+    private boolean validateDate(long date) {
+        return date != 0 && (new Date().getTime() - date) < Constants.MAX_DATE_SHIFT;
+    }
+
+    private boolean validateText(String text) {
+        return !StringUtils.isEmpty(text) && (text.trim().length() <= Constants.MAX_TEXT_LENGTH);
+    }
+
+    private boolean validateImage(Image image) {
+        return image != null && !StringUtils.isEmpty(image.getUrl());
+    }
+
+    private boolean validateVenue(Venue venue) {
+        return venue != null && venue.getCoordinates() != null
+                && !CollectionUtils.isEmpty(venue.getCoordinates().getCoordinates())
+                && venue.getCoordinates().getCoordinates().size() == 2;
+    }
+
 
     private void updatePost(Post post) {
         ExifInterface exif;
@@ -1541,9 +1599,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         } catch (IOException e) {
             //TODO handle exception.
             e.printStackTrace();
-            return;
-        }
-        if (exif == null) {
             return;
         }
 //        new Date(new File(post.getImage().getUrl()).lastModified())
