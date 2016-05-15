@@ -88,7 +88,7 @@ public class BaseLocationAdapter extends BaseFragmentAdapter {
                         @Override
                         public void run() {
                             lastSearchLocation = null;
-                            searchGooglePlacesWithQuery(query, coordinate, radius, Constants.FOURSQUARE_CHECKIN);
+                            searchGooglePlacesWithQuery(query, coordinate, radius, Constants.FOURSQUARE_BROWSER);
                         }
                     });
                 }

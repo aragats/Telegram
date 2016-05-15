@@ -137,7 +137,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
         searchPlacesEnable = getArguments().getBoolean(Constants.SEARCH_PLACES_ENABLE_ARG, false);
         // Circle area restriction.
         restrictedArea = getArguments().getBoolean(Constants.RESTRICTED_AREA, false);
-        radius = getArguments().getInt(Constants.RADIUS_ARG, Constants.RADIUS);
+        radius = getArguments().getInt(Constants.RADIUS_ARG, Constants.RADIUS_4SQUARE);
     }
 
     @Override
@@ -898,7 +898,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (adapter != null) {
                 if (searchPlacesEnable) {
-                    adapter.searchGooglePlacesWithQuery(null, getCenterLocation(), radius, Constants.FOURSQUARE_CHECKIN);
+                    adapter.searchGooglePlacesWithQuery(null, getCenterLocation(), radius, Constants.FOURSQUARE_BROWSER);
                 }
                 adapter.setGpsLocation(myLocation);
             }

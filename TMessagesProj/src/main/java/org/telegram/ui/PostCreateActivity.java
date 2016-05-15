@@ -159,13 +159,16 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
     @Override
     public boolean onFragmentCreate() {
+        if (!LocationManagerHelper.getInstance().isLocationServiceEnabled()) {
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.locationServiceDisabled);
+        }
         //TODO-temp
 //        PostsController.getInstance().loadCurrentVenue("location");
         userCoordinates = LocationManagerHelper.convertLocationToCoordinates(LocationManagerHelper.getInstance().getLastLocation());
-        if (userCoordinates != null && venue == null) {
-            venue = new Venue();
-            venue.setCoordinates(userCoordinates);
-        }
+//        if (userCoordinates != null && venue == null) {
+//            venue = new Venue();
+//            venue.setCoordinates(userCoordinates);
+//        }
 
 //        if(0==0) {
 //            return true;
@@ -222,6 +225,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             getParentActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
         AndroidUtilities.unlockOrientation(getParentActivity());
+
+        //save venue before to destroy it
+        PostsController.getInstance().setLastVenue(venue);
     }
 
 
@@ -237,7 +243,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                            image.setUrl(image.getUrl().replace("_64", "_bg_64"));
 //                            post.getVenue().setImage(image);
 //                        }
-            post.setCoordinates(userCoordinates); // TODO immer userCoordinates. So does not matter where post is attached ???
+//            post.setCoordinates(userCoordinates); // TODO immer userCoordinates. So does not matter where post is attached ???
             String text = postCreateActivityEnterView.getFieldTrimmedText();
             post.setText(text);
         }
@@ -252,7 +258,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (post == null) {
             return;
         }
-        post.setCoordinates(venue.getCoordinates());
+        // TODO not set set it in the server side. Take from venue. because if I set it here and I will have exception then I will have incorrect center of circle.
+//        post.setCoordinates(venue.getCoordinates());
         // if venue is not from Foursquare.
         if (StringUtils.isEmpty(post.getVenue().getName())) {
             List<Double> coordinates = post.getVenue().getCoordinates().getCoordinates();
@@ -993,9 +1000,31 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             preferences.edit().remove(Constants.PREF_NEW_POST_PHOTO).commit();
             ArrayList<String> photos = new ArrayList<>();
             photos.add(lastPhotoURL);
-            didSelectPhotos(photos);
+            didSelectPhotos(photos); // set venue
         }
-        venue = venue != null ? venue : PostsController.getInstance().getLastVenue();
+        // Location service works.
+        if (userCoordinates != null) {
+            Venue lastSavedVenue = PostsController.getInstance().getLastVenue();
+            Post post = getPost();
+            if (lastSavedVenue != null && lastSavedVenue.getCoordinates() != null) {
+                // venue is not set from photo.
+                if (venue == null && LocationManagerHelper.convertCoordinatesToLocation(userCoordinates)
+                        .distanceTo(LocationManagerHelper.convertCoordinatesToLocation(lastSavedVenue.getCoordinates())) <= Constants.RADIUS_4SQUARE) { //800 -> 1000// 1,25* Radius. actually 4square return venues far than 800 meters.  up to 1600 meters.
+                    venue = PostsController.getInstance().getLastVenue();
+
+                }
+                // venue from photo Additional check post.getCoordinates equals ....
+                else if (venue != null && post != null && post.getCoordinates() != null
+                        && LocationManagerHelper.convertCoordinatesToLocation(post.getCoordinates())
+                        .distanceTo(LocationManagerHelper.convertCoordinatesToLocation(lastSavedVenue.getCoordinates())) <= Constants.RADIUS_4SQUARE) {
+                    venue = PostsController.getInstance().getLastVenue();
+                }
+            } else if (venue == null) {
+                venue = new Venue();
+                venue.setCoordinates(userCoordinates);
+            }
+        }
+        PostsController.getInstance().setLastVenue(null);
         updateIcons();
 
 
@@ -1034,11 +1063,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 } else {
                     editor.remove(Constants.PREF_NEW_POST_PHOTO);
                 }
-                if (venue != null && venue.getCoordinates() != null && CollectionUtils.isEmpty(venue.getCoordinates().getCoordinates())) {
-                    // TODO !!! save venue
-                }
                 editor.commit();
-                PostsController.getInstance().setLastVenue(venue);
             }
             postCreateActivityEnterView.setFieldFocused(false);
         }
@@ -1269,6 +1294,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                         posts.clear();
                         venue = new Venue();
                         userCoordinates = LocationManagerHelper.convertLocationToCoordinates(LocationManagerHelper.getInstance().getLastLocation());
+                        if (userCoordinates == null) {
+                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.undefinedLocation);
+                        }
                         venue.setCoordinates(userCoordinates);
                         updateIcons();
                         postCreateAdapter.notifyDataSetChanged();
@@ -1418,10 +1446,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         }
         Bundle args = new Bundle();
         args.putBoolean(Constants.RESTRICTED_AREA, true);
-        args.putInt(Constants.RADIUS_ARG, Constants.RADIUS);
+        args.putInt(Constants.RADIUS_ARG, Constants.RADIUS_4SQUARE);
         args.putBoolean(Constants.SEARCH_PLACES_ENABLE_ARG, true);
         LocationActivityAragats fragment = new LocationActivityAragats(args);
         Post post = getPost();
+        //coordinates of image
         if (post != null && post.getCoordinates() != null) {
             fragment.setCustomLocation(LocationManagerHelper.convertCoordinatesToLocation(post.getCoordinates()));
         }
@@ -1636,7 +1665,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             Coordinates coordinates = new Coordinates();
             coordinates.setType(Constants.POINT);
             coordinates.setCoordinates(Arrays.asList((double) coords[1], (double) coords[0]));
-            post.setCoordinates(coordinates);
+            post.setCoordinates(coordinates); // coordinate of image
         }
 
     }

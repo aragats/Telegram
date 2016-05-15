@@ -24,10 +24,11 @@ public class Constants {
 
     public static final int MAX_TEXT_LENGTH = 140;
     public static final int RADIUS = 800; // meters 8000 for VK
+    public static final int RADIUS_4SQUARE = 1000;//
     //    public static final int RADIUS_BROWSER = 100_000;
 //    public static final int RADIUS_CHECKIN = 800;
-    public static final String FOURSQUARE_BROWSER = "browse";
-    public static final String FOURSQUARE_CHECKIN = "checkin";
+    public static final String FOURSQUARE_BROWSER = "browse"; // return small and only in the radius
+    public static final String FOURSQUARE_CHECKIN = "checkin"; // return more results a lot of user created places.
     public static final double MAX_DISTANCE_DEGREE = 0.01;
 
 
