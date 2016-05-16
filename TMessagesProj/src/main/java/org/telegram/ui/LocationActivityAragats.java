@@ -415,6 +415,35 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 }
             });
 
+
+            ImageView choosePostLocationButton = new ImageView(context);
+            choosePostLocationButton.setBackgroundResource(R.drawable.floating_states);
+            choosePostLocationButton.setImageResource(R.drawable.ic_attach_location_white);
+            choosePostLocationButton.setScaleType(ImageView.ScaleType.CENTER);
+            if (Build.VERSION.SDK_INT >= 21) {
+                StateListAnimator animator = new StateListAnimator();
+                animator.addState(new int[]{android.R.attr.state_pressed}, ObjectAnimator.ofFloat(choosePostLocationButton, "translationZ", AndroidUtilities.dp(2), AndroidUtilities.dp(4)).setDuration(200));
+                animator.addState(new int[]{}, ObjectAnimator.ofFloat(choosePostLocationButton, "translationZ", AndroidUtilities.dp(4), AndroidUtilities.dp(2)).setDuration(200));
+                choosePostLocationButton.setStateListAnimator(animator);
+                choosePostLocationButton.setOutlineProvider(new ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View view, Outline outline) {
+                        outline.setOval(0, 0, AndroidUtilities.dp(56), AndroidUtilities.dp(56));
+                    }
+                });
+            }
+            frameLayout.addView(choosePostLocationButton, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.BOTTOM, LocaleController.isRTL ? (14 + (56 + 16)) : 0, 0, LocaleController.isRTL ? 0 : (14 + (56 + 16)), 28));
+            choosePostLocationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (post != null && post.getCoordinates() != null && delegate != null) {
+                        delegate.didSelectLocation(LocationManagerHelper.convertCoordinatesToGeoPoint(post.getCoordinates(), true));
+                        finishFragment();
+                    }
+                }
+            });
+
+
             frameLayout.addView(locationButton, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.BOTTOM, LocaleController.isRTL ? 14 : 0, 0, LocaleController.isRTL ? 0 : 14, 100));
             locationButton.setOnClickListener(new View.OnClickListener() {
                 @Override

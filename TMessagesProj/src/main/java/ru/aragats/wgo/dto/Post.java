@@ -101,6 +101,7 @@ public class Post implements Serializable {
     }
 
 
+    //TODO delete ???
     public Coordinates getPostCoordinates() {
         if (venue != null && venue.getCoordinates() != null) {
             return venue.getCoordinates();

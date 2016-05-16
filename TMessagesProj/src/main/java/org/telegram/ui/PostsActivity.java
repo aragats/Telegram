@@ -133,6 +133,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         }
     };
 
+    private LocationActivityAragats.LocationActivityDelegate locationActivityDelegate;
+
 
     private ActionBarMenuItem locationItem;
     private static int itemId = 1;
@@ -272,6 +274,37 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (!LocationManagerHelper.getInstance().isLocationServiceEnabled()) {
             NotificationCenter.getInstance().postNotificationName(NotificationCenter.locationServiceDisabled);
         }
+
+        locationActivityDelegate = new LocationActivityAragats.LocationActivityDelegate() {
+
+            @Override
+            public void didSelectLocation(TLRPC.MessageMedia location) {
+                //TODO I think i do not need last saved location. I can just put "network" provider into Location isntance
+                Location lastSavedLocation = LocationManagerHelper.getInstance().getLastSavedOrLastLocation();
+                if (!location.isCustomLocation || lastSavedLocation == null) {
+                    locationItem.setIcon(R.drawable.ic_attach_location_grey);
+                    LocationManagerHelper.getInstance().setCustomLocation(null);
+                    // TODO save additional request if the same coordinates are chosen ?? But man can move. so current location could change
+                    refreshPosts(true);
+                    return;
+                }
+                Location customLocation = new Location(lastSavedLocation.getProvider());
+                double lat = location.geo.lat;
+                double lng = location.geo._long;
+                if (location.geoPlace != null) {
+                    lat = location.geoPlace.lat;
+                    lng = location.geoPlace._long;
+                }
+                customLocation.setLatitude(lat);
+                customLocation.setLongitude(lng);
+                LocationManagerHelper.getInstance().setCustomLocation(customLocation);
+                locationItem.setIcon(R.drawable.ic_attach_location_white);
+                //                R.drawable.location_b; R.drawable.location_g
+                refreshPosts(true);
+            }
+        };
+
+
         return true;
     }
 
@@ -1075,32 +1108,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (customLocation != null) {
             fragment.setCustomLocation(new Location(customLocation));
         }
-        fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
-            @Override
-            public void didSelectLocation(TLRPC.MessageMedia location) {
-                //TODO I think i do not need last saved location. I can just put "network" provider into Location isntance
-                Location lastSavedLocation = LocationManagerHelper.getInstance().getLastSavedOrLastLocation();
-                if (!location.isCustomLocation || lastSavedLocation == null) {
-                    locationItem.setIcon(R.drawable.ic_attach_location_grey);
-                    LocationManagerHelper.getInstance().setCustomLocation(null);
-                    // TODO save additional request if the same coordinates are chosen ?? But man can move. so current location could change
-                    refreshPosts(true);
-                    return;
-                }
-                Location customLocation = new Location(lastSavedLocation.getProvider());
-                double lat = location.geo.lat;
-                double lng = location.geo._long;
-                if (location.geoPlace != null) {
-                    lat = location.geoPlace.lat;
-                    lng = location.geoPlace._long;
-                }
-                customLocation.setLatitude(lat);
-                customLocation.setLongitude(lng);
-                LocationManagerHelper.getInstance().setCustomLocation(customLocation);
-                locationItem.setIcon(R.drawable.ic_attach_location_white);
-                refreshPosts(true);
-            }
-        });
+        fragment.setDelegate(locationActivityDelegate);
         presentFragment(fragment);
     }
 
@@ -1151,5 +1159,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (postsSearchAdapter != null) {
             postsSearchAdapter.notifyDataSetChanged();
         }
+    }
+
+
+    public LocationActivityAragats.LocationActivityDelegate getLocationActivityDelegate() {
+        return locationActivityDelegate;
     }
 }

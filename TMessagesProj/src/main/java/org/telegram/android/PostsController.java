@@ -366,6 +366,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     private void loadVKPhotos(final PostRequest postRequest, final boolean reload) {
         loadingPosts = true;
+        postRequest.setCount(postRequest.getCount() * 2);
         final Call<VKPhotoResponse> call = RestManager.getInstance().findNearVKPhotos(postRequest, new Callback<VKPhotoResponse>() {
             @Override
             public void onResponse(Call<VKPhotoResponse> call, Response<VKPhotoResponse> response) {

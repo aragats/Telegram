@@ -365,4 +365,18 @@ public class LocationManagerHelper {
     }
 
 
+    public static TLRPC.TL_messageMediaGeo convertCoordinatesToGeoPoint(Coordinates coordinates, boolean custom) {
+        if (coordinates == null || CollectionUtils.isEmpty(coordinates.getCoordinates())) {
+            return null;
+        }
+        List<Double> coords = coordinates.getCoordinates();
+        TLRPC.TL_messageMediaGeo location = new TLRPC.TL_messageMediaGeo();
+        location.geo = new TLRPC.TL_geoPoint();
+        location.geo.lat = coords.get(1);
+        location.geo._long = coords.get(0);
+        location.isCustomLocation = custom;
+        return location;
+    }
+
+
 }

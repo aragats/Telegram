@@ -130,6 +130,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
                     Post cellPost = cell.getPost();
                     LocationActivityAragats fragment = new LocationActivityAragats(new Bundle());
                     fragment.setPost(cellPost);
+                    fragment.setDelegate(postsActivity.getLocationActivityDelegate());
                     postsActivity.presentFragment(fragment);
                 }
 
