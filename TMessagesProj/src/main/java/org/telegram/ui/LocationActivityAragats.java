@@ -102,10 +102,12 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
     private boolean searchWas;
 
     private boolean wasResults;
+    private boolean onLocationButtonClicked;
 
     private Location myLocation;
     private Location userLocation;
     private Location customLocation;
+    private Location venueChosenLocation;
     private int markerTop;
 
     private Post post;
@@ -584,6 +586,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                         } else {
                             locationButton.setVisibility(View.INVISIBLE);
                         }
+                        onLocationButtonClicked = true;
                         adapter.setCustomLocation(null);
                         userLocationMoved = false;
                         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(myLocation.getLatitude(), myLocation.getLongitude())));
@@ -909,6 +912,14 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 } else {
                     userLocation = new Location(location);
                 }
+                //
+                if (venueChosenLocation != null && !onLocationButtonClicked) {
+                    latLng = new LatLng(venueChosenLocation.getLatitude(), venueChosenLocation.getLongitude());
+                    userLocation.setLatitude(venueChosenLocation.getLatitude());
+                    userLocation.setLongitude(venueChosenLocation.getLongitude());
+                    adapter.setCustomLocation(userLocation);
+                }
+                //
                 if (firstWas) {
                     CameraUpdate position = CameraUpdateFactory.newLatLng(latLng);
                     googleMap.animateCamera(position);
@@ -991,6 +1002,10 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
 
     public void setCustomLocation(Location customLocation) {
         this.customLocation = customLocation;
+    }
+
+    public void setVenueChosenLocation(Location venueChosenLocation) {
+        this.venueChosenLocation = venueChosenLocation;
     }
 
     public Location getCustomLocation() {

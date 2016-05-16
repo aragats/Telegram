@@ -1454,6 +1454,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         if (post != null && post.getCoordinates() != null) {
             fragment.setCustomLocation(LocationManagerHelper.convertCoordinatesToLocation(post.getCoordinates()));
         }
+        if (venue != null && venue.getCoordinates() != null) {
+            fragment.setVenueChosenLocation(LocationManagerHelper.convertCoordinatesToLocation(venue.getCoordinates()));
+        }
         fragment.setDelegate(new LocationActivityAragats.LocationActivityDelegate() {
             @Override
             public void didSelectLocation(TLRPC.MessageMedia location) {
