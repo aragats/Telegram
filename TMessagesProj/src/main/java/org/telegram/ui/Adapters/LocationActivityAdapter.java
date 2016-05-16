@@ -53,6 +53,7 @@ public class LocationActivityAdapter extends BaseLocationAdapter {
         updateCell();
     }
 
+    // update Location cell information
     public void setCustomLocation(Location location) {
         customLocation = location;
         updateCell();

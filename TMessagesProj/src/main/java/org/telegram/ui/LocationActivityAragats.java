@@ -620,9 +620,13 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                         userLocationMoved = false;
                         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(myLocation.getLatitude(), myLocation.getLongitude())));
                         // TODO back to location of the center ????? of the custom location. do I need it ?
-                        if (restrictedArea && customLocation != null) {
-                            adapter.setCustomLocation(customLocation);
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(customLocation.getLatitude(), customLocation.getLongitude())));
+                        if (restrictedArea) {
+                            Location centerLocation = getCenterLocation();
+                            if (centerLocation != null) {
+                                userLocation = new Location(centerLocation);
+                                adapter.setCustomLocation(centerLocation);
+                                googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(centerLocation.getLatitude(), centerLocation.getLongitude())));
+                            }
                         }
                     }
                 }
@@ -935,18 +939,25 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                 adapter.setGpsLocation(myLocation);
             }
             if (!userLocationMoved) {
-                if (customLocation != null) {
+                //
+                if (venueChosenLocation != null) {
+                    if (!onLocationButtonClicked) {
+                        userLocation = new Location(venueChosenLocation);
+                        latLng = new LatLng(venueChosenLocation.getLatitude(), venueChosenLocation.getLongitude());
+                        adapter.setCustomLocation(userLocation);
+                    } else {
+                        Location centerLocation = getCenterLocation(); // TODO check on null.
+                        if (centerLocation != null) {
+                            userLocation = new Location(centerLocation); // again assign but already done earlier
+                            latLng = new LatLng(centerLocation.getLatitude(), centerLocation.getLongitude());
+                            adapter.setCustomLocation(userLocation);
+                        }
+                    }
+                } else if (customLocation != null && !onLocationButtonClicked) {
                     userLocation = new Location(customLocation); // again assign but already done earlier.
                     latLng = new LatLng(customLocation.getLatitude(), customLocation.getLongitude());
                 } else {
                     userLocation = new Location(location);
-                }
-                //
-                if (venueChosenLocation != null && !onLocationButtonClicked) {
-                    latLng = new LatLng(venueChosenLocation.getLatitude(), venueChosenLocation.getLongitude());
-                    userLocation.setLatitude(venueChosenLocation.getLatitude());
-                    userLocation.setLongitude(venueChosenLocation.getLongitude());
-                    adapter.setCustomLocation(userLocation);
                 }
                 //
                 if (firstWas) {
