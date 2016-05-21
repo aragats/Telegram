@@ -1071,6 +1071,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     //TODO works not properly. int increase the size of the file.
     public void saveBitmap(Image image) {
         FileOutputStream out = null;
+        String originalImageUrl = image.getUrl();
         try {
             File telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.WGO);
             telegramPath.mkdirs();
@@ -1133,6 +1134,9 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
             image.setUrl(resizedImage.getAbsolutePath());
             image.setWidth(width);
             image.setHeight(height);
+
+            // save ExifInterface
+            migrateExifInterface(originalImageUrl, resizedImage.getAbsolutePath());
         } catch (Exception e) {
             //TODO handle exception
             e.printStackTrace();
@@ -1147,6 +1151,62 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         }
 
 
+    }
+
+
+    //TODO migrate all ExifInterface parameters.
+    public static void migrateExifInterface(String fromFile, String toFile) {
+        if (StringUtils.isEmpty(toFile) || StringUtils.isEmpty(fromFile)) {
+            return;
+        }
+        ExifInterface fromFileExif;
+        ExifInterface toFileExif;
+        try {
+            toFileExif = new ExifInterface(toFile);
+            fromFileExif = new ExifInterface(fromFile);
+
+            String attribute = fromFileExif.getAttribute(ExifInterface.TAG_GPS_DATESTAMP);
+            if (attribute != null) {
+                toFileExif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, attribute);
+            }
+
+            attribute = fromFileExif.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP);
+            if (!StringUtils.isEmpty(attribute)) {
+                toFileExif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, attribute);
+            }
+
+            attribute = fromFileExif.getAttribute(ExifInterface.TAG_DATETIME);
+            if (!StringUtils.isEmpty(attribute)) {
+                toFileExif.setAttribute(ExifInterface.TAG_DATETIME, attribute);
+            }
+
+            attribute = fromFileExif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+            if (!StringUtils.isEmpty(attribute)) {
+                toFileExif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, attribute);
+            }
+
+            attribute = fromFileExif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
+            if (!StringUtils.isEmpty(attribute)) {
+                toFileExif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, attribute);
+            }
+
+            attribute = fromFileExif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+            if (!StringUtils.isEmpty(attribute)) {
+                toFileExif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, attribute);
+            }
+
+            attribute = fromFileExif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
+            if (!StringUtils.isEmpty(attribute)) {
+                toFileExif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, attribute);
+            }
+
+            toFileExif.saveAttributes();
+
+        } catch (IOException e) {
+            //TODO handle exception.
+            e.printStackTrace();
+            return;
+        }
     }
 
     public static void saveObject(String fileName, Object object) {

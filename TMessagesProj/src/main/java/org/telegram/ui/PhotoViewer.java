@@ -53,18 +53,11 @@ import org.telegram.android.ImageReceiver;
 import org.telegram.android.LocaleController;
 import org.telegram.android.MediaController;
 import org.telegram.android.NotificationCenter;
-
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
-
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.TLRPC;
 import org.telegram.messenger.Utilities;
-
-import ru.aragats.wgo.dto.Post;
-
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -81,6 +74,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+import ru.aragats.wgo.dto.Post;
 
 public class PhotoViewer implements NotificationCenter.NotificationCenterDelegate, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
@@ -1081,6 +1078,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 if (object instanceof MediaController.PhotoEntry) {
                     MediaController.PhotoEntry entry = (MediaController.PhotoEntry) object;
                     entry.imagePath = FileLoader.getPathToAttach(size, true).toString();
+                    //TODO aragats save ExifInterface parameters: coordinate latitude and longitude and datetime
+                    MediaController.migrateExifInterface(entry.path, entry.imagePath);
                     size = ImageLoader.scaleAndSaveImage(bitmap, AndroidUtilities.dp(120), AndroidUtilities.dp(120), 70, false, 101, 101);
                     if (size != null) {
                         entry.thumbPath = FileLoader.getPathToAttach(size, true).toString();

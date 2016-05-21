@@ -1619,7 +1619,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         }
         return true;
     }
-
+    // only photo based on MAX DATE_SHIFT. Think about accepting photo withou date.
     private boolean validateDate(long date) {
         return date != 0 && (new Date().getTime() - date) < Constants.MAX_DATE_SHIFT;
     }
