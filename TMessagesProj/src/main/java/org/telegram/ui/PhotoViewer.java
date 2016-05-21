@@ -1078,8 +1078,11 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 if (object instanceof MediaController.PhotoEntry) {
                     MediaController.PhotoEntry entry = (MediaController.PhotoEntry) object;
                     entry.imagePath = FileLoader.getPathToAttach(size, true).toString();
+
                     //TODO aragats save ExifInterface parameters: coordinate latitude and longitude and datetime
                     MediaController.migrateExifInterface(entry.path, entry.imagePath);
+                    //
+
                     size = ImageLoader.scaleAndSaveImage(bitmap, AndroidUtilities.dp(120), AndroidUtilities.dp(120), 70, false, 101, 101);
                     if (size != null) {
                         entry.thumbPath = FileLoader.getPathToAttach(size, true).toString();
