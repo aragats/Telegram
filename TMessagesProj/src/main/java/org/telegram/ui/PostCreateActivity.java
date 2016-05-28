@@ -20,6 +20,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -131,6 +132,17 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     private PhotoPickerWrapper photoPickerWrapper;
+    //handler
+    private Handler handler = new Handler();
+
+    private Runnable refreshProgressRun = new Runnable() {
+        @Override
+        public void run() {
+            if (photoPickerWrapper != null && photoPickerWrapper.isLoading() && progressDialog != null) {
+                progressDialog.show();
+            }
+        }
+    };
 
 
     RecyclerListView.OnItemLongClickListener onItemLongClickListener = new RecyclerListView.OnItemLongClickListener() {
@@ -1741,9 +1753,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
 
-    //TODO think about progressView
     private void openPhotoPicker() {
         if (photoPickerWrapper != null) {
+            startProgressView();
             photoPickerWrapper.openPhotoPicker();
         }
     }
@@ -1764,51 +1776,20 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         photoPickerWrapper.setDelegate(new PhotoPickerWrapper.PhotoPickerWrapperActivityDelegate() {
             @Override
             public void didSelectPhotos(ArrayList<String> photos, ArrayList<String> captions, ArrayList<MediaController.SearchImage> webPhotos) {
-
                 PostCreateActivity.this.didSelectPhotos(photos);
-
-
             }
 
             @Override
-            public void startPhotoSelectActivity() {
-                //TODO-was ?
-                try {
-                    Intent videoPickerIntent = new Intent();
-                    videoPickerIntent.setType("video/*");
-                    videoPickerIntent.setAction(Intent.ACTION_GET_CONTENT);
-                    videoPickerIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (1024 * 1024 * 1536));
-
-                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                    photoPickerIntent.setType("image/*");
-                    Intent chooserIntent = Intent.createChooser(photoPickerIntent, null);
-                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{videoPickerIntent});
-
-                    startActivityForResult(chooserIntent, 1);
-                } catch (Exception e) {
-                    FileLog.e("tmessages", e);
-                }
-
+            public void didPhotoAlbumLoaded() {
+                stopProgressView();
             }
 
             @Override
             public boolean didSelectVideo(String path) {
-
-//                            if (Build.VERSION.SDK_INT >= 16) {
-//                                return !openVideoEditor(path, true, true);
-//                            } else {
-//                                SendMessagesHelper.prepareSendingVideo(path, 0, 0, 0, 0, null, dialog_id, replyingMessageObject);
-//                                showReplyPanel(false, null, null, null, false, true);
-//                                return true;
-//                            }
-
+                // look at example in original PhotoAlbumActivity
                 return false;
             }
 
-            @Override
-            public void didBackButtonPressed() {
-
-            }
         });
 
     }
@@ -1871,6 +1852,17 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             return posts.get(0);
         }
         return null;
+    }
+
+    private void startProgressView() {
+        handler.postDelayed(refreshProgressRun, Constants.PROGRESS_DIALOG_TIMEOUT);
+    }
+
+    private void stopProgressView() {
+        handler.removeCallbacks(refreshProgressRun);
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
     }
 
 }

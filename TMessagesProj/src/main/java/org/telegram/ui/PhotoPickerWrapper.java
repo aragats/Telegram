@@ -23,9 +23,7 @@ public class PhotoPickerWrapper implements NotificationCenter.NotificationCenter
 
         boolean didSelectVideo(String path);
 
-        void didBackButtonPressed();
-
-        void startPhotoSelectActivity();
+        void didPhotoAlbumLoaded();
     }
 
     protected int classGuid = 0;
@@ -50,13 +48,11 @@ public class PhotoPickerWrapper implements NotificationCenter.NotificationCenter
     }
 
     public boolean onFragmentCreate() {
-        loading = true;
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.cameraAlbumDidLoaded);
         return true;
     }
 
     public void onFragmentDestroy() {
-        selectedPhotos = new HashMap<>();
         NotificationCenter.getInstance().removeObserver(this, NotificationCenter.cameraAlbumDidLoaded);
     }
 
@@ -69,6 +65,9 @@ public class PhotoPickerWrapper implements NotificationCenter.NotificationCenter
             if (classGuid == guid) {
                 albumsSorted = (ArrayList<MediaController.AlbumEntry>) args[1];
                 loading = false;
+                if(delegate != null) {
+                    delegate.didPhotoAlbumLoaded();
+                }
                 if (!albumsSorted.isEmpty()) {
                     openPhotoPicker(albumsSorted.get(0), 0);
                 }
@@ -81,6 +80,7 @@ public class PhotoPickerWrapper implements NotificationCenter.NotificationCenter
     }
 
     public void openPhotoPicker() {
+        loading = true;
         clearStates();
         MediaController.loadCameraPhotoAlbum(classGuid);
     }
@@ -151,5 +151,8 @@ public class PhotoPickerWrapper implements NotificationCenter.NotificationCenter
 
     }
 
+    public boolean isLoading() {
+        return loading;
+    }
 
 }
