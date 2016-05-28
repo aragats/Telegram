@@ -632,6 +632,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         actionBar.setOccupyStatusBar(false);
         actionBar.setItemsBackground(R.drawable.bar_selector_white);
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
+//        actionBar.setTitle("");
         actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, 1, 1));
         containerView.addView(actionBar, LayoutHelper.createRelative(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
@@ -1685,6 +1686,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
             //TODO  It is title 1 of 1
             if (totalImagesCount != 0 && !needSearchImageInArr) {
+//                actionBar.setTitle("");
                 actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, (totalImagesCount - imagesPostArr.size()) + currentIndex + 1, totalImagesCount));
             }
 
@@ -2015,6 +2017,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 //        parentChatActivity = chatActivity;
 //        parentChatActivity = null;
 
+//        actionBar.setTitle("");
         actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, 1, 1));
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidFailedLoad);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidLoaded);
@@ -2081,6 +2084,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
         parentPostActivity = postsActivity;
 
+//        actionBar.setTitle("");
         actionBar.setTitle(LocaleController.formatString("Of", R.string.Of, 1, 1));
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidFailedLoad);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidLoaded);
