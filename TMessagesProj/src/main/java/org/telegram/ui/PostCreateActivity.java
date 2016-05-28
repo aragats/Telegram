@@ -129,6 +129,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
     private final static int id_chat_compose_panel = 1000;
 
+
+    private PhotoPickerWrapper photoPickerWrapper;
+
+
     RecyclerListView.OnItemLongClickListener onItemLongClickListener = new RecyclerListView.OnItemLongClickListener() {
         @Override
         public void onItemClick(View view, int position) {
@@ -197,6 +201,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             editor.commit();
         }
 
+        createPhotoPickerWrapper();
         super.onFragmentCreate();
 
 //        if (AndroidUtilities.isTablet()) {
@@ -228,6 +233,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
         //save venue before to destroy it
         PostsController.getInstance().setLastVenue(venue);
+        destroyPhotoPickerWrapper();
     }
 
 
@@ -302,7 +308,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                 } else if (id == attach_photo) {
                     attachPhotoHandle();
                 } else if (id == attach_gallery) {
-                    attachGalleryHandle();
+                    openPhotoPicker();
                 } else if (id == attach_location) {
                     openLocationChooser();
                 }
@@ -537,7 +543,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         emptyView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                attachGalleryHandle();
+                openPhotoPicker();
             }
         });
 
@@ -939,7 +945,6 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
             }
             Toast.makeText(getParentActivity(), message, Toast.LENGTH_LONG).show();
-
         }
     }
 
@@ -1619,6 +1624,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         }
         return true;
     }
+
     // only photo based on MAX DATE_SHIFT. Think about accepting photo withou date.
     private boolean validateDate(long date) {
         return date != 0 && (new Date().getTime() - date) < Constants.MAX_DATE_SHIFT;
@@ -1734,6 +1740,78 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         presentFragment(fragment);
     }
 
+
+    //TODO think about progressView
+    private void openPhotoPicker() {
+        if (photoPickerWrapper != null) {
+            photoPickerWrapper.openPhotoPicker();
+        }
+    }
+
+
+    private void destroyPhotoPickerWrapper() {
+        if (photoPickerWrapper != null) {
+            photoPickerWrapper.onFragmentDestroy();
+        }
+    }
+
+    private void createPhotoPickerWrapper() {
+        //                    //TODO-TEMP
+        if (photoPickerWrapper != null) {
+            return;
+        }
+        photoPickerWrapper = new PhotoPickerWrapper(this, true);
+        photoPickerWrapper.setDelegate(new PhotoPickerWrapper.PhotoPickerWrapperActivityDelegate() {
+            @Override
+            public void didSelectPhotos(ArrayList<String> photos, ArrayList<String> captions, ArrayList<MediaController.SearchImage> webPhotos) {
+
+                PostCreateActivity.this.didSelectPhotos(photos);
+
+
+            }
+
+            @Override
+            public void startPhotoSelectActivity() {
+                //TODO-was ?
+                try {
+                    Intent videoPickerIntent = new Intent();
+                    videoPickerIntent.setType("video/*");
+                    videoPickerIntent.setAction(Intent.ACTION_GET_CONTENT);
+                    videoPickerIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (1024 * 1024 * 1536));
+
+                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                    photoPickerIntent.setType("image/*");
+                    Intent chooserIntent = Intent.createChooser(photoPickerIntent, null);
+                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{videoPickerIntent});
+
+                    startActivityForResult(chooserIntent, 1);
+                } catch (Exception e) {
+                    FileLog.e("tmessages", e);
+                }
+
+            }
+
+            @Override
+            public boolean didSelectVideo(String path) {
+
+//                            if (Build.VERSION.SDK_INT >= 16) {
+//                                return !openVideoEditor(path, true, true);
+//                            } else {
+//                                SendMessagesHelper.prepareSendingVideo(path, 0, 0, 0, 0, null, dialog_id, replyingMessageObject);
+//                                showReplyPanel(false, null, null, null, false, true);
+//                                return true;
+//                            }
+
+                return false;
+            }
+
+            @Override
+            public void didBackButtonPressed() {
+
+            }
+        });
+
+    }
 
     private boolean attachPhotoHandle() {
         try {

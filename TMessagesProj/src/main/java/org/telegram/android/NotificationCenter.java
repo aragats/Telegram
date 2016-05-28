@@ -51,6 +51,7 @@ public class NotificationCenter {
     public static final int FileDidLoaded = totalEvents++;
     public static final int FileDidFailedLoad = totalEvents++;
     public static final int albumsDidLoaded = totalEvents++; //TODO
+    public static final int cameraAlbumDidLoaded = totalEvents++; //TODO
 
 
     public static final int httpFileDidLoaded = totalEvents++; // TODO need receiver

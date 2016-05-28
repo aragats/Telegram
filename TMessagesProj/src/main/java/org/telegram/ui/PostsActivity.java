@@ -449,7 +449,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 } else if (id == action_bar_menu_location) {
                     openLocationChooser();
                 } else if (id == 1) {
-                    System.out.println();
+//                    System.out.println();
 //                    UserConfig.appLocked = !UserConfig.appLocked;
 //                    UserConfig.saveConfig(false);
 //                    updatePasscodeButton();

@@ -466,6 +466,11 @@ public class PhotoAlbumPickerActivity extends BaseFragment implements Notificati
                 removeSelfFromStack();
                 return delegate.didSelectVideo(path);
             }
+
+            @Override
+            public void backButtonPressed() {
+
+            }
         });
         presentFragment(fragment);
     }
