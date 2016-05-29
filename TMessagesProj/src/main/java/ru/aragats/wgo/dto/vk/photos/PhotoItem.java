@@ -1,5 +1,5 @@
 
-package ru.aragats.wgo.dto.vk;
+package ru.aragats.wgo.dto.vk.photos;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

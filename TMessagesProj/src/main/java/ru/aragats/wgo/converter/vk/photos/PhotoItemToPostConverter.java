@@ -1,4 +1,4 @@
-package ru.aragats.wgo.converter.vk;
+package ru.aragats.wgo.converter.vk.photos;
 
 import org.telegram.utils.StringUtils;
 
@@ -11,7 +11,7 @@ import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.Image;
 import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.Venue;
-import ru.aragats.wgo.dto.vk.PhotoItem;
+import ru.aragats.wgo.dto.vk.photos.PhotoItem;
 
 /**
  * Created by aragats on 06/02/16.
@@ -40,15 +40,15 @@ public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post>
 
         List<Image> images = new ArrayList<>();
         Image previewImage = new Image();
-        previewImage.setHeight(source.getHeight());
-        previewImage.setWidth(source.getWidth());
+        previewImage.setHeight(source.getHeight()); // TODO wrong
+        previewImage.setWidth(source.getWidth()); // TODO wrong
         previewImage.setUrl(source.getPhoto604());
         images.add(previewImage);
 
 
         Image image = new Image();
-        image.setHeight(source.getHeight());
-        image.setWidth(source.getWidth());
+        image.setHeight(source.getHeight()); // TODO wrong
+        image.setWidth(source.getWidth()); // TODO wrong
         image.setUrl(source.getPhoto1280());
         images.add(image);
 

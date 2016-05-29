@@ -18,6 +18,7 @@ import com.github.davidmoten.rtree.geometry.Geometries;
 import com.github.davidmoten.rtree.geometry.Geometry;
 
 import org.telegram.android.location.LocationManagerHelper;
+import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
@@ -37,7 +38,8 @@ import retrofit2.Response;
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.comparator.PostDateComparator;
 import ru.aragats.wgo.comparator.PostDistanceComparator;
-import ru.aragats.wgo.converter.vk.VKPhotoResponseToPostListConverter;
+import ru.aragats.wgo.converter.vk.newsfeed.VKNewsFeedResponseToPostListConverter;
+import ru.aragats.wgo.converter.vk.photos.VKPhotoResponseToPostListConverter;
 import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.FileUploadRequest;
 import ru.aragats.wgo.dto.Image;
@@ -47,7 +49,9 @@ import ru.aragats.wgo.dto.PostRequest;
 import ru.aragats.wgo.dto.PostResponse;
 import ru.aragats.wgo.dto.User;
 import ru.aragats.wgo.dto.Venue;
-import ru.aragats.wgo.dto.vk.VKPhotoResponse;
+import ru.aragats.wgo.dto.vk.newsfeed.NewsFeedResponse;
+import ru.aragats.wgo.dto.vk.newsfeed.VKNewsFeedResponse;
+import ru.aragats.wgo.dto.vk.photos.VKPhotoResponse;
 import ru.aragats.wgo.rest.manager.RestManager;
 import ru.aragats.wgo.rest.mock.PostServiceMock;
 import ru.aragats.wgo.rest.mock.UserServiceMock;
@@ -59,10 +63,12 @@ import ru.aragats.wgo.rest.mock.UserServiceMock;
 public class PostsController implements NotificationCenter.NotificationCenterDelegate {
 
     private VKPhotoResponseToPostListConverter vkPhotoResponseConverter = new VKPhotoResponseToPostListConverter();
+    private VKNewsFeedResponseToPostListConverter vkNewsFeedResponseToPostListConverter = new VKNewsFeedResponseToPostListConverter();
     private Venue lastVenue;
 
     private List<Post> posts = new ArrayList<>();
     private int nextOffset;
+    private String nextFrom;
     public ConcurrentHashMap<String, Post> postsMap = new ConcurrentHashMap<>(100, 1.0f, 2);
 
     private boolean loadingPosts = false;
@@ -247,7 +253,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void loadPosts(final String idOffset, final int offset, final int count, final boolean reload, final boolean offlineMode) {
+    public void loadPosts(final String idOffset, final String nextFromOffset, final int offset, final int count, final boolean reload, final boolean offlineMode) {
         if (loadingPosts || offlineMode && MediaController.getInstance().getRTree() == null) {
             return;
         }
@@ -273,12 +279,16 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         postRequest.setIdOffset(idOffset);
         postRequest.setOffset(offset);
         postRequest.setDistance(Constants.RADIUS);
+        if (!StringUtils.isEmpty(nextFromOffset)) {
+            postRequest.setIdOffset(nextFromOffset);
+        }
         if (offlineMode) {
             nextOffset = 0;
             loadLocalPosts(postRequest, reload);
         } else {
 //            loadPostFromServer(postRequest, reload);
             loadVKPhotos(postRequest, reload);
+//            loadVKNewsFeed(postRequest, reload);
         }
 
 
@@ -361,6 +371,59 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
         });
         addCall(call);
+    }
+
+
+    private void loadVKNewsFeed(final PostRequest postRequest, final boolean reload) {
+        loadingPosts = true;
+//        postRequest.setCount(postRequest.getCount() * 2);
+//        postRequest.setIdOffset();
+        final Call<VKNewsFeedResponse> call = RestManager.getInstance().findNearVKNewsFeed(postRequest, new Callback<VKNewsFeedResponse>() {
+            @Override
+            public void onResponse(Call<VKNewsFeedResponse> call, Response<VKNewsFeedResponse> response) {
+                removeCall(call);
+                //        after getting response.
+                VKNewsFeedResponse vkNewsFeedResponse = response.body();
+                List<Post> posts = vkNewsFeedResponseToPostListConverter.convert(vkNewsFeedResponse != null ?
+                        vkNewsFeedResponse.getResponse() : null);
+//                posts = filterVKPosts(posts);
+
+                PostResponse postResponse = new PostResponse();
+                postResponse.setPosts(posts);
+
+                if (postResponse.getPosts() == null) {
+                    postResponse.setPosts(new ArrayList<Post>());
+                }
+                if (vkNewsFeedResponse != null) {
+                    NewsFeedResponse newsFeedResponse = vkNewsFeedResponse.getResponse();
+                    if (newsFeedResponse != null) {
+                        String nextFrom = newsFeedResponse.getNextFrom();
+                        postResponse.setNextFrom(nextFrom);
+                    }
+                }
+
+                postResponse.setSource("VK");
+                nextFrom = postResponse.getNextFrom();
+                processLoadedPosts(postResponse, reload);
+            }
+
+            @Override
+            public void onFailure(Call<VKNewsFeedResponse> call, Throwable t) {
+//                call.request().url() GEt URL of request.
+                removeCall(call);
+                loadingPosts = false;
+                boolean withError = true;
+                if (t != null && t.getMessage().equals("Canceled")) {
+                    withError = false;
+                }
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished, withError);
+            }
+        });
+        addCall(call);
+
+
+        // it works and it forces onFailure java.io.IOException: Canceled
+//        call.cancel(); //
     }
 
 
@@ -523,6 +586,18 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             return nextOffset;
         }
         return posts.size();
+    }
+
+    public String getOffsetId() {
+        String offset = null;
+        if (!CollectionUtils.isEmpty(posts)) {
+            offset = posts.get(posts.size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
+        }
+        return offset;
+    }
+
+    public String getNextFrom() {
+        return nextFrom;
     }
 
     public Post createPost(String dir, String photo, double latitude, double longitude, Date date, boolean local) {

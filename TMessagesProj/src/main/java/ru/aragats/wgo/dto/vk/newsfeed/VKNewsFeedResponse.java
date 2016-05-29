@@ -1,21 +1,21 @@
 
-package ru.aragats.wgo.dto.vk;
+package ru.aragats.wgo.dto.vk.newsfeed;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class VKPhotoResponse {
+public class VKNewsFeedResponse {
 
     @SerializedName("response")
     @Expose
-    private PhotoResponse response;
+    private NewsFeedResponse response;
 
     /**
      * 
      * @return
      *     The response
      */
-    public PhotoResponse getResponse() {
+    public NewsFeedResponse getResponse() {
         return response;
     }
 
@@ -24,7 +24,7 @@ public class VKPhotoResponse {
      * @param response
      *     The response
      */
-    public void setResponse(PhotoResponse response) {
+    public void setResponse(NewsFeedResponse response) {
         this.response = response;
     }
 

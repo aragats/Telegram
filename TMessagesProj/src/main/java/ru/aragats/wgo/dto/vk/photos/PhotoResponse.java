@@ -1,5 +1,5 @@
 
-package ru.aragats.wgo.dto.vk;
+package ru.aragats.wgo.dto.vk.photos;
 
 import java.util.ArrayList;
 import java.util.List;

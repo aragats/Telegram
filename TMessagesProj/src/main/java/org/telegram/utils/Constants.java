@@ -67,6 +67,8 @@ public class Constants {
 
     public static long PROGRESS_DIALOG_TIMEOUT = 500;
 
+    public static double VK_API_VERSION = 5.52;
+
 
     public static String LOCAL_POSTS_FILENAME = "rtree";
 

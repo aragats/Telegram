@@ -61,7 +61,6 @@ import ru.aragats.wgo.R;
 
 import org.telegram.messenger.FileLog;
 
-import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.Post;
 
 import org.telegram.messenger.TLRPC;
@@ -80,8 +79,6 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
-
-import java.util.Arrays;
 
 //TODO delte it or reuse.
 
@@ -267,7 +264,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         LocationManagerHelper.getInstance().runLocationListener();
 
         if (!offlineMode && !postsLoaded) {
-            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
+            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode);
             ContactsController.getInstance().checkInviteText();
             postsLoaded = true;
         }
@@ -469,7 +466,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             public void onRefresh() {
                 // TODO temp test
 //                new RestTask().execute("param");
-                PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
+                PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode);
 
 //                RestManager.getInstance().uploadTest(new PostRequest(), new Callback<PostResponse>() {
 //                    @Override
@@ -708,9 +705,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 //TODO fix it. to often run load posts.
                 if (visibleItemCount > 0) {
                     if (layoutManager.findLastVisibleItemPosition() == PostsController.getInstance().getPosts().size() - 1 && !mIsScrollingUp && !PostsController.getInstance().getPosts().isEmpty()) {
-                        String offset = PostsController.getInstance().getPosts().get(PostsController.getInstance().getPosts().size() - 1).getId(); // TODO When empty list. java.lang.ArrayIndexOutOfBoundsException: length=12; index=-1
+                        String offset = PostsController.getInstance().getOffsetId();
+                        int nextOffset = PostsController.getInstance().getOffset();
+                        String nextFrom = PostsController.getInstance().getNextFrom();
 //                        startRefreshingProgressView();
-                        PostsController.getInstance().loadPosts(offset, PostsController.getInstance().getOffset(), Constants.POST_COUNT, false, offlineMode);
+                        PostsController.getInstance().loadPosts(offset, nextFrom, nextOffset, Constants.POST_COUNT, false, offlineMode);
                     }
                 }
 
@@ -890,7 +889,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         } else if (id == NotificationCenter.offlinePostsLoaded) {
 //            layoutManager.scrollToPosition(0);
 //            startRefreshingProgressView();
-            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
+            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
             boolean force = false;
             if (!this.offlineMode) {
@@ -923,7 +922,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (PostsController.getInstance().getPosts().isEmpty() || force) {
 //            startRefreshingProgressView();
             showProgressView();
-            PostsController.getInstance().loadPosts(null, 0, Constants.POST_COUNT, true, offlineMode);
+            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode);
         }
     }
 

@@ -12,6 +12,7 @@ public class PostResponse {
     private String error;
     //TODO make it enum !!
     private String source;
+    private String nextFrom;
 
 
     public List<Post> getPosts() {
@@ -36,5 +37,13 @@ public class PostResponse {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getNextFrom() {
+        return nextFrom;
+    }
+
+    public void setNextFrom(String nextFrom) {
+        this.nextFrom = nextFrom;
     }
 }

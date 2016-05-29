@@ -1,5 +1,8 @@
 package ru.aragats.wgo.rest.manager;
 
+import org.telegram.utils.Constants;
+import org.telegram.utils.StringUtils;
+
 import java.io.File;
 import java.util.List;
 
@@ -15,7 +18,8 @@ import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.PostRequest;
 import ru.aragats.wgo.dto.PostResponse;
 import ru.aragats.wgo.dto.VenuePostsRequest;
-import ru.aragats.wgo.dto.vk.VKPhotoResponse;
+import ru.aragats.wgo.dto.vk.newsfeed.VKNewsFeedResponse;
+import ru.aragats.wgo.dto.vk.photos.VKPhotoResponse;
 import ru.aragats.wgo.rest.client.RestClient;
 import ru.aragats.wgo.rest.client.VKRestClient;
 
@@ -171,6 +175,21 @@ public class RestManager {
 
     private Call<VKPhotoResponse> findNearVKPhotos(PostRequest request) {
         return vkRestClient.getRestService().findNearPhotos(request.getLongitude(), request.getLatitude(),
-                request.getDistance(), request.getOffset(), request.getCount(), 5.44);
+                request.getDistance(), request.getOffset(), request.getCount(), Constants.VK_API_VERSION);
+    }
+
+
+    public Call<VKNewsFeedResponse> findNearVKNewsFeed(PostRequest request, Callback<VKNewsFeedResponse> callback) {
+        Call<VKNewsFeedResponse> call = findNearVKPNewsFeed(request);
+        call.enqueue(callback);
+        return call;
+    }
+
+    private Call<VKNewsFeedResponse> findNearVKPNewsFeed(PostRequest request) {
+        if (StringUtils.isEmpty(request.getIdOffset())) {
+            return vkRestClient.getRestService().findNearNewsFeedWithoutStartFrom(" ", request.getLongitude(), request.getLatitude(), request.getCount(), Constants.VK_API_VERSION);
+        } else {
+            return vkRestClient.getRestService().findNearNewsFeed(" ", request.getLongitude(), request.getLatitude(), request.getIdOffset(), request.getCount(), Constants.VK_API_VERSION);
+        }
     }
 }
