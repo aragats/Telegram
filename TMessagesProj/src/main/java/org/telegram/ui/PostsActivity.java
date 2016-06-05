@@ -55,14 +55,7 @@ import org.telegram.android.PostsController;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.android.support.widget.LinearLayoutManager;
 import org.telegram.android.support.widget.RecyclerView;
-
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
-
 import org.telegram.messenger.FileLog;
-
-import ru.aragats.wgo.dto.Post;
-
 import org.telegram.messenger.TLRPC;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
@@ -79,6 +72,10 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
+
+import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.wgo.R;
+import ru.aragats.wgo.dto.Post;
 
 //TODO delte it or reuse.
 
@@ -143,6 +140,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private final static int action_bar_menu_other = itemId++;
 
     private boolean offlineMode;
+//    private boolean checkPermission = true;
+
 
     //TODO-legacy. update according to new version.
     @Override
@@ -797,6 +796,17 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (postsSearchAdapter != null) {
             postsSearchAdapter.notifyDataSetChanged();
         }
+//        if (checkPermission && Build.VERSION.SDK_INT >= 23) {
+//            Activity activity = getParentActivity();
+//            if (activity != null) {
+//                checkPermission = false;
+//                if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                    activity.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+//                }
+//            }
+//        } else {
+////            LocationManagerHelper.getInstance().runLocationListener();
+//        }
     }
 
     @Override

@@ -186,10 +186,6 @@ public class RestManager {
     }
 
     private Call<VKNewsFeedResponse> findNearVKPNewsFeed(PostRequest request) {
-        if (StringUtils.isEmpty(request.getIdOffset())) {
-            return vkRestClient.getRestService().findNearNewsFeedWithoutStartFrom(" ", request.getLongitude(), request.getLatitude(), request.getCount(), Constants.VK_API_VERSION);
-        } else {
-            return vkRestClient.getRestService().findNearNewsFeed(" ", request.getLongitude(), request.getLatitude(), request.getIdOffset(), request.getCount(), Constants.VK_API_VERSION);
-        }
+        return vkRestClient.getRestService().findNearNewsFeed(" ", request.getLongitude(), request.getLatitude(), request.getIdOffset(), request.getCount(), Constants.VK_API_VERSION);
     }
 }

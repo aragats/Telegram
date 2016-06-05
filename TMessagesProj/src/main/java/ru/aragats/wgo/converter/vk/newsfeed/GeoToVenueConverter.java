@@ -32,8 +32,8 @@ public class GeoToVenueConverter extends AbstractConverter<Geo, Venue> {
         if (!StringUtils.isEmpty(coordinatesStr)) {
             String[] coordinatesStrArr = coordinatesStr.trim().split("\\s+");
             if (coordinatesStrArr.length == 2) {
-                coordinates.setCoordinates(Arrays.asList(Double.parseDouble(coordinatesStrArr[0]),
-                        Double.parseDouble(coordinatesStrArr[1])));
+                coordinates.setCoordinates(Arrays.asList(Double.parseDouble(coordinatesStrArr[1]),
+                        Double.parseDouble(coordinatesStrArr[0])));
             }
             Place place = source.getPlace();
             if (place != null && !StringUtils.isEmpty(place.getTitle())) {

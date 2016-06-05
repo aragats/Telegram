@@ -287,8 +287,8 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             loadLocalPosts(postRequest, reload);
         } else {
 //            loadPostFromServer(postRequest, reload);
-            loadVKPhotos(postRequest, reload);
-//            loadVKNewsFeed(postRequest, reload);
+//            loadVKPhotos(postRequest, reload);
+            loadVKNewsFeed(postRequest, reload);
         }
 
 
@@ -374,10 +374,14 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
+//    Load original string
+//    ResponseBody response
+//    str = new String(response.body().bytes());
     private void loadVKNewsFeed(final PostRequest postRequest, final boolean reload) {
         loadingPosts = true;
-//        postRequest.setCount(postRequest.getCount() * 2);
-//        postRequest.setIdOffset();
+        //round lat and longitude
+        postRequest.setLatitude(Math.round(postRequest.getLatitude() * 10000000000.0) / 10000000000.0);
+        postRequest.setLongitude(Math.round(postRequest.getLongitude() * 10000000000.0) / 10000000000.0);
         final Call<VKNewsFeedResponse> call = RestManager.getInstance().findNearVKNewsFeed(postRequest, new Callback<VKNewsFeedResponse>() {
             @Override
             public void onResponse(Call<VKNewsFeedResponse> call, Response<VKNewsFeedResponse> response) {

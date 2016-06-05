@@ -17,17 +17,9 @@ public interface VKService {
                                          @Query("radius") int radius, @Query("offset") int offset, @Query("count") int count,
                                          @Query("v") double version);
 
-
-    @GET("/method/newsfeed.search")
-    Call<VKNewsFeedResponse> findNearNewsFeedWithoutStartFrom(@Query("q") String query,
-                                              @Query("longitude") double longitude, @Query("latitude") double latitude,
-                                              @Query("count") int count,
-                                              @Query("version") double version);
-
     @GET("/method/newsfeed.search")
     Call<VKNewsFeedResponse> findNearNewsFeed(@Query("q") String query, @Query("longitude") double longitude, @Query("latitude") double latitude,
                                               @Query("start_from") String startFrom, @Query("count") int count,
-                                              @Query("version") double version);
-
+                                              @Query("v") double version);
 
 }
