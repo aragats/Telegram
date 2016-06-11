@@ -8,8 +8,11 @@
 
 package org.telegram.ui.Adapters;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +29,7 @@ import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.LocationActivityAragats;
 import org.telegram.ui.PhotoViewer;
 import org.telegram.ui.PostsActivity;
+import org.telegram.utils.Permissions;
 import org.telegram.utils.StringUtils;
 
 // TODO-aragats
@@ -127,6 +131,15 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
                 @Override
                 public void didClickedVenue(PostCell cell) {
+                    if (postsActivity == null) {
+                        return;
+                    }
+                    Activity activity = postsActivity.getParentActivity();
+                    //TODO check both permissions
+                    if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+                        return;
+                    }
                     Post cellPost = cell.getPost();
                     LocationActivityAragats fragment = new LocationActivityAragats(new Bundle());
                     fragment.setPost(cellPost);

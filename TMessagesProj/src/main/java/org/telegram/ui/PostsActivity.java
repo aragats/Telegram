@@ -8,6 +8,7 @@
 
 package org.telegram.ui;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
 import android.annotation.SuppressLint;
@@ -16,6 +17,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
@@ -71,6 +73,7 @@ import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.utils.Constants;
+import org.telegram.utils.Permissions;
 import org.telegram.utils.StringUtils;
 
 import ru.aragats.wgo.ApplicationLoader;
@@ -140,7 +143,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private final static int action_bar_menu_other = itemId++;
 
     private boolean offlineMode;
-//    private boolean checkPermission = true;
 
 
     //TODO-legacy. update according to new version.
@@ -255,12 +257,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.locationPermissionGranted);
         }
 
         if (offlineMode) {
             MediaController.loadGeoTaggedGalleryPhotos(classGuid, false);
         }
-        LocationManagerHelper.getInstance().runLocationListener();
 
         if (!offlineMode && !postsLoaded) {
             PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode);
@@ -319,6 +321,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.locationPermissionGranted);
         }
         LocationManagerHelper.getInstance().stopLocationListener();
 
@@ -796,17 +799,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (postsSearchAdapter != null) {
             postsSearchAdapter.notifyDataSetChanged();
         }
-//        if (checkPermission && Build.VERSION.SDK_INT >= 23) {
-//            Activity activity = getParentActivity();
-//            if (activity != null) {
-//                checkPermission = false;
-//                if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//                    activity.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 2);
-//                }
-//            }
-//        } else {
-////            LocationManagerHelper.getInstance().runLocationListener();
-//        }
     }
 
     @Override
@@ -925,6 +917,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             this.offlineMode = false;
 //            layoutManager.scrollToPosition(0);
             refreshPosts(force);
+        } else if (id == NotificationCenter.locationPermissionGranted) {
+            LocationManagerHelper.getInstance().runLocationListener();
         }
     }
 
@@ -1105,6 +1099,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     //http://stackoverflow.com/questions/5375654/how-to-implement-google-maps-search-by-address-in-android  search Google Maps
     private void openLocationChooser() {
+        Activity activity = getParentActivity();
+        //TODO check both permissions
+        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+            return;
+        }
         if (!isGoogleMapsInstalled()) {
             return;
         }

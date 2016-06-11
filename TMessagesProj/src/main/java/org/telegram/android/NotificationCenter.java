@@ -37,6 +37,10 @@ public class NotificationCenter {
     //    public static final int loadPostsError = totalEvents++;
     public static final int invalidPost = totalEvents++;
 
+    public static final int locationPermissionGranted = totalEvents++;
+    public static final int storagePermissionGranted = totalEvents++;
+    public static final int cameraPermissionGranted = totalEvents++;
+
 
     public static final int didReceivedNewPosts = totalEvents++; //TODO
     public static final int updateInterfaces = totalEvents++; //TODO

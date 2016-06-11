@@ -285,4 +285,9 @@ public class BaseFragment {
     public void setVisibleDialog(Dialog dialog) {
         visibleDialog = dialog;
     }
+
+    //aragats
+    public void onRequestPermissionsResultFragment(int requestCode, String[] permissions, int[] grantResults) {
+
+    }
 }

@@ -43,6 +43,7 @@ public class ApplicationLoader extends Application {
 
     private static final Object sync = new Object();
 
+    public static volatile Activity parentActivity;
     public static volatile Context applicationContext;
     public static volatile Handler applicationHandler;
     private static volatile boolean applicationInited = false;

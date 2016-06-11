@@ -1,5 +1,7 @@
 package org.telegram.android.location;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -8,10 +10,12 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import org.telegram.messenger.TLRPC;
 import org.telegram.utils.CollectionUtils;
+import org.telegram.utils.Permissions;
 import org.telegram.utils.StringUtils;
 
 import java.io.IOException;
@@ -91,6 +95,13 @@ public class LocationManagerHelper {
 
     //TODO move the method to other place.
     public void runLocationListener() {
+        Activity activity = ApplicationLoader.parentActivity;
+        //TODO check both permissions
+        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+            return;
+        }
+
         LocationManager locationManager = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
 
 // Register the listener with the Location Manager to receive location updates
@@ -99,6 +110,12 @@ public class LocationManagerHelper {
     }
 
     public void stopLocationListener() {
+        Activity activity = ApplicationLoader.parentActivity;
+        //TODO check both permissions
+        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+            return;
+        }
         LocationManager locationManager = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
         locationManager.removeUpdates(locationListener);
 
@@ -109,6 +126,12 @@ public class LocationManagerHelper {
     //TODO-aragats method to get location
     // TODO It does not work all time. It return only the last location, but not search current location ((( .
     public Location getLastLocation() {
+        Activity activity = ApplicationLoader.parentActivity;
+        //TODO check both permissions
+        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+            return null;
+        }
         LocationManager lm = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
         List<String> providers = lm.getProviders(true);
         Location l = null;
@@ -130,6 +153,11 @@ public class LocationManagerHelper {
     }
 
     public boolean isLocationServiceEnabled() {
+        Activity activity = ApplicationLoader.parentActivity;
+        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+            return false;
+        }
         LocationManager lm = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
         return (lm.isProviderEnabled(LocationManager.GPS_PROVIDER) && lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
     }

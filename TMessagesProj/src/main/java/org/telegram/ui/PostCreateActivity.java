@@ -8,11 +8,13 @@
 
 package org.telegram.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -69,6 +71,7 @@ import org.telegram.ui.Components.SizeNotifierFrameLayout;
 import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.Constants;
 import org.telegram.utils.NotificationEnum;
+import org.telegram.utils.Permissions;
 import org.telegram.utils.StringUtils;
 
 import java.io.File;
@@ -1458,6 +1461,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     private void openLocationChooser() {
+        Activity activity = getParentActivity();
+        //TODO check both permissions
+        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+            return;
+        }
         if (!isGoogleMapsInstalled()) {
             return;
         }
@@ -1754,6 +1763,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     private void openPhotoPicker() {
+        Activity activity = getParentActivity();
+        if (!Permissions.storagePermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(Permissions.STORAGE_PERMISSION_GROUP, Permissions.STORAGE_REQUEST);
+            return;
+        }
+        Permissions.storagePermitted = true;
         if (photoPickerWrapper != null) {
             startProgressView();
             photoPickerWrapper.openPhotoPicker();
@@ -1795,6 +1810,12 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     private boolean attachPhotoHandle() {
+        Activity activity = getParentActivity();
+        if (!Permissions.cameraPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(Permissions.CAMERA_PERMISSION_GROUP, Permissions.CAMERA_REQUEST);
+            return false;
+        }
+        Permissions.cameraPermitted = true;
         try {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File image = AndroidUtilities.generatePicturePath();

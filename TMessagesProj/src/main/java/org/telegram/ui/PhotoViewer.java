@@ -8,12 +8,14 @@
 
 package org.telegram.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -69,6 +71,7 @@ import org.telegram.ui.Components.PhotoFilterView;
 import org.telegram.ui.Components.PhotoPickerBottomLayout;
 import org.telegram.ui.Components.PhotoViewerCaptionEnterView;
 import org.telegram.ui.Components.SizeNotifierRelativeLayoutPhoto;
+import org.telegram.utils.Permissions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -647,6 +650,11 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     }
                     closePhoto(true, false);
                 } else if (id == gallery_menu_save) {
+                    if (!Permissions.storagePermitted && parentActivity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && parentActivity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        parentActivity.requestPermissions(Permissions.STORAGE_PERMISSION_GROUP, Permissions.STORAGE_REQUEST);
+                        return;
+                    }
+                    Permissions.storagePermitted = true;
                     File f = null;
                     //TODO-aragats new. It is important do not save again from the internet but use saved in cache. // TOOD why jpg???
                     if (currentPost != null) {

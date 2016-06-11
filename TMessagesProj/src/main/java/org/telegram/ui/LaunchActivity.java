@@ -13,6 +13,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
@@ -48,6 +49,7 @@ import org.telegram.ui.ActionBar.DrawerLayoutContainer;
 import org.telegram.ui.Adapters.DrawerLayoutAdapter;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.utils.CollectionUtils;
+import org.telegram.utils.Permissions;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -80,6 +82,8 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ApplicationLoader.postInitApplication();
+        //Set parentActivity to ApplicationLoader
+        ApplicationLoader.parentActivity = this;
 
         if (!UserConfig.isClientActivated()) {
             Intent intent = getIntent();
@@ -945,5 +949,31 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             }
         }
         drawerLayoutAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case Permissions.LOCATION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Permissions.locationPermitted = true;
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.locationPermissionGranted);
+                }
+                break;
+            case Permissions.STORAGE_REQUEST:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Permissions.storagePermitted = true;
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.storagePermissionGranted);
+                }
+                break;
+            case Permissions.CAMERA_REQUEST:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Permissions.cameraPermitted = true;
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.cameraPermissionGranted);
+                }
+                break;
+        }
     }
 }
