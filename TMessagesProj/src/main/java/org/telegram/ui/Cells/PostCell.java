@@ -552,7 +552,8 @@ public class PostCell extends BaseCell {
             textLeft = AndroidUtilities.dp(9);
         } else {
 //            addressLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.isTablet() ? 65 : 61);
-            addressLeft = AndroidUtilities.dp(16);
+//            addressLeft = AndroidUtilities.dp(16);
+            addressLeft = AndroidUtilities.dp(12);
             avatarLeft = getMeasuredWidth() - AndroidUtilities.dp(AndroidUtilities.isTablet() ? 65 : 61);
             textLeft = getMeasuredWidth() - AndroidUtilities.dp(61);
         }
