@@ -19,9 +19,10 @@ public class Post implements Serializable {
     private List<Image> images;
     private long createdDate;
 
-//  transient
+    //  transient
     private transient float distance;
-    private transient boolean  local;
+    private transient boolean local;
+    private transient int likes;
 
 
     public Post() {
@@ -133,5 +134,13 @@ public class Post implements Serializable {
 
     public void setLocal(boolean local) {
         this.local = local;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
     }
 }

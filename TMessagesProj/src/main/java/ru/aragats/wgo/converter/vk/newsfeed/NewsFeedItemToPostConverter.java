@@ -51,6 +51,10 @@ public class NewsFeedItemToPostConverter extends AbstractConverter<NewsFeedItem,
         result.setVenue(venue);
         result.setImages(images);
 
+        if (source.getLikes() != null) {
+            result.setLikes(source.getLikes().getCount());
+        }
+
 
         return result;
     }

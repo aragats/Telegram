@@ -374,11 +374,12 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-//    Load original string
+    //    Load original string
 //    ResponseBody response
 //    str = new String(response.body().bytes());
     private void loadVKNewsFeed(final PostRequest postRequest, final boolean reload) {
         loadingPosts = true;
+        postRequest.setCount(postRequest.getCount() * 2);
         //round lat and longitude
         postRequest.setLatitude(Math.round(postRequest.getLatitude() * 10000000000.0) / 10000000000.0);
         postRequest.setLongitude(Math.round(postRequest.getLongitude() * 10000000000.0) / 10000000000.0);
@@ -390,7 +391,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 VKNewsFeedResponse vkNewsFeedResponse = response.body();
                 List<Post> posts = vkNewsFeedResponseToPostListConverter.convert(vkNewsFeedResponse != null ?
                         vkNewsFeedResponse.getResponse() : null);
-//                posts = filterVKPosts(posts);
+//                posts = filterVKPostsByLikes(posts);
 
                 PostResponse postResponse = new PostResponse();
                 postResponse.setPosts(posts);
@@ -479,6 +480,19 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         List<Post> result = new ArrayList<>();
         for (Post post : posts) {
             if (!StringUtils.isEmpty(post.getText())) {
+                result.add(post);
+            }
+        }
+        return result;
+    }
+
+    private List<Post> filterVKPostsByLikes(List<Post> posts) {
+        if (posts == null) {
+            return null;
+        }
+        List<Post> result = new ArrayList<>();
+        for (Post post : posts) {
+            if (post.getLikes() >= 10) {
                 result.add(post);
             }
         }
