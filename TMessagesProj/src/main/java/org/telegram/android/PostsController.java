@@ -402,7 +402,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 VKNewsFeedResponse vkNewsFeedResponse = response.body();
                 List<Post> posts = vkNewsFeedResponseToPostListConverter.convert(vkNewsFeedResponse != null ?
                         vkNewsFeedResponse.getResponse() : null);
-//                posts = filterVKPostsByLikes(posts);
+                posts = filterVKPostsByLikes(posts);
                 if (!CollectionUtils.isEmpty(posts)
                         && (vkNewsFeedResponse != null ? vkNewsFeedResponse.getResponse() : null) != null
                         && !CollectionUtils.isEmpty(vkNewsFeedResponse.getResponse().getProfiles())) {
