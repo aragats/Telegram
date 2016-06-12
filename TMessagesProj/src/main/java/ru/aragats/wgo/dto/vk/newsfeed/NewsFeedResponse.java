@@ -12,6 +12,9 @@ public class NewsFeedResponse {
     @SerializedName("items")
     @Expose
     private List<NewsFeedItem> items = new ArrayList<NewsFeedItem>();
+    @SerializedName("profiles")
+    @Expose
+    private List<Profile> profiles = new ArrayList<Profile>();
     @SerializedName("count")
     @Expose
     private int count;
@@ -94,4 +97,12 @@ public class NewsFeedResponse {
         this.nextFrom = nextFrom;
     }
 
+
+    public List<Profile> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(List<Profile> profiles) {
+        this.profiles = profiles;
+    }
 }

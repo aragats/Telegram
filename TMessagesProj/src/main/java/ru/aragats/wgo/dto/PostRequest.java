@@ -8,6 +8,7 @@ public class PostRequest extends Request {
     private double longitude;
     private double latitude;
     private int distance;
+    private int extended;
 
     public double getLongitude() {
         return longitude;
@@ -31,6 +32,14 @@ public class PostRequest extends Request {
 
     public void setDistance(int distance) {
         this.distance = distance;
+    }
+
+    public int getExtended() {
+        return extended;
+    }
+
+    public void setExtended(int extended) {
+        this.extended = extended;
     }
 }
 

@@ -17,6 +17,8 @@ public class Venue  implements Serializable{
     // distance in meters; Transient.
     private int distance;
 
+    private transient String url;
+
     public String getId() {
         return id;
     }
@@ -71,5 +73,13 @@ public class Venue  implements Serializable{
 
     public void setIcon(Image icon) {
         this.icon = icon;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

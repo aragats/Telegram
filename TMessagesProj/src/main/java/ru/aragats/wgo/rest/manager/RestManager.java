@@ -186,6 +186,6 @@ public class RestManager {
     }
 
     private Call<VKNewsFeedResponse> findNearVKPNewsFeed(PostRequest request) {
-        return vkRestClient.getRestService().findNearNewsFeed(" ", request.getLongitude(), request.getLatitude(), request.getIdOffset(), request.getCount(), Constants.VK_API_VERSION);
+        return vkRestClient.getRestService().findNearNewsFeed(" ", request.getLongitude(), request.getLatitude(), request.getIdOffset(), request.getCount(), Constants.VK_API_VERSION, request.getExtended());
     }
 }

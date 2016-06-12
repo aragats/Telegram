@@ -11,7 +11,9 @@ package org.telegram.ui.Adapters;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -23,6 +25,7 @@ import org.telegram.android.support.widget.RecyclerView;
 
 import ru.aragats.wgo.dto.Post;
 
+import org.telegram.messenger.FileLog;
 import org.telegram.ui.Cells.EmptyCell;
 import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
@@ -149,6 +152,15 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
                 @Override
                 public void didPressUrl(String url) {
+                    if (StringUtils.isEmpty(url)) {
+                        return;
+                    }
+                    try {
+                        Intent pickIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        postsActivity.startActivityForResult(pickIntent, 500);
+                    } catch (Exception e) {
+                        FileLog.e("tmessages", e);
+                    }
 //                    if (url.startsWith("@")) {
 //                        openProfileWithUsername(url.substring(1));
 //                    } else if (url.startsWith("#")) {

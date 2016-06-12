@@ -54,6 +54,7 @@ public class NewsFeedItemToPostConverter extends AbstractConverter<NewsFeedItem,
         if (source.getLikes() != null) {
             result.setLikes(source.getLikes().getCount());
         }
+        result.setOwnerId(source.getOwnerId());
 
 
         return result;

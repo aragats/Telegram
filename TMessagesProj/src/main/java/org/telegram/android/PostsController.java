@@ -39,6 +39,7 @@ import retrofit2.Response;
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.comparator.PostDateComparator;
 import ru.aragats.wgo.comparator.PostDistanceComparator;
+import ru.aragats.wgo.converter.vk.newsfeed.ProfileToPostAssigner;
 import ru.aragats.wgo.converter.vk.newsfeed.VKNewsFeedResponseToPostListConverter;
 import ru.aragats.wgo.converter.vk.photos.VKPhotoResponseToPostListConverter;
 import ru.aragats.wgo.dto.Coordinates;
@@ -74,6 +75,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
     private boolean loadingPosts = false;
 
+    private ProfileToPostAssigner profileToPostAssigner = new ProfileToPostAssigner();
 
     public int fontSize = AndroidUtilities.dp(16);
 
@@ -391,6 +393,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         //round lat and longitude
         postRequest.setLatitude(Math.round(postRequest.getLatitude() * 10000000000.0) / 10000000000.0);
         postRequest.setLongitude(Math.round(postRequest.getLongitude() * 10000000000.0) / 10000000000.0);
+        postRequest.setExtended(1);
         final Call<VKNewsFeedResponse> call = RestManager.getInstance().findNearVKNewsFeed(postRequest, new Callback<VKNewsFeedResponse>() {
             @Override
             public void onResponse(Call<VKNewsFeedResponse> call, Response<VKNewsFeedResponse> response) {
@@ -400,6 +403,12 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 List<Post> posts = vkNewsFeedResponseToPostListConverter.convert(vkNewsFeedResponse != null ?
                         vkNewsFeedResponse.getResponse() : null);
 //                posts = filterVKPostsByLikes(posts);
+                if (!CollectionUtils.isEmpty(posts)
+                        && (vkNewsFeedResponse != null ? vkNewsFeedResponse.getResponse() : null) != null
+                        && !CollectionUtils.isEmpty(vkNewsFeedResponse.getResponse().getProfiles())) {
+                    profileToPostAssigner.assign(posts, vkNewsFeedResponse.getResponse().getProfiles());
+
+                }
 
                 PostResponse postResponse = new PostResponse();
                 postResponse.setPosts(posts);

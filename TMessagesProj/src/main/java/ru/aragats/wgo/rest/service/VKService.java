@@ -20,6 +20,6 @@ public interface VKService {
     @GET("/method/newsfeed.search")
     Call<VKNewsFeedResponse> findNearNewsFeed(@Query("q") String query, @Query("longitude") double longitude, @Query("latitude") double latitude,
                                               @Query("start_from") String startFrom, @Query("count") int count,
-                                              @Query("v") double version);
+                                              @Query("v") double version, @Query("extended") int extended);
 
 }

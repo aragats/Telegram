@@ -10,12 +10,14 @@ package org.telegram.ui.Cells;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.text.Layout;
@@ -71,9 +73,18 @@ public class PostCell extends BaseCell {
         public abstract boolean canPerformActions();
     }
 
-    private boolean imagePressed;
-    private boolean venuePressed;
-    private boolean textPressed;
+    private enum ClickedArea {
+        IMAGE,
+        AVATAR,
+        TEXT,
+        VENUE
+    }
+
+//    private boolean imagePressed;
+//    private boolean venuePressed;
+//    private boolean textPressed;
+
+    private ClickedArea clickedArea = null;
     //Paint. set fond size for them
     private static TextPaint namePaint;
     private static TextPaint addressPaint;
@@ -308,21 +319,19 @@ public class PostCell extends BaseCell {
             if (delegate == null || delegate.canPerformActions()) {
 
                 if (x >= photoImage.getImageX() && x <= photoImage.getImageX() + backgroundWidth && y >= photoImage.getImageY() && y <= photoImage.getImageY() + photoImage.getImageHeight()) {
-                    imagePressed = true;
-                    venuePressed = false;
-                    textPressed = false;
+                    clickedArea = ClickedArea.IMAGE;
                     result = true;
                     // click on part upper to image // address, name of the place and venue photo.
-                } else if (x >= 0 && x <= getMeasuredWidth() && y >= 0 && y < photoImage.getImageY()) {
-                    venuePressed = true;
-                    imagePressed = false;
-                    textPressed = false;
+                } else if (x >= avatarImage.getImageX() && x <= avatarImage.getImageX() + avatarSize && y >= avatarImage.getImageY() && y < avatarImage.getImageY() + avatarSize) {
+                    clickedArea = ClickedArea.AVATAR;
+                    result = true;
+                } else if (x >= avatarImage.getImageX() + avatarSize && x <= getMeasuredWidth() && y >= avatarImage.getImageY() && y < photoImage.getImageY()) {
+                    clickedArea = ClickedArea.VENUE;
                     result = true;
                 } else {
                     // press link in text
-                    venuePressed = false;
-                    imagePressed = false;
-                    result = handleTextDownClick(x, y);
+//                    clickedArea = ClickedArea.TEXT;
+                    handleTextDownClick(x, y);
                 }
 //                photoImage.setImageCoords(0, avatarTop + AndroidUtilities.dp(62), photoWidth, photoHeight);
 
@@ -346,15 +355,25 @@ public class PostCell extends BaseCell {
 
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             playSoundEffect(SoundEffectConstants.CLICK);
-            if (imagePressed) {
-                imagePressed = false;
-                didClickedImage();
-            } else if (venuePressed) {
-                venuePressed = false;
-                didClickedVenue();
-            } else if (textPressed) {
-                textPressed = false;
-                didClickedText();
+            if (clickedArea != null) {
+                switch (clickedArea) {
+                    case IMAGE:
+                        clickedArea = null;
+                        didClickedImage();
+                        break;
+                    case VENUE:
+                        clickedArea = null;
+                        didClickedVenue();
+                        break;
+                    case AVATAR:
+                        clickedArea = null;
+                        didClickedAvatar();
+                        break;
+                    case TEXT:
+                        clickedArea = null;
+                        didClickedText();
+                        break;
+                }
             }
             invalidate();
         } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
@@ -1087,6 +1106,15 @@ public class PostCell extends BaseCell {
         }
     }
 
+    private void didClickedAvatar() {
+        if (post.getVenue() != null) {
+            String url = post.getVenue().getUrl();
+            if (delegate != null && !StringUtils.isEmpty(url)) {
+                delegate.didPressUrl(url);
+            }
+        }
+    }
+
     private boolean didClickedText() {
         boolean result = false;
         if (pressedLink != null) {
@@ -1142,7 +1170,7 @@ public class PostCell extends BaseCell {
                         } catch (Exception e) {
                             FileLog.e("tmessages", e);
                         }
-                        textPressed = true;
+                        clickedArea = ClickedArea.TEXT;
                         result = true;
 
                     } else {

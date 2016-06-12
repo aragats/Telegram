@@ -26,6 +26,7 @@ public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post>
         }
         Post result = new Post();
         result.setId("" + source.getId());
+        result.setOwnerId(source.getOwnerId());
         result.setCreatedDate(((long) source.getDate() * 1000));
         Coordinates coordinates = new Coordinates();
         coordinates.setType("Point");
@@ -36,6 +37,7 @@ public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post>
         venue.setCoordinates(coordinates);
         venue.setName("VK");
         venue.setAddress("");
+        venue.setUrl("https://vk.com/id" + source.getOwnerId());
         result.setVenue(venue);
 
         List<Image> images = new ArrayList<>();

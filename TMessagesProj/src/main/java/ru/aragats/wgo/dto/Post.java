@@ -23,6 +23,7 @@ public class Post implements Serializable {
     private transient float distance;
     private transient boolean local;
     private transient int likes;
+    private transient int ownerId;
 
 
     public Post() {
@@ -142,5 +143,13 @@ public class Post implements Serializable {
 
     public void setLikes(int likes) {
         this.likes = likes;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
     }
 }
