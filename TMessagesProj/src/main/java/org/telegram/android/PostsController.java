@@ -20,6 +20,7 @@ import com.github.davidmoten.rtree.geometry.Geometry;
 import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.Constants;
+import org.telegram.utils.PostMode;
 import org.telegram.utils.StringUtils;
 
 import java.io.File;
@@ -253,12 +254,12 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void loadPosts(final String idOffset, final String nextFromOffset, final int offset, final int count, final boolean reload, final boolean offlineMode) {
-        if (loadingPosts || offlineMode && MediaController.getInstance().getRTree() == null) {
+    public void loadPosts(final String idOffset, final String nextFromOffset, final int offset, final int count, final boolean reload, final PostMode mode) {
+        if (loadingPosts || mode == null || (mode == PostMode.LOCAL && MediaController.getInstance().getRTree() == null)) {
             return;
         }
         //TODO rethink this.
-//        if (offlineMode && MediaController.getRTree() == null) {
+//        if (mode && MediaController.getRTree() == null) {
 //            NotificationCenter.getInstance().postNotificationName(NotificationCenter.stopRefreshingView);
 //            return;
 //        }
@@ -282,15 +283,22 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         if (!StringUtils.isEmpty(nextFromOffset)) {
             postRequest.setIdOffset(nextFromOffset);
         }
-        if (offlineMode) {
-            nextOffset = 0;
-            loadLocalPosts(postRequest, reload);
-        } else {
-//            loadPostFromServer(postRequest, reload);
-//            loadVKPhotos(postRequest, reload);
-            loadVKNewsFeed(postRequest, reload);
-        }
+        switch (mode) {
+            case LOCAL:
+                nextOffset = 0;
+                loadLocalPosts(postRequest, reload);
+                break;
+            case SERVER:
+                loadPostFromServer(postRequest, reload);
+                break;
+            case VK_NEWS_FEED:
+                loadVKNewsFeed(postRequest, reload);
 
+                break;
+            case VK_PHOTO:
+                loadVKPhotos(postRequest, reload);
+                break;
+        }
 
     }
 

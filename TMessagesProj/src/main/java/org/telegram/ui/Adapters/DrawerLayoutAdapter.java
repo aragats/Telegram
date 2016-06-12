@@ -43,7 +43,7 @@ public class DrawerLayoutAdapter extends BaseAdapter {
     //TODO-aragats
     @Override
     public int getCount() {
-        return UserConfig.isClientActivated() ? 7 : 0;
+        return UserConfig.isClientActivated() ? 10 : 0;
     }
 
     @Override
@@ -93,6 +93,10 @@ public class DrawerLayoutAdapter extends BaseAdapter {
                 actionCell.setTextAndIcon(LocaleController.getString("InviteFriends", R.string.InviteFriends), R.drawable.menu_invite);
             } else if (i == 6) {
                 actionCell.setTextAndIcon(LocaleController.getString("TelegramFaq", R.string.WGOFaq), R.drawable.menu_help);
+            } else if (i == 8) {
+                actionCell.setTextAndIcon(LocaleController.getString("VK Posts", R.string.VKPosts), R.drawable.menu_broadcast);
+            } else if (i == 9) {
+                actionCell.setTextAndIcon(LocaleController.getString("VK Photos", R.string.VKPhotos), R.drawable.menu_broadcast);
             }
         }
 
@@ -105,7 +109,7 @@ public class DrawerLayoutAdapter extends BaseAdapter {
             return 0;
         } else if (i == 1) {
             return 1;
-        } else if (i == 4) {
+        } else if (i == 4 || i == 7) {
             return 2;
         }
         return 3;

@@ -74,6 +74,7 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.ResourceLoader;
 import org.telegram.utils.Constants;
 import org.telegram.utils.Permissions;
+import org.telegram.utils.PostMode;
 import org.telegram.utils.StringUtils;
 
 import ru.aragats.wgo.ApplicationLoader;
@@ -142,7 +143,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private final static int action_bar_menu_location = itemId++;
     private final static int action_bar_menu_other = itemId++;
 
-    private boolean offlineMode;
+    private PostMode mode = PostMode.SERVER;
 
 
     //TODO-legacy. update according to new version.
@@ -231,9 +232,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     public PostsActivity(Bundle args) {
         super(args);
-        if (args != null) {
-            offlineMode = args.getBoolean("offlineMode", false);
-        }
     }
 
     @Override
@@ -246,6 +244,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
         if (searchString == null) {
             //TODO learn NotificationCenter class especiallu case when post notification. There is different situations when notify when animation or not.
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.switchToVKNewsFeedMode);
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.switchToVKPhotoMode);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.switchToOfflineMode);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.switchToOnlineMode);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.stopRefreshingView);
@@ -260,12 +260,12 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.locationPermissionGranted);
         }
 
-        if (offlineMode) {
+        if (mode == PostMode.LOCAL) {
             MediaController.loadGeoTaggedGalleryPhotos(classGuid, false);
         }
 
-        if (!offlineMode && !postsLoaded) {
-            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode);
+        if (mode != PostMode.LOCAL && !postsLoaded) {
+            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, mode);
             ContactsController.getInstance().checkInviteText();
             postsLoaded = true;
         }
@@ -310,6 +310,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
         if (searchString == null) {
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.switchToVKNewsFeedMode);
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.switchToVKPhotoMode);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.switchToOfflineMode);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.switchToOnlineMode);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.stopRefreshingView);
@@ -437,7 +439,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         parentLayout.getDrawerLayoutContainer().openDrawer(false);
                     }
                 } else if (id == list_menu_synchronize) {
-                    if (offlineMode) {
+                    if (mode == PostMode.LOCAL) {
                         showProgressView();
                         MediaController.loadGeoTaggedGalleryPhotos(0, true);
                     } else {
@@ -468,7 +470,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             public void onRefresh() {
                 // TODO temp test
 //                new RestTask().execute("param");
-                PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode);
+                PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, mode);
 
 //                RestManager.getInstance().uploadTest(new PostRequest(), new Callback<PostResponse>() {
 //                    @Override
@@ -711,7 +713,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         int nextOffset = PostsController.getInstance().getOffset();
                         String nextFrom = PostsController.getInstance().getNextFrom();
 //                        startRefreshingProgressView();
-                        PostsController.getInstance().loadPosts(offset, nextFrom, nextOffset, Constants.POST_COUNT, false, offlineMode);
+                        PostsController.getInstance().loadPosts(offset, nextFrom, nextOffset, Constants.POST_COUNT, false, mode);
                     }
                 }
 
@@ -891,10 +893,10 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         } else if (id == NotificationCenter.offlinePostsLoaded) {
 //            layoutManager.scrollToPosition(0);
 //            startRefreshingProgressView();
-            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode); // TODO why offlineMode is false /// aaa becaue different instances !!!
+            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, mode); // TODO why mode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
             boolean force = false;
-            if (!this.offlineMode) {
+            if (this.mode != PostMode.LOCAL) {
                 force = true;
                 if (!MediaController.getInstance().isRTreeloaded()) {
                     showProgressView();
@@ -905,16 +907,36 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             }
 
 
-            this.offlineMode = true;
+            this.mode = PostMode.LOCAL;
 //            refreshPosts(force);
         } else if (id == NotificationCenter.switchToOnlineMode) {
             boolean force = false;
-            if (this.offlineMode) {
+            if (this.mode != PostMode.SERVER) {
                 force = true;
                 PostsController.getInstance().cancelAllCalls();
                 PostsController.getInstance().getPosts().clear();
             }
-            this.offlineMode = false;
+            this.mode = PostMode.SERVER;
+//            layoutManager.scrollToPosition(0);
+            refreshPosts(force);
+        } else if (id == NotificationCenter.switchToVKNewsFeedMode) {
+            boolean force = false;
+            if (this.mode != PostMode.VK_NEWS_FEED) {
+                force = true;
+                PostsController.getInstance().cancelAllCalls();
+                PostsController.getInstance().getPosts().clear();
+            }
+            this.mode = PostMode.VK_NEWS_FEED;
+//            layoutManager.scrollToPosition(0);
+            refreshPosts(force);
+        } else if (id == NotificationCenter.switchToVKPhotoMode) {
+            boolean force = false;
+            if (this.mode != PostMode.VK_PHOTO) {
+                force = true;
+                PostsController.getInstance().cancelAllCalls();
+                PostsController.getInstance().getPosts().clear();
+            }
+            this.mode = PostMode.VK_PHOTO;
 //            layoutManager.scrollToPosition(0);
             refreshPosts(force);
         } else if (id == NotificationCenter.locationPermissionGranted) {
@@ -926,7 +948,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (PostsController.getInstance().getPosts().isEmpty() || force) {
 //            startRefreshingProgressView();
             showProgressView();
-            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, offlineMode);
+            PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, mode);
         }
     }
 

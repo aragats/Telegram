@@ -21,6 +21,8 @@ public class NotificationCenter {
 
     private static int totalEvents = 1;
 
+    public static final int switchToVKNewsFeedMode = totalEvents++;
+    public static final int switchToVKPhotoMode = totalEvents++;
     public static final int switchToOfflineMode = totalEvents++;
     public static final int switchToOnlineMode = totalEvents++;
     public static final int stopRefreshingView = totalEvents++;

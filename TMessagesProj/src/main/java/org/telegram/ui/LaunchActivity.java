@@ -282,6 +282,12 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                         FileLog.e("tmessages", e);
                     }
                     drawerLayoutContainer.closeDrawer(false);
+                } else if (position == 8) {
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.switchToVKNewsFeedMode);
+                    drawerLayoutContainer.closeDrawer(false);
+                } else if (position == 9) {
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.switchToVKPhotoMode);
+                    drawerLayoutContainer.closeDrawer(false);
                 }
             }
         });

@@ -168,6 +168,8 @@
     <string name="updateText">Telegram für Android wurde aktualisiert. Neu in Version 2.9:\n\n- Installiere und teile benutzerdefinierte Sticker-Pakete, wie z.B. dieses: https://telegram.me/addstickers/Animals\n- Künstler können eigene Sticker-Pakete über unseren Sticker Bot (@stickers) einstellen.\n\n- Benutze Telegram mit Android Auto (siehe android.com/auto)</string>
     <string name="updateBuild">536</string>
     <!--Posts-->
+    <string name="VKPosts">VK Beiträge (Beta)</string>
+    <string name="VKPhotos">VK Fotos (Beta)</string>
     <string name="Posts">Beiträge</string>
     <string name="MyPosts">Meine Fotos (Beta)</string>
     <string name="NoPosts">Es gibt nicht die neuesten Beiträge in Ihrer Nähe.</string>
