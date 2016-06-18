@@ -18,7 +18,7 @@ import ru.aragats.wgo.rest.mock.UserServiceMock;
 
 import java.io.File;
 
-import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.aracle.ApplicationLoader;
 
 public class UserConfig {
 

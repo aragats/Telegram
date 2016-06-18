@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.aracle.ApplicationLoader;
 import ru.aragats.wgo.comparator.PostDateComparator;
 import ru.aragats.wgo.comparator.PostDistanceComparator;
 import ru.aragats.wgo.converter.vk.newsfeed.ProfileToPostAssigner;

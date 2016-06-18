@@ -30,7 +30,7 @@ import android.widget.TextView;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class IntroActivity extends Activity {
     private ViewPager viewPager;

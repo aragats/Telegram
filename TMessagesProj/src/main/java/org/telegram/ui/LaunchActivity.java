@@ -54,8 +54,8 @@ import org.telegram.utils.Permissions;
 import java.util.ArrayList;
 import java.util.Map;
 
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 
 public class LaunchActivity extends Activity implements ActionBarLayout.ActionBarLayoutDelegate, NotificationCenter.NotificationCenterDelegate {
     private boolean finished;

@@ -17,7 +17,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Locale;
 
-import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.aracle.ApplicationLoader;
 
 public class FileLog {
     private OutputStreamWriter streamWriter = null;

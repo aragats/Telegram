@@ -20,7 +20,7 @@ import org.telegram.ui.Cells.DrawerActionCell;
 import org.telegram.ui.Cells.DrawerProfileCell;
 import org.telegram.ui.Cells.EmptyCell;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class DrawerLayoutAdapter extends BaseAdapter {
 

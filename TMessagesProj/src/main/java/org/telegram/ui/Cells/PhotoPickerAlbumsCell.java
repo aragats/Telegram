@@ -24,7 +24,7 @@ import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.FrameLayoutFixed;
 import org.telegram.ui.Components.LayoutHelper;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class PhotoPickerAlbumsCell extends FrameLayoutFixed {
 

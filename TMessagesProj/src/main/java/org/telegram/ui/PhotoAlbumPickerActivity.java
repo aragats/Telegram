@@ -44,8 +44,8 @@ import org.telegram.ui.Components.PhotoPickerBottomLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 
 public class PhotoAlbumPickerActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 

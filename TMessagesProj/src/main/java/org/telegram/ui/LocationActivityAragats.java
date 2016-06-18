@@ -73,7 +73,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.Venue;
 

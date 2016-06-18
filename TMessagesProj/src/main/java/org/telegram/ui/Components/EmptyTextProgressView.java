@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import org.telegram.android.LocaleController;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class EmptyTextProgressView extends FrameLayout {
 

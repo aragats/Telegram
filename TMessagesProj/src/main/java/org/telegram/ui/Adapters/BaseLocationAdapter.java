@@ -20,7 +20,7 @@ import org.telegram.android.volley.VolleyError;
 import org.telegram.android.volley.toolbox.JsonObjectRequest;
 import org.telegram.android.volley.toolbox.Volley;
 
-import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.aracle.ApplicationLoader;
 
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLog;

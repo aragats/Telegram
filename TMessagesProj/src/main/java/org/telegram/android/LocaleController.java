@@ -19,8 +19,8 @@ import android.text.format.DateFormat;
 import android.util.Xml;
 
 import org.telegram.android.time.FastDateFormat;
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 
 import org.telegram.messenger.FileLog;
 import org.xmlpull.v1.XmlPullParser;

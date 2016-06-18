@@ -34,7 +34,7 @@ import org.telegram.android.LocaleController;
 import org.telegram.messenger.FileLog;
 import org.telegram.ui.Components.LayoutHelper;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class BottomSheet extends Dialog {
 

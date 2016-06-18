@@ -32,7 +32,7 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.crypto.Cipher;
 
-import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.aracle.ApplicationLoader;
 
 public class Utilities {
 

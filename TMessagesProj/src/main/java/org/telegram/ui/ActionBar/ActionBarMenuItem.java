@@ -38,7 +38,7 @@ import org.telegram.ui.Components.LayoutHelper;
 
 import java.lang.reflect.Field;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class ActionBarMenuItem extends FrameLayoutFixed {
 

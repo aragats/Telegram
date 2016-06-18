@@ -37,7 +37,7 @@ import org.telegram.ui.Components.LayoutHelper;
 
 import java.util.ArrayList;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class ActionBarLayout extends FrameLayout {
 

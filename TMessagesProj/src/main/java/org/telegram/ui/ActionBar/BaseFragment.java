@@ -25,7 +25,7 @@ import org.telegram.android.location.LocationManagerHelper;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class BaseFragment {
 

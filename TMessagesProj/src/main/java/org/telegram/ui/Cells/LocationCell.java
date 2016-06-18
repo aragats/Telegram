@@ -25,7 +25,7 @@ import org.telegram.messenger.TLRPC;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class LocationCell extends FrameLayout {
 

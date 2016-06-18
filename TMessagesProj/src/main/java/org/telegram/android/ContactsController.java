@@ -13,8 +13,8 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.UserConfig;

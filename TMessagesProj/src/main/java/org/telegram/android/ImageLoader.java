@@ -25,7 +25,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 
-import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.aracle.ApplicationLoader;
 
 import org.telegram.messenger.DispatchQueue;
 import org.telegram.messenger.FileLoader;

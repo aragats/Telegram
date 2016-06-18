@@ -29,7 +29,7 @@ import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class DrawerLayoutContainer extends FrameLayout {
 

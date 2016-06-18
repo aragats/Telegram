@@ -46,7 +46,7 @@ import org.telegram.utils.StringUtils;
 
 import java.util.Locale;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 import ru.aragats.wgo.dto.Coordinates;
 import ru.aragats.wgo.dto.Image;
 import ru.aragats.wgo.dto.Post;

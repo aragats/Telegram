@@ -84,8 +84,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 
 //TODO-aragats new
 public class PostCreateActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, PhotoViewer.PhotoViewerProvider {

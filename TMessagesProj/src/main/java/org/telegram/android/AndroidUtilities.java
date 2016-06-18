@@ -48,16 +48,12 @@ import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.CrashManagerListener;
 import net.hockeyapp.android.UpdateManager;
 
-import org.telegram.messenger.BuildVars;
-import org.telegram.messenger.FileLog;
-
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
-
 import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.android.AnimationCompat.ViewProxy;
+import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.FileLog;
 import org.telegram.ui.Components.TypefaceSpan;
 import org.telegram.utils.Constants;
 
@@ -75,6 +71,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Locale;
+
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 
 public class AndroidUtilities {
 

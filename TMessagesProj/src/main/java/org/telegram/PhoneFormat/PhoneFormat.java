@@ -24,7 +24,7 @@
 
 package org.telegram.PhoneFormat;
 
-import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.aracle.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 
 import java.io.ByteArrayOutputStream;

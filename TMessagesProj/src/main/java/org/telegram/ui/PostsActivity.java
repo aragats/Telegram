@@ -77,8 +77,8 @@ import org.telegram.utils.Permissions;
 import org.telegram.utils.PostMode;
 import org.telegram.utils.StringUtils;
 
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 import ru.aragats.wgo.dto.Post;
 
 //TODO delte it or reuse.

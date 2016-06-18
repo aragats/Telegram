@@ -35,7 +35,7 @@ import org.telegram.messenger.FileLog;
 
 import java.util.ArrayList;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class EmojiView extends LinearLayout implements NotificationCenter.NotificationCenterDelegate {
 

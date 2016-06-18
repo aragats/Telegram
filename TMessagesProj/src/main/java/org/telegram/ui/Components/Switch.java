@@ -34,7 +34,7 @@ import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class Switch extends CompoundButton {
 

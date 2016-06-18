@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 // TODO-aragats
 public class PostsSearchAdapter extends BaseSearchAdapterRecycler {

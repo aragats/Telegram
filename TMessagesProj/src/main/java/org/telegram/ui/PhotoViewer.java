@@ -78,8 +78,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 import ru.aragats.wgo.dto.Post;
 
 public class PhotoViewer implements NotificationCenter.NotificationCenterDelegate, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.aragats.wgo"
+    package="ru.aragats.aracle"
     android:installLocation="auto">
 
     <supports-screens android:anyDensity="true"
@@ -41,7 +41,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:name=".ApplicationLoader"
+        android:name="ru.aragats.aracle.ApplicationLoader"
         android:allowBackup="false"
         android:hardwareAccelerated="@bool/useHardwareAcceleration"
         android:icon="@drawable/ic_launcher_blue_tel"

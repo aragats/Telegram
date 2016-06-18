@@ -32,7 +32,7 @@ import org.telegram.ui.Components.LayoutHelper;
 
 import java.io.File;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class PhotoCropActivity extends BaseFragment {
 

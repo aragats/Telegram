@@ -6,7 +6,7 @@
  * Copyright Nikolai Kudashov, 2013-2015.
  */
 
-package ru.aragats.wgo;
+package ru.aragats.aracle;
 
 import android.app.Activity;
 import android.app.Application;

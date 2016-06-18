@@ -8,7 +8,7 @@
 
 package org.telegram.android;
 
-import ru.aragats.wgo.ApplicationLoader;
+import ru.aragats.aracle.ApplicationLoader;
 
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLog;

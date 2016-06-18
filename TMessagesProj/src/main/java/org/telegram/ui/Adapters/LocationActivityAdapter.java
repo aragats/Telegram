@@ -24,7 +24,7 @@ import org.telegram.ui.Cells.SendLocationCell;
 
 import java.util.Locale;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 public class LocationActivityAdapter extends BaseLocationAdapter {
 

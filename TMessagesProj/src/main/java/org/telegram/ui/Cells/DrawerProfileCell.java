@@ -27,7 +27,7 @@ import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
 
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.R;
 
 //TODO-aragats
 public class DrawerProfileCell extends FrameLayout {

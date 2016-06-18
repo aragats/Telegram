@@ -22,7 +22,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -40,14 +39,13 @@ import org.telegram.android.Emoji;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 
-import ru.aragats.wgo.ApplicationLoader;
-import ru.aragats.wgo.R;
+import ru.aragats.aracle.ApplicationLoader;
+import ru.aragats.aracle.R;
 
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.utils.Constants;
-import org.telegram.utils.StringUtils;
 
 /**
  * TODO-aragats
