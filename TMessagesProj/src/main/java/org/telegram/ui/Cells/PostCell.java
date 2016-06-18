@@ -1112,6 +1112,9 @@ public class PostCell extends BaseCell {
             String url = post.getVenue().getUrl();
             if (delegate != null && !StringUtils.isEmpty(url)) {
                 delegate.didPressUrl(url);
+            } else {
+                //if there is not url
+                didClickedVenue();
             }
         }
     }
