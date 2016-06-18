@@ -97,3 +97,7 @@ https://api.vk.com/method/newsfeed.search?lat=52.400608&lng=13.011822&count=100
 #607d8b - color of launcher icon
 #5A5C67 - color for grey icon in Action Bar.
 http://stackoverflow.com/questions/26899820/android-5-0-how-to-change-recent-apps-title-color
+
+
+Instance Run Settings.
+http://stackoverflow.com/questions/20915266/error-type-3-error-activity-class-does-not-exist

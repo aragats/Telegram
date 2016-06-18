@@ -84,9 +84,10 @@ public class BaseFragment {
             if (parentLayout != null) {
                 actionBar = new ActionBar(parentLayout.getContext());
                 actionBar.parentFragment = this;
-//                actionBar.setBackgroundColor(0xff54759e);
-                actionBar.setBackgroundColor(0xff262A3B);
-                actionBar.setItemsBackground(R.drawable.bar_selector_black_s);
+                actionBar.setBackgroundColor(0xff54759e);
+//                actionBar.setBackgroundColor(0xff262A3B); // black_snap
+                actionBar.setItemsBackground(R.drawable.bar_selector);
+//                actionBar.setItemsBackground(R.drawable.bar_selector_black_s); // black_snap
             }
         }
     }

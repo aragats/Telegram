@@ -42,8 +42,8 @@ public class DrawerProfileCell extends FrameLayout {
 
     public DrawerProfileCell(Context context) {
         super(context);
-//        setBackgroundColor(0xff4c84b5);
-        setBackgroundColor(0xff262A3B);
+        setBackgroundColor(0xff4c84b5);
+//        setBackgroundColor(0xff262A3B); // black_snap
 
         shadowView = new ImageView(context);
         shadowView.setVisibility(INVISIBLE);
