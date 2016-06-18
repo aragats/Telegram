@@ -895,9 +895,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 //            startRefreshingProgressView();
             PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, mode); // TODO why mode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
-            boolean force = false;
             if (this.mode != PostMode.LOCAL) {
-                force = true;
                 if (!MediaController.getInstance().isRTreeloaded()) {
                     showProgressView();
                 }

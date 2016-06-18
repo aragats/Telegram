@@ -24,13 +24,13 @@ public class Constants {
 
     public static final int MAX_TEXT_LENGTH = 140;
     //https://new.vk.com/dev/photos.search Radius of search in meters (works very approximately). Available values: 10, 100, 800, 6000, 50000.
-    public static final int RADIUS = 100; // meters 8000 for VK
+    public static final int RADIUS = 800; // meters 8000 for VK
     public static final int RADIUS_4SQUARE = 1000;//
     //    public static final int RADIUS_BROWSER = 100_000;
 //    public static final int RADIUS_CHECKIN = 800;
     public static final String FOURSQUARE_BROWSER = "browse"; // return small and only in the radius
     public static final String FOURSQUARE_CHECKIN = "checkin"; // return more results a lot of user created places.
-    public static final double MAX_DISTANCE_DEGREE = 0.002; // +200 meters.
+    public static final double MAX_DISTANCE_DEGREE = 0.003; // +200 meters.
     //https://en.wikipedia.org/wiki/Decimal_degrees
 
 

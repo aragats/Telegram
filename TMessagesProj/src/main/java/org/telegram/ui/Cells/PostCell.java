@@ -449,7 +449,7 @@ public class PostCell extends BaseCell {
 //            String distance = LocaleController.formatString("AccurateTo", R.string.AccurateTo, LocaleController.formatPluralString("Meters", (int) PostsController.getInstance().getCurrentLocation().getAccuracy()));
 
             String distanceStr = "";
-            Location userLocation = LocationManagerHelper.getInstance().getLastSavedLocation();
+            Location userLocation = LocationManagerHelper.getInstance().getLocation4TimeLine();
             if (userLocation != null && post.getPostCoordinates() != null) {
                 Coordinates coordinates = post.getPostCoordinates();
                 Location location = new Location("network");
