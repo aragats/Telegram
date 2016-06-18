@@ -42,7 +42,8 @@ public class DrawerProfileCell extends FrameLayout {
 
     public DrawerProfileCell(Context context) {
         super(context);
-        setBackgroundColor(0xff4c84b5);
+//        setBackgroundColor(0xff4c84b5);
+        setBackgroundColor(0xff262A3B);
 
         shadowView = new ImageView(context);
         shadowView.setVisibility(INVISIBLE);
@@ -52,7 +53,7 @@ public class DrawerProfileCell extends FrameLayout {
 
         avatarImageView = new BackupImageView(context);
         avatarImageView.getImageReceiver().setRoundRadius(AndroidUtilities.dp(32));
-        addView(avatarImageView, LayoutHelper.createFrame(44, 44, Gravity.LEFT | Gravity.BOTTOM, 16, 0, 0, 67));
+        addView(avatarImageView, LayoutHelper.createFrame(64, 64, Gravity.LEFT | Gravity.BOTTOM, 16, 0, 0, 67));
 //        addView(avatarImageView, LayoutHelper.createFrame(64, 64, Gravity.LEFT | Gravity.BOTTOM, 16, 0, 0, 67));
 
         nameTextView = new TextView(context);
@@ -101,7 +102,8 @@ public class DrawerProfileCell extends FrameLayout {
         AvatarDrawable avatarDrawable = new AvatarDrawable();
         avatarDrawable.setColor(0xff5c98cd);
 //        avatarImageView.setImage(photo, "50_50", avatarDrawable);
-        avatarImageView.setImageResource(R.drawable.pin);
+//        avatarImageView.setImageResource(R.drawable.pin);
+        avatarImageView.setImageResource(R.drawable.ic_launcher_blue_tel);
     }
 
 
@@ -120,6 +122,7 @@ public class DrawerProfileCell extends FrameLayout {
         AvatarDrawable avatarDrawable = new AvatarDrawable();
         avatarDrawable.setColor(0xff5c98cd);
 //        avatarImageView.setImage(photo, "50_50", avatarDrawable);
-        avatarImageView.setImageResource(R.drawable.pin);
+//        avatarImageView.setImageResource(R.drawable.pin);
+        avatarImageView.setImageResource(R.drawable.ic_launcher_blue_tel);
     }
 }

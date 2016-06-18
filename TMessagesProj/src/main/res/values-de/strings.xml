@@ -2,9 +2,9 @@
 
 <!--Translation by iLLogical2007, DanielGroeger and everyone from https://github.com/DrKLO/Telegram/pull/129 whom I didn't notice --><!--Veranstaltungen rund um Ludwigsfelde-->
 <resources>
-    <string name="AppName">WGO</string>
-    <string name="AppFullName">Was ist los?</string>
-    <string name="AppHintText">Wirklich! Was ist los in Ihrer Nähe?</string> <!--Veranstaltungen rund um Ludwigsfelde-->
+    <string name="AppName">Aracle</string>
+    <string name="AppFullName">Was ist los in der Nähe?</string>
+    <string name="AppHintText">Teilen und Erkunden!</string> <!--Veranstaltungen rund um Ludwigsfelde-->
     <string name="LanguageName">Deutsch</string>
     <string name="LanguageNameInEnglish">German</string>
     <string name="LanguageCode">de</string>
@@ -40,8 +40,8 @@
     <!--stickers view-->
     <string name="NoStickers">Noch keine Sticker</string>
     <!--settings view-->
-    <string name="WGOFaq">Fragen und Antworten</string>
-    <string name="WGOFaqUrl">https://www.google.com</string>
+    <string name="AppFaq">Fragen und Antworten</string>
+    <string name="AppFaqUrl">https://www.google.com</string>
     <!--map view-->
     <string name="Map">Karte</string>
     <string name="Satellite">Satellit</string>

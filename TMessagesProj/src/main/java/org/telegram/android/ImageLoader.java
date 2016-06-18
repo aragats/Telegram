@@ -980,7 +980,7 @@ public class ImageLoader {
 
         try {
             if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-                telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.WGO);
+                telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.APP_FOLDER);
                 telegramPath.mkdirs();
 
                 boolean canRename = false;
@@ -1004,7 +1004,7 @@ public class ImageLoader {
                 if (canRename) {
                     if (telegramPath.isDirectory()) {
                         try {
-                            File imagePath = new File(telegramPath, Constants.WGO_IMAGE);
+                            File imagePath = new File(telegramPath, Constants.APP_IMAGE_FOLDER);
                             imagePath.mkdir();
                             if (imagePath.isDirectory()) {
                                 mediaDirs.put(FileLoader.MEDIA_DIR_IMAGE, imagePath);
@@ -1015,7 +1015,7 @@ public class ImageLoader {
                         }
 
                         try {
-                            File videoPath = new File(telegramPath, Constants.WGO_VIDEO);
+                            File videoPath = new File(telegramPath, Constants.APP_VIDEO_FOLDER);
                             videoPath.mkdir();
                             if (videoPath.isDirectory()) {
                                 mediaDirs.put(FileLoader.MEDIA_DIR_VIDEO, videoPath);
@@ -1026,7 +1026,7 @@ public class ImageLoader {
                         }
 
                         try {
-                            File audioPath = new File(telegramPath, Constants.WGO_AUDIO);
+                            File audioPath = new File(telegramPath, Constants.APP_AUDIO_FOLDER);
                             audioPath.mkdir();
                             if (audioPath.isDirectory()) {
                                 new File(audioPath, ".nomedia").createNewFile();
@@ -1038,7 +1038,7 @@ public class ImageLoader {
                         }
 
                         try {
-                            File documentPath = new File(telegramPath, Constants.WGO_DOCUMENT);
+                            File documentPath = new File(telegramPath, Constants.APP_DOCUMENT_FOLDER);
                             documentPath.mkdir();
                             if (documentPath.isDirectory()) {
                                 new File(documentPath, ".nomedia").createNewFile();

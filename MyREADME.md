@@ -92,3 +92,8 @@ https://infinum.co/the-capsized-eight/articles/top-5-android-libraries-every-and
 VK URL
 https://api.vk.com/method/photos.search?lat=52.400608&long=13.011822&count=100&radius=5000&v=5.44
 https://api.vk.com/method/newsfeed.search?lat=52.400608&lng=13.011822&count=100
+
+#0088CC - color of telegram text and color of my icon. 
+#607d8b - color of launcher icon
+#5A5C67 - color for grey icon in Action Bar.
+http://stackoverflow.com/questions/26899820/android-5-0-how-to-change-recent-apps-title-color

@@ -422,7 +422,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             actionBar.setBackButtonDrawable(new MenuDrawable());
         }
 //            actionBar.setTitle(LocaleController.getString("AppName", R.string.AppName));
-        actionBar.setTitle(LocaleController.getString("AppFullName", R.string.AppFullName));
+        actionBar.setTitle(LocaleController.getString("AppName", R.string.AppName));
         //TODO in LaunchActivity if setAllowOverlayText is TRUE you can change the text.
 //        actionBar.setTitleOverlayText("Verbinde...");
         actionBar.setAllowOverlayTitle(true);

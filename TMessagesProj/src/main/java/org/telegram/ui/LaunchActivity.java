@@ -276,7 +276,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
                 } else if (position == 6) {
                     try {
-                        Intent pickIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(LocaleController.getString("TelegramFaqUrl", R.string.WGOFaqUrl)));
+                        Intent pickIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(LocaleController.getString("AppFaqUrl", R.string.AppFaqUrl)));
                         startActivityForResult(pickIntent, 500);
                     } catch (Exception e) {
                         FileLog.e("tmessages", e);

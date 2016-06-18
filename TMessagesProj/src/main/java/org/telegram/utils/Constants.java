@@ -6,14 +6,15 @@ import java.util.Locale;
 /**
  * Created by aragats on 15/05/15.
  */
+//#607d8b - color of launcher icon
 public class Constants {
-    public static final String WGO = "WGO";
-    public static final String WGO_IMAGE = "WGO Images";
-    public static final String WGO_VIDEO = "WGO Videos";
-    public static final String WGO_AUDIO = "WGO Audios";
-    public static final String WGO_DOCUMENT = "WGO Documents";
-    public static final String WGOFaqUrl = "WGOFaqUrl";
-    public static final String WGO_FAQ = "WGOFAQ";
+    public static final String APP_FOLDER = "Aracle";
+    public static final String APP_IMAGE_FOLDER = APP_FOLDER + " Images";
+    public static final String APP_VIDEO_FOLDER = APP_FOLDER + " Videos";
+    public static final String APP_AUDIO_FOLDER = APP_FOLDER + " Audios";
+    public static final String APP_DOCUMENT_FOLDER = APP_FOLDER + " Documents";
+    public static final String AppFaqUrl = "AppFaqUrl";
+    public static final String App_FAQ = "APP_FAQ";
 
 
     public static final String PREF_NEW_POST_TEXT = "NEW_POST_TEXT";

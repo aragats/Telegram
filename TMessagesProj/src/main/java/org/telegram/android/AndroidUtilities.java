@@ -49,18 +49,15 @@ import net.hockeyapp.android.CrashManagerListener;
 import net.hockeyapp.android.UpdateManager;
 
 import org.telegram.messenger.BuildVars;
-import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 
 import ru.aragats.wgo.ApplicationLoader;
 import ru.aragats.wgo.R;
 
-import org.telegram.messenger.UserConfig;
 import org.telegram.android.AnimationCompat.AnimatorListenerAdapterProxy;
 import org.telegram.android.AnimationCompat.AnimatorSetProxy;
 import org.telegram.android.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.android.AnimationCompat.ViewProxy;
-import org.telegram.ui.Components.ForegroundDetector;
 import org.telegram.ui.Components.TypefaceSpan;
 import org.telegram.utils.Constants;
 
@@ -709,7 +706,7 @@ public class AndroidUtilities {
     private static File getAlbumDir() {
         File storageDir = null;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), Constants.WGO);
+            storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), Constants.APP_FOLDER);
             if (!storageDir.mkdirs()) {
                 if (!storageDir.exists()){
                     FileLog.d("tmessages", "failed to create directory");

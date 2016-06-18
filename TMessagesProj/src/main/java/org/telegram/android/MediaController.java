@@ -733,10 +733,10 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 
     public void checkSaveToGalleryFiles() {
         try {
-            File telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.WGO);
-            File imagePath = new File(telegramPath, Constants.WGO_IMAGE);
+            File telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.APP_FOLDER);
+            File imagePath = new File(telegramPath, Constants.APP_IMAGE_FOLDER);
             imagePath.mkdir();
-            File videoPath = new File(telegramPath, Constants.WGO_VIDEO);
+            File videoPath = new File(telegramPath, Constants.APP_VIDEO_FOLDER);
             videoPath.mkdir();
 
             if (saveToGallery) {
@@ -1114,9 +1114,9 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
         FileOutputStream out = null;
         String originalImageUrl = image.getUrl();
         try {
-            File telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.WGO);
+            File telegramPath = new File(Environment.getExternalStorageDirectory(), Constants.APP_FOLDER);
             telegramPath.mkdirs();
-            File imagePath = new File(telegramPath, Constants.WGO_IMAGE);
+            File imagePath = new File(telegramPath, Constants.APP_IMAGE_FOLDER);
             imagePath.mkdirs();
 
             File resizedImage = new File(imagePath, UUID.randomUUID().toString() + ".jpg");

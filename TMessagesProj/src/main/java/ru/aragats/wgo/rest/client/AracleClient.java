@@ -8,12 +8,12 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.aragats.wgo.dto.PostResponse;
-import ru.aragats.wgo.rest.service.WGOService;
+import ru.aragats.wgo.rest.service.AracleService;
 
 /**
  * Created by aragats on 05/12/15.
  */
-public class WGOClient {
+public class AracleClient {
 
     public String method() {
 
@@ -23,7 +23,7 @@ public class WGOClient {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
-            WGOService service = retrofit.create(WGOService.class);
+            AracleService service = retrofit.create(AracleService.class);
 
             Call<PostResponse> call = service.all();
             Response<PostResponse> reposResponse = null;
@@ -47,7 +47,7 @@ public class WGOClient {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        WGOService service = retrofit.create(WGOService.class);
+        AracleService service = retrofit.create(AracleService.class);
 
         Call<PostResponse> call = service.all();
 

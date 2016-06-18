@@ -2,7 +2,7 @@ package ru.aragats.wgo.rest.task;
 
 import android.os.AsyncTask;
 
-import ru.aragats.wgo.rest.client.WGOClient;
+import ru.aragats.wgo.rest.client.AracleClient;
 
 /**
  * Created by aragats on 05/12/15.
@@ -13,8 +13,8 @@ public class RestTask extends AsyncTask<String, Void, String> {
 
     protected String doInBackground(String... urls) {
         try {
-            WGOClient wgoClient = new WGOClient();
-            return wgoClient.method();
+            AracleClient aracleClient = new AracleClient();
+            return aracleClient.method();
         } catch (Exception e) {
             this.exception = e;
             return null;

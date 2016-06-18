@@ -3,9 +3,9 @@
 
 
 <resources>
-    <string name="AppName">WGO</string>
-    <string name="AppFullName">What\'s going on?</string>
-    <string name="AppHintText">Really! What\'s going on around you?</string>
+    <string name="AppName">Aracle</string>
+    <string name="AppFullName">What\'s going on around you?</string>
+    <string name="AppHintText">Share and Explore!</string>
     <string name="LanguageName">English</string>
     <string name="LanguageNameInEnglish">English</string>
     <string name="LanguageCode">en</string>
@@ -41,8 +41,8 @@
     <!--stickers view-->
     <string name="NoStickers">No stickers yet</string>
     <!--settings view-->
-    <string name="WGOFaq">FAQ</string>
-    <string name="WGOFaqUrl">https://www.google.com</string>
+    <string name="AppFaq">FAQ</string>
+    <string name="AppFaqUrl">https://www.google.com</string>
     <!--map view-->
     <string name="Map">Map</string>
     <string name="Satellite">Satellite</string>
