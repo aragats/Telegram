@@ -186,6 +186,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             @Override
             public void onResponse(Call<List<Image>> call, Response<List<Image>> response) {
                 MediaController.getInstance().deleteFile(post.getImage().getUrl());
+                if (response.body() == null) {
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.savePostError);
+                    return;
+                }
                 post.setImages(response.body()); // TODO check whether images are not empty
                 savePost(post);
             }
@@ -203,6 +207,11 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         RestManager.getInstance().savePost(post, new Callback<KeyValue>() {
             @Override
             public void onResponse(Call<KeyValue> call, Response<KeyValue> response) {
+                KeyValue keyValue = response.body();
+                if (keyValue == null || StringUtils.isEmpty(keyValue.getKey())) {
+                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.savePostError);
+                    return;
+                }
                 post.setId(response.body().getKey());
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.newPostSaved);
             }

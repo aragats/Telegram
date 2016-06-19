@@ -93,7 +93,8 @@ public class AndroidUtilities {
 
     static {
         density = ApplicationLoader.applicationContext.getResources().getDisplayMetrics().density;
-        leftBaseline = isTablet() ? 80 : 72;
+//        leftBaseline = isTablet() ? 80 : 72;
+        leftBaseline = isTablet() ? 62 : 55;
         checkDisplaySize();
     }
 
