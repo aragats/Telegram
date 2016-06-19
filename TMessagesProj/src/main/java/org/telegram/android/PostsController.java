@@ -336,6 +336,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         //TODO duplicate in PostCell. But not for case when load data from server.
         for (Entry<Post, Geometry> entry : entries) {
             Post post = entry.value();
+            post.setLocal(true); // local post
             if (userLocation != null && post.getPostCoordinates() != null) {
                 Coordinates coordinates = post.getPostCoordinates();
                 Location location = new Location("network");

@@ -1221,11 +1221,12 @@ public class PostCell extends BaseCell {
             return size;
         }
         //        int size = (int) (800 / AndroidUtilities.density);
+//        int count = (int) (post.getPreviewImage().getSize() / Constants.IMAGE_1_MB);
+//        size = size / count;
         if (post.getPreviewImage().getSize() > 8 * Constants.IMAGE_1_MB) {
             size = size / 3; // TODO it reduces the size and we have less sized image to display in UI. !!!
         } else if (post.getPreviewImage().getSize() > Constants.IMAGE_1_MB) {
-            size = size / 2; // TODO it reduces the size and we have less sized image to display in UI. !!!
-
+            size = (int) (size / 2.5); // TODO it reduces the size and we have less sized image to display in UI. !!!
         }
         return size;
     }
