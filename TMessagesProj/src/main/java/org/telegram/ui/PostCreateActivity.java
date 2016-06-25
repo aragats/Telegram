@@ -313,9 +313,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     }
                     finishFragment();
                 } else if (id == done_button) {
-                    Activity activity = getParentActivity();
-                    if (!Permissions.storagePermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        activity.requestPermissions(Permissions.STORAGE_PERMISSION_GROUP, Permissions.STORAGE_REQUEST);
+                    if (!Permissions.checkStoragePermission(getParentActivity())) {
                         return;
                     }
                     Post post = buildPost();
@@ -1466,10 +1464,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     private void openLocationChooser() {
-        Activity activity = getParentActivity();
-        //TODO check both permissions
-        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+        if (!Permissions.checkLocationPermission(getParentActivity())) {
             return;
         }
         if (!isGoogleMapsInstalled()) {
@@ -1768,9 +1763,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     private void openPhotoPicker() {
-        Activity activity = getParentActivity();
-        if (!Permissions.storagePermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(Permissions.STORAGE_PERMISSION_GROUP, Permissions.STORAGE_REQUEST);
+        if (!Permissions.checkStoragePermission(getParentActivity())) {
             return;
         }
         Permissions.storagePermitted = true;
@@ -1815,9 +1808,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     private boolean attachPhotoHandle() {
-        Activity activity = getParentActivity();
-        if (!Permissions.cameraPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(Permissions.CAMERA_PERMISSION_GROUP, Permissions.CAMERA_REQUEST);
+        if (!Permissions.checkCameraPermission(getParentActivity())) {
             return false;
         }
         Permissions.cameraPermitted = true;

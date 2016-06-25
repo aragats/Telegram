@@ -92,6 +92,6 @@ public class Constants {
 
 
     // TODO cancelled or cancelled ??? Check it.
-    public static final String CANCELLED_HTTP_EXCEPTION_MSG = "Canceled";
+    public static final String CANCELED_HTTP_EXCEPTION_MSG = "Canceled";
     public static final String SOCKET_CLOSED_HTTP_EXCEPTION_MSG = "Socket closed";
 }

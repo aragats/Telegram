@@ -172,9 +172,13 @@
     <string name="VKPhotos">VK Fotos (Beta)</string>
     <string name="Posts">Beiträge</string>
     <string name="MyPosts">Meine Fotos (Beta)</string>
-    <string name="NoPosts">Es gibt nicht die neuesten Beiträge in Ihrer Nähe.</string>
+    <!--TODO check gramma-->
+    <string name="NoPosts">Es gibt keine neuesten Beiträge in Ihrer Nähe.</string>
     <string name="NothingHappens">Nichts ist hier los.</string>
+    <!--TODO check gramma-->
     <string name="EnableGPS">Bitte aktivieren Sie GPS auf Ihrem Handy.</string>
+    <!--TODO check gramma-->
+    <string name="LocationAccess">Aracle braucht auf den Standort ihres Geräts zuzugreifen.</string>
     <string name="Synchronize">Synchronisieren</string>
     <string name="TryAgain">Versuch es noch einmal</string>
     <string name="LoadDataFailed">Daten können nicht geladen. Bitte überprüfen Sie Ihre Netzwerkverbindung.</string>

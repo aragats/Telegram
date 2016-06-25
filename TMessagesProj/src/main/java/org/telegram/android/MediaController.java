@@ -769,9 +769,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     //TODO why it is static
     //TODO what is it guid. I need guid in postNotification. I should pass this parameter in args to say to which activiy I send the notification, because many activities could subscribe to the same notification, but not all of them must receive the response
     public static void loadGeoTaggedGalleryPhotos(final int guid, final boolean forceReSync) {
-        Activity activity = ApplicationLoader.parentActivity;
-        if (!Permissions.storagePermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(Permissions.STORAGE_PERMISSION_GROUP, Permissions.STORAGE_REQUEST);
+        if(!Permissions.checkStoragePermission(ApplicationLoader.parentActivity)){
             return;
         }
         if (!forceReSync && (getInstance().rTree != null || getInstance().isRTreeloaded())) {

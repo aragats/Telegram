@@ -127,10 +127,7 @@ public class LocationManagerHelper {
     //TODO-aragats method to get location
     // TODO It does not work all time. It return only the last location, but not search current location ((( .
     public Location getLastLocation() {
-        Activity activity = ApplicationLoader.parentActivity;
-        //TODO check both permissions
-        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+        if(!Permissions.checkLocationPermission(ApplicationLoader.parentActivity)){
             return null;
         }
         LocationManager lm = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);
@@ -154,9 +151,7 @@ public class LocationManagerHelper {
     }
 
     public boolean isLocationServiceEnabled() {
-        Activity activity = ApplicationLoader.parentActivity;
-        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+        if(!Permissions.checkLocationPermission(ApplicationLoader.parentActivity)){
             return false;
         }
         LocationManager lm = (LocationManager) ApplicationLoader.applicationContext.getSystemService(Context.LOCATION_SERVICE);

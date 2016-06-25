@@ -613,7 +613,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 //            help = help.replace("\n", " ");
 //        }
 //        textView.setText(LocaleController.getString("NothingHappens", R.string.NothingHappens));
-        textViewForEmptyView.setText(LocaleController.getString("LoadDataFailed", R.string.LoadDataFailed));
+//        textViewForEmptyView.setText(LocaleController.getString("LoadDataFailed", R.string.LoadDataFailed));
+        textViewForEmptyView.setText("");
         textViewForEmptyView.setTextColor(0xff959595);
         textViewForEmptyView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         textViewForEmptyView.setGravity(Gravity.CENTER);
@@ -852,6 +853,8 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
                 showDialog(builder.create());
             }
+            notifyDateSetChanged();
+            updateViewLayers(false, id);
         } else if (id == NotificationCenter.postsRequestFinished) {
             boolean reloaded = false;
             boolean withError = false;
@@ -865,7 +868,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 layoutManager.scrollToPosition(0);
             }
             notifyDateSetChanged();
-            updateViewLayers(withError);
+            updateViewLayers(withError, id);
             stopRefreshingProgressView();
             if (withError) {
                 Toast.makeText(getParentActivity(), "Load posts error", Toast.LENGTH_SHORT).show(); // TODO localize
@@ -1111,10 +1114,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
     //http://stackoverflow.com/questions/5375654/how-to-implement-google-maps-search-by-address-in-android  search Google Maps
     private void openLocationChooser() {
-        Activity activity = getParentActivity();
-        //TODO check both permissions
-        if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+        if (!Permissions.checkLocationPermission(getParentActivity())) {
             return;
         }
         if (!isGoogleMapsInstalled()) {
@@ -1134,7 +1134,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     }
 
 
-    private void updateViewLayers(boolean withError) {
+    private void updateViewLayers(boolean withError, int notificationId) {
         if (postListView != null) {
             try {
                 if (PostsController.getInstance().isLoadingPosts() && PostsController.getInstance().getPosts().isEmpty()) {
@@ -1151,15 +1151,23 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                         searchEmptyView.setVisibility(View.INVISIBLE);
                         postListView.setEmptyView(emptyView);
                     }
-                    if (PostsController.getInstance().getPosts().isEmpty()) {
-                        // if with or without errors.
-                        if (withError) {
-                            textViewForEmptyView.setText(LocaleController.getString("LoadDataFailed", R.string.LoadDataFailed));
+                    if (notificationId == NotificationCenter.undefinedLocation || notificationId == NotificationCenter.locationServiceDisabled) {
+                        if (Permissions.locationPermitted) {
+                            textViewForEmptyView.setText(LocaleController.getString("EnableGPS", R.string.EnableGPS));
                         } else {
-                            textViewForEmptyView.setText(LocaleController.getString("NoPosts", R.string.NoPosts));
+                            textViewForEmptyView.setText(LocaleController.getString("LocationAccess", R.string.LocationAccess));
+                        }
+                    } else {
+                        if (PostsController.getInstance().getPosts().isEmpty()) {
+                            // if with or without errors.
+                            if (withError) {
+                                textViewForEmptyView.setText(LocaleController.getString("LoadDataFailed", R.string.LoadDataFailed));
+                            } else {
+                                textViewForEmptyView.setText(LocaleController.getString("NoPosts", R.string.NoPosts));
+
+                            }
 
                         }
-
                     }
                 }
             } catch (Exception e) {

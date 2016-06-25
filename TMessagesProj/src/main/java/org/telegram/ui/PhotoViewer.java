@@ -651,8 +651,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     }
                     closePhoto(true, false);
                 } else if (id == gallery_menu_save) {
-                    if (!Permissions.storagePermitted && parentActivity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && parentActivity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        parentActivity.requestPermissions(Permissions.STORAGE_PERMISSION_GROUP, Permissions.STORAGE_REQUEST);
+                    if(!Permissions.checkStoragePermission(parentActivity)){
                         return;
                     }
                     Permissions.storagePermitted = true;

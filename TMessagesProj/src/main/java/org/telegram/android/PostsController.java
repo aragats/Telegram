@@ -380,10 +380,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //                java.net.SocketTimeoutException: failed to connect to /192.168.0.101 (port 8080) after 10000ms
                 removeCall(call);
                 loadingPosts = false; // TODO false or true ??? if continue then true otherwise false. False if finish. true if goes to VK
-                boolean withError = true; // failed to connect to /192.168.0.101 (port 8080) after 10000ms
-                if (t != null && !StringUtils.isEmpty(t.getMessage()) && t.getMessage().equalsIgnoreCase(Constants.CANCELLED_HTTP_EXCEPTION_MSG)) {
-                    withError = false; // because we cancelled it manually.
-                }
+                boolean withError = !isCallCanceled(t); // because we cancelled it manually.
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, reload, withError);
 
 //                loadVKPhotos(postRequest, reload);
@@ -444,10 +441,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //                call.request().url() GEt URL of request.
                 removeCall(call);
                 loadingPosts = false;
-                boolean withError = true;
-                if (t != null && !StringUtils.isEmpty(t.getMessage()) && t.getMessage().equalsIgnoreCase(Constants.CANCELLED_HTTP_EXCEPTION_MSG)) {
-                    withError = false;
-                }
+                boolean withError = !isCallCanceled(t); // because we cancelled it manually.
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, reload, withError);
             }
         });
@@ -486,10 +480,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
             public void onFailure(Call<VKPhotoResponse> call, Throwable t) {
                 removeCall(call);
                 loadingPosts = false;
-                boolean withError = true;
-                if (t != null && !StringUtils.isEmpty(t.getMessage()) && t.getMessage().equalsIgnoreCase(Constants.CANCELLED_HTTP_EXCEPTION_MSG)) {
-                    withError = false;
-                }
+                boolean withError = !isCallCanceled(t); // because we cancelled it manually.
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, reload, withError);
             }
         });
@@ -688,5 +679,9 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         return post;
 
 
+    }
+
+    private boolean isCallCanceled(Throwable t) {
+        return t != null && !StringUtils.isEmpty(t.getMessage()) && t.getMessage().equalsIgnoreCase(Constants.CANCELED_HTTP_EXCEPTION_MSG);
     }
 }

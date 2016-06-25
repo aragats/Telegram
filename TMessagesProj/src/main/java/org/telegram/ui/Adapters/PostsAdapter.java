@@ -8,13 +8,10 @@
 
 package org.telegram.ui.Adapters;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,18 +19,17 @@ import android.view.ViewGroup;
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.PostsController;
 import org.telegram.android.support.widget.RecyclerView;
-
-import ru.aragats.wgo.dto.Post;
-
 import org.telegram.messenger.FileLog;
 import org.telegram.ui.Cells.EmptyCell;
-import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.Cells.LoadingCell;
+import org.telegram.ui.Cells.PostCell;
 import org.telegram.ui.LocationActivityAragats;
 import org.telegram.ui.PhotoViewer;
 import org.telegram.ui.PostsActivity;
 import org.telegram.utils.Permissions;
 import org.telegram.utils.StringUtils;
+
+import ru.aragats.wgo.dto.Post;
 
 // TODO-aragats
 public class PostsAdapter extends RecyclerView.Adapter {
@@ -134,13 +130,7 @@ public class PostsAdapter extends RecyclerView.Adapter {
 
                 @Override
                 public void didClickedVenue(PostCell cell) {
-                    if (postsActivity == null) {
-                        return;
-                    }
-                    Activity activity = postsActivity.getParentActivity();
-                    //TODO check both permissions
-                    if (!Permissions.locationPermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        activity.requestPermissions(Permissions.LOCATION_PERMISSION_GROUP, Permissions.LOCATION_REQUEST_CODE);
+                    if (!Permissions.checkLocationPermission(postsActivity.getParentActivity())) {
                         return;
                     }
                     Post cellPost = cell.getPost();
