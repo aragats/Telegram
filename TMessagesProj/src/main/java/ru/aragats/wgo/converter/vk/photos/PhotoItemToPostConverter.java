@@ -1,5 +1,6 @@
 package ru.aragats.wgo.converter.vk.photos;
 
+import org.telegram.utils.Constants;
 import org.telegram.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class PhotoItemToPostConverter extends AbstractConverter<PhotoItem, Post>
         result.setOwnerId(source.getOwnerId());
         result.setCreatedDate(((long) source.getDate() * 1000));
         Coordinates coordinates = new Coordinates();
-        coordinates.setType("Point");
+        coordinates.setType(Constants.POINT);
         coordinates.setCoordinates(Arrays.asList(source.getLong(), source.getLat()));
         result.setCoordinates(coordinates);
         result.setText(source.getText());

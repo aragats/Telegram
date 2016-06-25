@@ -89,4 +89,9 @@ public class Constants {
 
     public static final String SIMPLE_DATE_FORMAT_PATTERN = "yyyy:MM:dd hh:mm:ss";
     public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(SIMPLE_DATE_FORMAT_PATTERN, Locale.getDefault());
+
+
+    // TODO cancelled or cancelled ??? Check it.
+    public static final String CANCELLED_HTTP_EXCEPTION_MSG = "Canceled";
+    public static final String SOCKET_CLOSED_HTTP_EXCEPTION_MSG = "Socket closed";
 }

@@ -8,6 +8,7 @@
 
 package org.telegram.android;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -15,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -43,6 +45,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.UserConfig;
 import org.telegram.utils.CollectionUtils;
 import org.telegram.utils.Constants;
+import org.telegram.utils.Permissions;
 import org.telegram.utils.StringUtils;
 
 import java.io.File;
@@ -766,6 +769,11 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
     //TODO why it is static
     //TODO what is it guid. I need guid in postNotification. I should pass this parameter in args to say to which activiy I send the notification, because many activities could subscribe to the same notification, but not all of them must receive the response
     public static void loadGeoTaggedGalleryPhotos(final int guid, final boolean forceReSync) {
+        Activity activity = ApplicationLoader.parentActivity;
+        if (!Permissions.storagePermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(Permissions.STORAGE_PERMISSION_GROUP, Permissions.STORAGE_REQUEST);
+            return;
+        }
         if (!forceReSync && (getInstance().rTree != null || getInstance().isRTreeloaded())) {
             AndroidUtilities.runOnUIThread(new Runnable() {
                 @Override
@@ -847,7 +855,7 @@ public class MediaController implements NotificationCenter.NotificationCenterDel
 //                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
 //                        } else {
 ////            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);  //TODO hide progress view does not work !!!
-//                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished);
+//                            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished);
 //                        }
 //
 //                    }

@@ -304,7 +304,6 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 break;
             case VK_NEWS_FEED:
                 loadVKNewsFeed(postRequest, reload);
-
                 break;
             case VK_PHOTO:
                 loadVKPhotos(postRequest, reload);
@@ -378,15 +377,16 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 
             @Override
             public void onFailure(Call<PostResponse> call, Throwable t) {
+//                java.net.SocketTimeoutException: failed to connect to /192.168.0.101 (port 8080) after 10000ms
                 removeCall(call);
-//                loadingPosts = false; // TODO false or true ??? if continue then true otherwise false. False if finish. true if goes to VK
-//                boolean withError = true;
-//                if (t != null && t.getMessage().equals("Cancelled")) {
-//                    withError = false;
-//                }
-//                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished, withError);
+                loadingPosts = false; // TODO false or true ??? if continue then true otherwise false. False if finish. true if goes to VK
+                boolean withError = true; // failed to connect to /192.168.0.101 (port 8080) after 10000ms
+                if (t != null && !StringUtils.isEmpty(t.getMessage()) && t.getMessage().equalsIgnoreCase(Constants.CANCELLED_HTTP_EXCEPTION_MSG)) {
+                    withError = false; // because we cancelled it manually.
+                }
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, reload, withError);
 
-                loadVKPhotos(postRequest, reload);
+//                loadVKPhotos(postRequest, reload);
             }
 
         });
@@ -445,10 +445,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 removeCall(call);
                 loadingPosts = false;
                 boolean withError = true;
-                if (t != null && t.getMessage().equals("Canceled")) {
+                if (t != null && !StringUtils.isEmpty(t.getMessage()) && t.getMessage().equalsIgnoreCase(Constants.CANCELLED_HTTP_EXCEPTION_MSG)) {
                     withError = false;
                 }
-                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished, withError);
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, reload, withError);
             }
         });
         addCall(call);
@@ -487,10 +487,10 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 removeCall(call);
                 loadingPosts = false;
                 boolean withError = true;
-                if (t != null && t.getMessage().equals("Canceled")) {
+                if (t != null && !StringUtils.isEmpty(t.getMessage()) && t.getMessage().equalsIgnoreCase(Constants.CANCELLED_HTTP_EXCEPTION_MSG)) {
                     withError = false;
                 }
-                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished, withError);
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, reload, withError);
             }
         });
         addCall(call);
@@ -572,12 +572,14 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
 //        }
 
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
-        if (!postResponse.getPosts().isEmpty() || reload) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload, reload);
-        } else {
-//            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);  //TODO hide progress view does not work !!!
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postRequestFinished);
-        }
+        NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, reload, false);
+
+//        if (!postResponse.getPosts().isEmpty() || reload) {
+//            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload, reload);
+//        } else {
+////            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);  //TODO hide progress view does not work !!!
+//            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished);
+//        }
 
 
     }
@@ -650,7 +652,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         post.setLocal(local);
         post.setId(photo);
         Coordinates coordinates = new Coordinates();
-        coordinates.setType("Point");
+        coordinates.setType(Constants.POINT);
         coordinates.setCoordinates(Arrays.asList(longitude, latitude));
         post.setCoordinates(coordinates);
         post.setText("");

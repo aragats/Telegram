@@ -15,9 +15,11 @@ import android.view.ViewGroup;
 import org.telegram.android.LocaleController;
 import org.telegram.android.NotificationCenter;
 import org.telegram.android.support.widget.RecyclerView;
+
 import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.PostResponse;
 import ru.aragats.wgo.rest.mock.PostServiceMock;
+
 import org.telegram.ui.Cells.GreySectionCell;
 import org.telegram.ui.Cells.HashtagSearchCell;
 import org.telegram.ui.Cells.LoadingCell;
@@ -92,7 +94,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
         searchResult.addAll(response.getPosts());
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!response.getPosts().isEmpty()) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, true, false);
         }
 
 
@@ -171,7 +173,7 @@ public class PostsSearchAdapter extends BaseSearchAdapterRecycler {
         searchResult.addAll(response.getPosts());
         //TODO notify Activity to run postsAdapter.notifyDataSetChanged();
         if (!response.getPosts().isEmpty()) {
-            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsNeedReload);
+            NotificationCenter.getInstance().postNotificationName(NotificationCenter.postsRequestFinished, true, false);
         }
         if (delegate != null) {
             delegate.searchStateChanged(false);

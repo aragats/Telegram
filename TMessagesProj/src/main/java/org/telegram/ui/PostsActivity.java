@@ -253,8 +253,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsRefresh);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.locationServiceDisabled);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.postRequestFinished);
-            NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsNeedReload);
+            NotificationCenter.getInstance().addObserver(this, NotificationCenter.postsRequestFinished);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.updateInterfaces);
             NotificationCenter.getInstance().addObserver(this, NotificationCenter.locationPermissionGranted);
@@ -319,8 +318,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsRefresh);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.undefinedLocation);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.locationServiceDisabled);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postRequestFinished);
-            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsNeedReload);
+            NotificationCenter.getInstance().removeObserver(this, NotificationCenter.postsRequestFinished);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.emojiDidLoaded);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.updateInterfaces);
             NotificationCenter.getInstance().removeObserver(this, NotificationCenter.locationPermissionGranted);
@@ -854,30 +852,24 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                 builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
                 showDialog(builder.create());
             }
-        } else if (id == NotificationCenter.postRequestFinished) {
+        } else if (id == NotificationCenter.postsRequestFinished) {
+            boolean reloaded = false;
             boolean withError = false;
             if (args != null && args.length != 0) {
-                withError = (boolean) args[0];
+                reloaded = (boolean) args[0]; //reload is true.
+                if (args.length > 1) {
+                    withError = (boolean) args[1];
+                }
+            }
+            if (reloaded) {
+                layoutManager.scrollToPosition(0);
             }
             notifyDateSetChanged();
             updateViewLayers(withError);
             stopRefreshingProgressView();
             if (withError) {
-                Toast.makeText(((Context) getParentActivity()), "Load posts error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getParentActivity(), "Load posts error", Toast.LENGTH_SHORT).show(); // TODO localize
             }
-        } else if (id == NotificationCenter.postsNeedReload) {
-//            hideProgressView();
-            boolean scrollToTop = false;
-            if (args != null && args.length != 0) {
-                scrollToTop = (boolean) args[0];
-            }
-
-            if (scrollToTop) {
-                layoutManager.scrollToPosition(0);
-            }
-            notifyDateSetChanged();
-            updateViewLayers(false);
-            stopRefreshingProgressView();
         } else if (id == NotificationCenter.emojiDidLoaded) {
             if (postListView != null) {
                 updateVisibleRows(0);

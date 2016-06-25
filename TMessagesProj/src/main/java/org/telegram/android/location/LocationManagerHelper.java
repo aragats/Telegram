@@ -15,6 +15,7 @@ import android.os.Bundle;
 
 import org.telegram.messenger.TLRPC;
 import org.telegram.utils.CollectionUtils;
+import org.telegram.utils.Constants;
 import org.telegram.utils.Permissions;
 import org.telegram.utils.StringUtils;
 
@@ -367,7 +368,7 @@ public class LocationManagerHelper {
         }
         Coordinates coordinates = new Coordinates();
         coordinates.setCoordinates(Arrays.asList(location.getLongitude(), location.getLatitude()));
-        coordinates.setType("Point");
+        coordinates.setType(Constants.POINT);
         return coordinates;
     }
 

@@ -313,6 +313,11 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                     }
                     finishFragment();
                 } else if (id == done_button) {
+                    Activity activity = getParentActivity();
+                    if (!Permissions.storagePermitted && activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        activity.requestPermissions(Permissions.STORAGE_PERMISSION_GROUP, Permissions.STORAGE_REQUEST);
+                        return;
+                    }
                     Post post = buildPost();
                     boolean valid = validatePost(post, false);
                     if (valid) {
@@ -1488,13 +1493,13 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             public void didSelectLocation(TLRPC.MessageMedia location) {
                 Coordinates coordinates = new Coordinates();
                 coordinates.setCoordinates(Arrays.asList(location.geo._long, location.geo.lat));
-                coordinates.setType("Point");
+                coordinates.setType(Constants.POINT);
 //                PostCreateActivity.this.userCoordinates = coordinates; // TODO I do not need to change userCoordinates.
                 Venue venue = new Venue();
                 if (location.geoPlace != null) {
                     Coordinates placeCoordinates = new Coordinates();
                     placeCoordinates.setCoordinates(Arrays.asList(location.geoPlace._long, location.geoPlace.lat));
-                    placeCoordinates.setType("Point");
+                    placeCoordinates.setType(Constants.POINT);
                     venue.setCoordinates(placeCoordinates);
                 } else {
                     venue.setCoordinates(coordinates);

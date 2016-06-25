@@ -27,8 +27,8 @@ public class NotificationCenter {
     public static final int switchToOnlineMode = totalEvents++;
     public static final int stopRefreshingView = totalEvents++;
     public static final int venuesNeedReload = totalEvents++;
-    public static final int postsNeedReload = totalEvents++;
-    public static final int postRequestFinished = totalEvents++;
+//    public static final int postsNeedReload = totalEvents++;
+    public static final int postsRequestFinished = totalEvents++;
     public static final int undefinedLocation = totalEvents++;
     public static final int locationServiceDisabled = totalEvents++;
     public static final int newPostSaved = totalEvents++;

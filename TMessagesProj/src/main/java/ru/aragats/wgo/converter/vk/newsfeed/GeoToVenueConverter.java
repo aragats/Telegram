@@ -27,7 +27,7 @@ public class GeoToVenueConverter extends AbstractConverter<Geo, Venue> {
         target.setCoordinates(coordinates);
         target.setName("");
         target.setAddress("");
-        coordinates.setType("Point");
+        coordinates.setType(Constants.POINT);
         String coordinatesStr = source.getCoordinates();
         if (!StringUtils.isEmpty(coordinatesStr)) {
             String[] coordinatesStrArr = coordinatesStr.trim().split("\\s+");

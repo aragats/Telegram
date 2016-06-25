@@ -1,5 +1,7 @@
 package ru.aragats.wgo.rest.mock;
 
+import org.telegram.utils.Constants;
+
 import ru.aragats.wgo.dto.Coordinates;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class CoordinatesServiceMock {
 
     public static Coordinates generateCoordinates() {
         Coordinates result = new Coordinates();
-        result.setType("Point");
+        result.setType(Constants.POINT);
         Random random = new Random();
         result.setCoordinates(Arrays.asList(180 * random.nextDouble(), 90 * random.nextDouble()));
         return result;
