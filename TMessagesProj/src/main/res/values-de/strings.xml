@@ -179,6 +179,23 @@
     <string name="EnableGPS">Bitte aktivieren Sie GPS auf Ihrem Handy.</string>
     <!--TODO check gramma-->
     <string name="LocationAccess">Aracle braucht auf den Standort ihres Geräts zuzugreifen.</string>
+    <!--TODO check gramma-->
+    <!--Error-->
+    <string name="InvalidLocation">Ungültiger Standort. Bitte wählen Sie den Ort innerhalb des Kreises.</string>
+    <string name="UnsupportedContent">Nicht unterstützte Inhalte.</string>
+    <string name="ErrorSavePost">Fehler beim Speichern.</string>
+
+    <string name="InvalidPhoto">Sie nahm das alte Foto. Bitte benutzen Sie den aktuellen Foto aus den letzten 7 Tagen.</string>
+    <!--I do not need it -->
+    <string name="InvalidPost">Ungültige Post. Einige Parameter werden vermisst.</string>
+    <string name="InvalidText">Leere Text. Bitte beschreiben Sie die Situation.</string>
+    <string name="InvalidLongText">Der Text ist zu lang. Bitte verwenden Sie maximal 140 Zeichen.</string>
+    <string name="PhotoIsNotChosen">Das Foto ist nicht angebracht. Bitte wählen Sie eine entsprechende Foto.</string>
+    <string name="InvalidVenue">Der Veranstaltungsort oder Koordinaten nicht angebracht ist. Bitte wählen Sie geeigneten Ort oder Koordinaten.</string>
+    <!--TODO-gramma-->
+    <string name="FailedLoadData">Die Daten konnten nicht geladen werden.</string>
+
+    <!--TODO-->
     <string name="Synchronize">Synchronisieren</string>
     <string name="TryAgain">Versuch es noch einmal</string>
     <string name="LoadDataFailed">Daten können nicht geladen. Bitte überprüfen Sie Ihre Netzwerkverbindung.</string>

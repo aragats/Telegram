@@ -506,7 +506,7 @@ public class LocationActivityAragats extends BaseFragment implements Notificatio
                                 delegate.didSelectLocation(location);
                                 finishFragment();
                             } else {
-                                Toast.makeText(getParentActivity(), "Invalid location. Choose the location inside the circle", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getParentActivity(), LocaleController.getString("InvalidLocation", R.string.InvalidLocation), Toast.LENGTH_LONG).show();
                             }
                         }
                     } else {

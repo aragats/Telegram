@@ -484,7 +484,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
 
 
 //                refreshContent();
-//                Toast.makeText(((Context) getParentActivity()), "REFRESH BUTTON is CLICKED", Toast.LENGTH_SHORT).show();
                 // Probably refresh icon disappear when we update the adapter the content. Because I should not use this method. OR NOT . I think it is ok to use this method. according to tutorial
 //                stopRefreshingProgressView();
 //                postsAdapter.notifyDataSetChanged();
@@ -833,7 +832,6 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         if (id == NotificationCenter.stopRefreshingView) {
             stopRefreshingProgressView();
         } else if (id == NotificationCenter.locationServiceDisabled || id == NotificationCenter.undefinedLocation) {
-//            Toast.makeText(((Context) getParentActivity()), "Please, enable gps on your phone", Toast.LENGTH_SHORT).show();
             stopRefreshingProgressView();
             Activity context = getParentActivity();
             if (context != null) {
@@ -871,7 +869,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
             updateViewLayers(withError, id);
             stopRefreshingProgressView();
             if (withError) {
-                Toast.makeText(getParentActivity(), "Load posts error", Toast.LENGTH_SHORT).show(); // TODO localize
+                Toast.makeText(getParentActivity(), LocaleController.getString("FailedLoadData", R.string.FailedLoadData), Toast.LENGTH_SHORT).show(); // TODO localize
             }
         } else if (id == NotificationCenter.emojiDidLoaded) {
             if (postListView != null) {
@@ -888,6 +886,9 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         } else if (id == NotificationCenter.offlinePostsLoaded) {
 //            layoutManager.scrollToPosition(0);
 //            startRefreshingProgressView();
+            if (!Permissions.checkStoragePermission(getParentActivity())) {
+                return;
+            }
             PostsController.getInstance().loadPosts(null, null, 0, Constants.POST_COUNT, true, mode); // TODO why mode is false /// aaa becaue different instances !!!
         } else if (id == NotificationCenter.switchToOfflineMode) {
             if (this.mode != PostMode.LOCAL) {

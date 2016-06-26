@@ -79,12 +79,12 @@ public class AvatarDrawable extends Drawable {
             return id;
         }
         try {
-            String str;
-            if (id >= 0) {
-                str = String.format(Locale.US, "%d%d", id, UserConfig.getClientUserId());
-            } else {
-                str = String.format(Locale.US, "%d", id);
-            }
+            String str = String.format(Locale.US, "%d", id);
+//            if (id >= 0) {
+//                str = String.format(Locale.US, "%d%d", id, UserConfig.getClientUserId());
+//            } else {
+//                str = String.format(Locale.US, "%d", id);
+//            }
             if (str.length() > 15) {
                 str = str.substring(0, 15);
             }

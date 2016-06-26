@@ -120,6 +120,7 @@ public class ApplicationLoader extends Application {
         }
 
         UserConfig.loadConfig();
+        UserConfig.loadConfigAragats();
         //init instance
         PostsController.getInstance();
         if (UserConfig.getCurrentUser() != null) {

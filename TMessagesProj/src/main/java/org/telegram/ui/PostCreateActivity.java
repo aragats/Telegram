@@ -935,30 +935,30 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                postCreateActivityEnterView.setFieldText("");
 //            }
             progressDialog.dismiss();
-            Toast.makeText(getParentActivity(), "Error in saving post", Toast.LENGTH_LONG).show();
+            Toast.makeText(getParentActivity(), LocaleController.getString("ErrorSavePost", R.string.ErrorSavePost), Toast.LENGTH_LONG).show();
         } else if (id == NotificationCenter.invalidPost) {
             progressDialog.dismiss();
             NotificationEnum reason = NotificationEnum.INVALID_POST;
             if (args != null && args.length > 0) {
                 reason = (NotificationEnum) args[0];
             }
-            String message = "Invalid post. Some parameters are missing.";
+            String message = LocaleController.getString("InvalidPost", R.string.InvalidPost);
             switch (reason) {
                 case PHOTO_DATE_OLD:
                     //date
-                    message = "You picked old photo. Please use recent photo from the last 7 days.";
+                    message = LocaleController.getString("InvalidPhoto", R.string.InvalidPhoto);
                     break;
                 case POST_TEXT_EMPTY:
-                    message = "Empty text. Please describe the situation.";
+                    message = LocaleController.getString("InvalidText", R.string.InvalidText);
                     break;
                 case POST_TEXT_LENGTH:
-                    message = "The text is too long. Please maximum 140 characters.";
+                    message = LocaleController.getString("InvalidLongText", R.string.InvalidLongText);
                     break;
                 case PHOTO_NOT_SET:
-                    message = "The photo is not chosen. Please choose appropriate photo.";
+                    message = LocaleController.getString("PhotoIsNotChosen", R.string.PhotoIsNotChosen);
                     break;
                 case VENUE_NOT_SET:
-                    message = "The venue or coordinates is not chosen. Please choose appropriate venue or coordinates.";
+                    message = LocaleController.getString("InvalidVenue", R.string.InvalidVenue);
                     break;
 
             }

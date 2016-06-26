@@ -18,6 +18,7 @@ import ru.aragats.aracle.R;
 
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.UserConfig;
+import org.telegram.utils.StringUtils;
 
 import java.util.HashMap;
 
@@ -30,6 +31,7 @@ public class ContactsController {
 
 
     private static volatile ContactsController Instance = null;
+
     public static ContactsController getInstance() {
         ContactsController localInstance = Instance;
         if (localInstance == null) {
@@ -80,7 +82,7 @@ public class ContactsController {
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
         inviteText = preferences.getString("invitetext", null);
         int time = preferences.getInt("invitetexttime", 0);
-        if (!updatingInviteText && (inviteText == null || time + 86400 < (int)(System.currentTimeMillis() / 1000))) {
+        if (!updatingInviteText && (inviteText == null || time + 86400 < (int) (System.currentTimeMillis() / 1000))) {
             updatingInviteText = true;
 
             //Load from the server invite message for lang async and save to settings
@@ -120,7 +122,8 @@ public class ContactsController {
         if (UserConfig.isClientActivated()) {
             if (accounts.length == 1) {
                 Account acc = accounts[0];
-                if (!acc.name.equals(UserConfig.getCurrentUser().getPhone())) {
+                if (!StringUtils.isEmpty(UserConfig.getCurrentUser().getPhone()) &&
+                        !acc.name.equals(UserConfig.getCurrentUser().getPhone())) {
                     recreateAccount = true;
                 } else {
                     currentAccount = acc;
@@ -137,7 +140,7 @@ public class ContactsController {
             for (Account c : accounts) {
                 am.removeAccount(c, null, null);
             }
-            if (UserConfig.isClientActivated()) {
+            if (UserConfig.isClientActivated() && !StringUtils.isEmpty(UserConfig.getCurrentUser().getPhone())) {
                 try {
                     //TODO UserConfig.getCurrentUser() is null. Deshalb Method wirft Exception.
                     currentAccount = new Account(UserConfig.getCurrentUser().getPhone(), "ru.aragats.wgo");

@@ -402,7 +402,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     }
 
                     if (error) {
-                        Toast.makeText(this, "Unsupported content", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, LocaleController.getString("UnsupportedContent", R.string.UnsupportedContent), Toast.LENGTH_SHORT).show();
                     }
                 }
             }

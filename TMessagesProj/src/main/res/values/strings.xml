@@ -176,6 +176,21 @@
     <string name="NothingHappens">Nothing is going on here.</string>
     <string name="EnableGPS">Please enable GPS on your phone.</string>
     <string name="LocationAccess">Aracle needs to access the location of your device.</string>
+    <!--ERRORS-->
+    <string name="InvalidLocation">Invalid location. Please choose the location inside the circle.</string>
+    <string name="UnsupportedContent">Unsupported content.</string>
+    <string name="ErrorSavePost">Error while saving the post.</string>
+
+    <string name="InvalidPhoto">You picked the old photo. Please use the recent photo from the last 7 days.</string>
+    <!--I do not need it -->
+    <string name="InvalidPost">Invalid post. Some parameters are missed.</string>
+    <string name="InvalidText">Empty text. Please describe the situation.</string>
+    <string name="InvalidLongText">The text is too long. Please use maximum 140 characters.</string>
+    <string name="PhotoIsNotChosen">The photo is not attached. Please choose an appropriate photo.</string>
+    <string name="InvalidVenue">The venue or coordinates is not attached. Please choose appropriate venue or coordinates.</string>
+    <!---->
+    <string name="FailedLoadData">Failed to load data.</string>
+
     <string name="Synchronize">Synchronize</string>
     <string name="TryAgain">Try again</string>
     <string name="LoadDataFailed">Cannot load data. Please check your network connection.</string>

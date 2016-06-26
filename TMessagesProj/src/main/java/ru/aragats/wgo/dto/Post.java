@@ -19,6 +19,9 @@ public class Post implements Serializable {
     private List<Image> images;
     private long createdDate;
 
+    //Anonymized userId
+    private String userId;
+
     //  transient
     private transient float distance;
     private transient boolean local;

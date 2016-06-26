@@ -13,10 +13,13 @@ import android.content.SharedPreferences;
 import android.util.Base64;
 
 import org.telegram.android.PostsStorage;
+import org.telegram.utils.StringUtils;
+
 import ru.aragats.wgo.dto.User;
 import ru.aragats.wgo.rest.mock.UserServiceMock;
 
 import java.io.File;
+import java.util.UUID;
 
 import ru.aragats.aracle.ApplicationLoader;
 
@@ -72,10 +75,6 @@ public class UserConfig {
 
     //TODO activated user.
     public static boolean isClientActivated() {
-        //TODO-mock
-        if(true){
-            return true;
-        }
         synchronized (sync) {
             return currentUser != null;
         }
@@ -97,6 +96,22 @@ public class UserConfig {
         synchronized (sync) {
             currentUser = user;
         }
+    }
+
+    public static void loadConfigAragats() {
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("userconfing", Context.MODE_PRIVATE);
+
+        String userId = preferences.getString("userId", "");
+        if (StringUtils.isEmpty(userId)) {
+            userId = UUID.randomUUID().toString();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("userId", userId);
+            editor.commit();
+        }
+        currentUser = new User();
+        currentUser.setId(userId);
+
+
     }
 
     public static void loadConfig() {
@@ -166,7 +181,6 @@ public class UserConfig {
             }
         }
     }
-
 
 
     public static void clearConfig() {
