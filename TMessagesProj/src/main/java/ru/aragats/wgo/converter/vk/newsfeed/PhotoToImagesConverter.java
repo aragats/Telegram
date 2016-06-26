@@ -16,9 +16,7 @@ import ru.aragats.wgo.dto.vk.newsfeed.Photo;
 public class PhotoToImagesConverter extends AbstractConverter<Photo, List<Image>> {
     @Override
     public List<Image> convertIntern(Photo source) {
-        if (StringUtils.isEmpty(source.getPhoto604())
-                || StringUtils.isEmpty(source.getPhoto807())
-                || StringUtils.isEmpty(source.getPhoto1280())) {
+        if (StringUtils.isEmpty(source.getPhoto604())) {
             return null;
         }
 
@@ -31,6 +29,12 @@ public class PhotoToImagesConverter extends AbstractConverter<Photo, List<Image>
 
         Image image = new Image();
         image.setUrl(source.getPhoto1280());
+        if (StringUtils.isEmpty(image.getUrl())) {
+            image.setUrl(source.getPhoto807());
+        }
+        if (StringUtils.isEmpty(image.getUrl())) {
+            image.setUrl(source.getPhoto604());
+        }
         image.setWidth(source.getWidth());   // TODO wrong
         image.setHeight(source.getHeight()); // TODO wrong
         target.add(image);
