@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.android.LocaleController;
+import org.telegram.messenger.UserConfig;
 
 import ru.aragats.aracle.R;
 
@@ -213,6 +214,7 @@ public class IntroActivity extends Activity {
                     return;
                 }
                 startPressed = true;
+                UserConfig.activateApp();
                 Intent intent2 = new Intent(IntroActivity.this, LaunchActivity.class);
                 intent2.putExtra("fromIntro", true);
                 startActivity(intent2);

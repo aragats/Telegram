@@ -85,7 +85,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         //Set parentActivity to ApplicationLoader
         ApplicationLoader.parentActivity = this;
 
-        if (!UserConfig.isClientActivated()) {
+        if (!UserConfig.isAppActivated()) {
             Intent intent = getIntent();
             if (intent != null && intent.getAction() != null && (Intent.ACTION_SEND.equals(intent.getAction()) || intent.getAction().equals(Intent.ACTION_SEND_MULTIPLE))) {
                 super.onCreate(savedInstanceState);

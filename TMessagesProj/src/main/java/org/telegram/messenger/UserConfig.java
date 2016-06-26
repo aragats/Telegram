@@ -25,6 +25,7 @@ import ru.aragats.aracle.ApplicationLoader;
 
 public class UserConfig {
 
+    private static boolean appActivated;
     private static User currentUser;
     public static int lastLocalId = -210000;
     private final static Object sync = new Object();
@@ -80,6 +81,18 @@ public class UserConfig {
         }
     }
 
+    public static boolean isAppActivated() {
+        return appActivated;
+    }
+
+    public static void activateApp() {
+        appActivated = true;
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("userconfing", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("appActivated", appActivated);
+        editor.commit();
+    }
+
     public static String getClientUserId() {
         synchronized (sync) {
             return currentUser != null ? currentUser.getId() : null;
@@ -110,6 +123,8 @@ public class UserConfig {
         }
         currentUser = new User();
         currentUser.setId(userId);
+
+        appActivated = preferences.getBoolean("appActivated", false);
 
 
     }
