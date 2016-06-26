@@ -55,6 +55,7 @@ import ru.aragats.wgo.dto.Image;
 import ru.aragats.wgo.dto.Post;
 import ru.aragats.wgo.dto.Venue;
 
+import org.telegram.messenger.UserConfig;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -267,6 +268,8 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //            post.setCoordinates(userCoordinates); // TODO immer userCoordinates. So does not matter where post is attached ???
             String text = postCreateActivityEnterView.getFieldTrimmedText();
             post.setText(text);
+            //set userId
+            post.setUserId(UserConfig.getClientUserId());
         }
 
 
@@ -288,6 +291,9 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             String address = LocationManagerHelper.getInstance().getAddress(getParentActivity(),
                     coordinates, defaultAddress);
             post.getVenue().setAddress(address);
+        }
+        if (StringUtils.isEmpty(post.getUserId())) {
+            post.setUserId(UserConfig.getClientUserId());
         }
 
     }

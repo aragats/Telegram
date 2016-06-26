@@ -92,6 +92,13 @@ public class Post implements Serializable {
         this.createdDate = createdDate;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public String getVenuePreviewImageUrl() {
         if (this.getVenue() == null || this.getVenue().getIcon() == null) {
