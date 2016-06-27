@@ -176,9 +176,17 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
     }
 
 
-    public void addPost(final Post post) {
+    public void addPost(final Post post, boolean photoObligatory) {
 
+        if (post.getImage() != null) {
+            uploadPhotoAndSavePost(post);
+        } else if (!photoObligatory) {
+            savePost(post);
+        }
 
+    }
+
+    private void uploadPhotoAndSavePost(final Post post) {
         MediaController.getInstance().saveBitmap(post.getImage());
 
 

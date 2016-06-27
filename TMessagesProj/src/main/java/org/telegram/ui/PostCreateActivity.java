@@ -254,10 +254,14 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 
 
     private Post buildPost() {
-        Post post = null;
+        Post post;
         if (!CollectionUtils.isEmpty(posts)) {
             post = posts.get(0);
-            post.setVenue(venue);
+        } else {
+            post = new Post();
+            post.setCreatedDate(new Date().getTime());
+        }
+        post.setVenue(venue);
 
 //                        //TODO invent better way. save prefix and suffix also ??  to build my custom utl instead of replacing from existing.
 //                        Image image = post.getVenue().getImage();
@@ -266,11 +270,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
 //                            post.getVenue().setImage(image);
 //                        }
 //            post.setCoordinates(userCoordinates); // TODO immer userCoordinates. So does not matter where post is attached ???
-            String text = postCreateActivityEnterView.getFieldTrimmedText();
-            post.setText(text);
-            //set userId
-            post.setUserId(UserConfig.getClientUserId());
-        }
+        String text = postCreateActivityEnterView.getFieldTrimmedText();
+        post.setText(text);
+        //set userId
+        post.setUserId(UserConfig.getClientUserId());
 
 
         return post;
@@ -323,11 +326,10 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
                         return;
                     }
                     Post post = buildPost();
-                    boolean valid = validatePost(post, false);
-                    if (valid) {
+                    if (validatePost(post, false, false)) {
                         progressDialog.show();
                         reBuildValidPost(post);
-                        PostsController.getInstance().addPost(post);
+                        PostsController.getInstance().addPost(post, false);
                     }
                 } else if (id == attach_photo) {
                     attachPhotoHandle();
@@ -1612,7 +1614,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         }
     }
 
-    private boolean validatePost(Post post, boolean withNotification) {
+    private boolean validatePost(Post post, boolean photoObligatory, boolean withNotification) {
         if (post == null) {
             if (withNotification) {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.INVALID_POST);
@@ -1637,7 +1639,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
             }
             return false;
         }
-        if (!validateImage(post.getImage())) {
+        if (photoObligatory && !validateImage(post.getImage())) {
             if (withNotification) {
                 NotificationCenter.getInstance().postNotificationName(NotificationCenter.invalidPost, NotificationEnum.PHOTO_NOT_SET);
             }
@@ -1843,8 +1845,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
         doneItem.setIcon(R.drawable.ic_done_gray); // default
         doneItem.setEnabled(false);
         Post post = buildPost();
-        boolean valid = validatePost(post, false);
-        if (valid) {
+        if (validatePost(post, false, false)) {
             doneItem.setIcon(R.drawable.ic_done);
             doneItem.setEnabled(true);
         }
