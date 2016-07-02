@@ -424,7 +424,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 }
 
                 List<Post> filteredPosts = filterVKPostsByLikes(posts);
-                if (CollectionUtils.isEmpty(filteredPosts) && !StringUtils.isEmpty(nextFrom)) {
+                if (!CollectionUtils.isEmpty(posts) && CollectionUtils.isEmpty(filteredPosts) && !StringUtils.isEmpty(nextFrom)) {
                     postRequest.setIdOffset(nextFrom);
                     loadVKNewsFeed(postRequest, reload);
                     return;
