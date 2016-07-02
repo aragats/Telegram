@@ -22,7 +22,7 @@ public class Constants {
 
 
     public static int POST_COUNT = 20;
-
+    public static int MIN_LIKES = 0;
     public static final int MIN_TEXT_LENGTH = 4;
     public static final int MAX_TEXT_LENGTH = 140;
     //https://new.vk.com/dev/photos.search Radius of search in meters (works very approximately). Available values: 10, 100, 800, 6000, 50000.

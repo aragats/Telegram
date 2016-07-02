@@ -417,7 +417,20 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 VKNewsFeedResponse vkNewsFeedResponse = response.body();
                 List<Post> posts = vkNewsFeedResponseToPostListConverter.convert(vkNewsFeedResponse != null ?
                         vkNewsFeedResponse.getResponse() : null);
-                posts = filterVKPostsByLikes(posts);
+
+                if (vkNewsFeedResponse != null && vkNewsFeedResponse.getResponse() != null) {
+                    NewsFeedResponse newsFeedResponse = vkNewsFeedResponse.getResponse();
+                    nextFrom = newsFeedResponse.getNextFrom();
+                }
+
+                List<Post> filteredPosts = filterVKPostsByLikes(posts);
+                if (CollectionUtils.isEmpty(filteredPosts) && !StringUtils.isEmpty(nextFrom)) {
+                    postRequest.setIdOffset(nextFrom);
+                    loadVKNewsFeed(postRequest, reload);
+                    return;
+                }
+
+                posts = filteredPosts;
                 if (!CollectionUtils.isEmpty(posts)
                         && (vkNewsFeedResponse != null ? vkNewsFeedResponse.getResponse() : null) != null
                         && !CollectionUtils.isEmpty(vkNewsFeedResponse.getResponse().getProfiles())) {
@@ -431,16 +444,8 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
                 if (postResponse.getPosts() == null) {
                     postResponse.setPosts(new ArrayList<Post>());
                 }
-                if (vkNewsFeedResponse != null) {
-                    NewsFeedResponse newsFeedResponse = vkNewsFeedResponse.getResponse();
-                    if (newsFeedResponse != null) {
-                        String nextFrom = newsFeedResponse.getNextFrom();
-                        postResponse.setNextFrom(nextFrom);
-                    }
-                }
-
+                postResponse.setNextFrom(nextFrom);
                 postResponse.setSource("VK");
-                nextFrom = postResponse.getNextFrom();
                 processLoadedPosts(postResponse, reload);
             }
 
@@ -518,7 +523,7 @@ public class PostsController implements NotificationCenter.NotificationCenterDel
         }
         List<Post> result = new ArrayList<>();
         for (Post post : posts) {
-            if (post.getLikes() >= 10) {
+            if (post.getLikes() >= Constants.MIN_LIKES) {
                 result.add(post);
             }
         }

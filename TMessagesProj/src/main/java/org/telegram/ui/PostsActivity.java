@@ -100,6 +100,7 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
     private EmptyTextProgressView searchEmptyView;
     private ProgressBar progressView;
     private LinearLayout emptyView;
+    private Button vkFeedLoadButton;
     private ImageView floatingButton;
     private TextView textViewForEmptyView;
 
@@ -640,6 +641,24 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
         emptyView.addView(tryAgainButton, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 //        emptyView.addView(tryAgainButton);
 
+        vkFeedLoadButton = new Button(context);
+        vkFeedLoadButton.setTransformationMethod(null);
+        vkFeedLoadButton.setText(LocaleController.getString("VKPosts", R.string.VKPosts));
+        vkFeedLoadButton.setTextColor(0xff377aae);
+//        vkFeedLoadButton.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf")); // ??
+        vkFeedLoadButton.setBackgroundColor(0xffd7e8f7); // background is font color of the text in address subtitle
+        vkFeedLoadButton.setGravity(Gravity.CENTER);
+        vkFeedLoadButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        vkFeedLoadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NotificationCenter.getInstance().postNotificationName(NotificationCenter.switchToVKNewsFeedMode);
+            }
+        });
+
+        vkFeedLoadButton.setVisibility(View.GONE);
+        emptyView.addView(vkFeedLoadButton, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, 0, AndroidUtilities.dp(5), 0, 0));
+
 
         progressView = new ProgressBar(context);
         progressView.setVisibility(View.INVISIBLE);
@@ -1166,6 +1185,11 @@ public class PostsActivity extends BaseFragment implements NotificationCenter.No
                             } else {
                                 textViewForEmptyView.setText(LocaleController.getString("NoPosts", R.string.NoPosts));
 
+                            }
+                            if (mode == PostMode.SERVER) {
+                                vkFeedLoadButton.setVisibility(View.VISIBLE);
+                            } else {
+                                vkFeedLoadButton.setVisibility(View.GONE);
                             }
 
                         }

@@ -56,6 +56,8 @@ public class NewsFeedItemToPostConverter extends AbstractConverter<NewsFeedItem,
         }
         result.setOwnerId(source.getOwnerId());
 
+        //TODO mock
+//        result.setText("");
 
         return result;
     }
