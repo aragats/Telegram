@@ -1660,7 +1660,7 @@ public class PostCreateActivity extends BaseFragment implements NotificationCent
     }
 
     private boolean validateText(String text) {
-        return !StringUtils.isEmpty(text) && (text.trim().length() <= Constants.MAX_TEXT_LENGTH);
+        return !StringUtils.isEmpty(text) && (text.trim().length() <= Constants.MAX_TEXT_LENGTH) && (text.trim().length() >= Constants.MIN_TEXT_LENGTH);
     }
 
     private boolean validateImage(Image image) {

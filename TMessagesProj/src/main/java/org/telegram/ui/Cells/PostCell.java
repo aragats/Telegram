@@ -329,7 +329,7 @@ public class PostCell extends BaseCell {
                 } else if (x >= avatarImage.getImageX() && x <= avatarImage.getImageX() + avatarSize && y >= avatarImage.getImageY() && y < avatarImage.getImageY() + avatarSize) {
                     clickedArea = ClickedArea.AVATAR;
                     result = true;
-                } else if (x >= avatarImage.getImageX() + avatarSize && x <= getMeasuredWidth() && y >= avatarImage.getImageY() && y < photoImage.getImageY()) {
+                } else if (x >= avatarImage.getImageX() + avatarSize && x <= getMeasuredWidth() && y >= avatarImage.getImageY() && y < avatarTop + AndroidUtilities.dp(47)) {
                     clickedArea = ClickedArea.VENUE;
                     result = true;
                 } else {
